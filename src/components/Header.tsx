@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,7 +44,7 @@ const Header = () => {
             Service Providers
           </button>
           <button
-            onClick={() => scrollToSection("technology")}
+            onClick={() => navigate("/search")}
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
           >
             Find Stylist

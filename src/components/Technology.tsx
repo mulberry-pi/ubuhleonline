@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import carouselClient from "@/assets/carousel-client.jpg";
 import carouselInspiration from "@/assets/carousel-inspiration.jpg";
 import carouselPreview from "@/assets/carousel-preview.jpg";
 
 const Technology = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
@@ -43,7 +45,7 @@ const Technology = () => {
               Upload a selfie and your style inspiration photo to see an AI-generated preview of
               your look before booking. Find the perfect stylist who can bring your vision to life.
             </p>
-            <Button className="bg-primary hover:bg-primary/90 text-white px-8 hover-glow">
+            <Button className="bg-primary hover:bg-primary/90 text-white px-8 hover-glow" onClick={() => navigate('/search')}>
               Try It Out Now
             </Button>
           </div>

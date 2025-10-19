@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-image.jpg";
 import { Sparkles, Shield, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="hero" className="min-h-screen flex items-center pt-20 pb-12 px-6">
       <div className="container mx-auto">
@@ -19,7 +22,7 @@ const Hero = () => {
               Using your style preview to instantly match you with trusted providers tailored to
               your needs.
             </p>
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 hover-glow">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 hover-glow" onClick={() => navigate('/search')}>
               Get Started
             </Button>
           </div>

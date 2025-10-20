@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -26,9 +27,12 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
-          Ubuhle
-        </div>
+        <img 
+          src={logo} 
+          alt="Ubuhle" 
+          className="h-10 cursor-pointer" 
+          onClick={() => navigate("/")}
+        />
 
         <nav className="hidden md:flex items-center gap-8">
           <button

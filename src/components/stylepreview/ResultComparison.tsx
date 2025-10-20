@@ -98,7 +98,7 @@ const ResultComparison = ({
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
-            onClick={() => navigate("/search")}
+            onClick={() => navigate("/booking")}
             size="lg"
             className="hover-glow px-8"
           >

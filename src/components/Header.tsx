@@ -36,7 +36,7 @@ const Header = () => {
 
         <nav className="hidden md:flex items-center gap-8">
           <button
-            onClick={() => scrollToSection("technology")}
+            onClick={() => navigate("/style-preview")}
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
           >
             Style Previewing
@@ -54,7 +54,7 @@ const Header = () => {
             Find Stylist
           </button>
           <Button
-            onClick={() => scrollToSection("hero")}
+            onClick={() => navigate("/style-preview")}
             className="bg-primary hover:bg-primary/90 text-white px-6 hover-glow"
           >
             Get Started
@@ -62,7 +62,7 @@ const Header = () => {
         </nav>
 
         <Button
-          onClick={() => scrollToSection("hero")}
+          onClick={() => navigate("/style-preview")}
           className="md:hidden bg-primary hover:bg-primary/90 text-white hover-glow"
         >
           Get Started

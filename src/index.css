@@ -122,6 +122,10 @@ All colors MUST be HSL.
     @apply transition-all duration-300 hover:shadow-[0_0_30px_rgba(201,179,246,0.4)];
   }
 
+  .shadow-elegant {
+    box-shadow: var(--shadow-soft);
+  }
+
   .float-animation {
     animation: float 3s ease-in-out infinite;
   }

@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import carouselClient from "@/assets/carousel-client.jpg";
-import carouselInspiration from "@/assets/carousel-inspiration.jpg";
-import carouselPreview from "@/assets/carousel-preview.jpg";
+import carousel1 from "@/assets/carousel-1.png";
+import carousel2 from "@/assets/carousel-2.png";
+import carousel3 from "@/assets/carousel-3.png";
+import carousel4 from "@/assets/carousel-4.png";
 import carouselComposite from "@/assets/carousel-composite.png";
 
 const Technology = () => {
@@ -12,14 +13,11 @@ const Technology = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-    { image: carouselClient, label: "Your Selfie", caption: "Upload your photo" },
-    {
-      image: carouselInspiration,
-      label: "Style Inspiration",
-      caption: "Choose your desired look",
-    },
-    { image: carouselPreview, label: "AI Preview", caption: "See your transformation" },
-    { image: carouselComposite, label: "Complete Process", caption: "From selfie to styled preview" },
+    { image: carousel1 },
+    { image: carousel2 },
+    { image: carousel3 },
+    { image: carousel4 },
+    { image: carouselComposite },
   ];
 
   useEffect(() => {
@@ -53,7 +51,7 @@ const Technology = () => {
           </div>
 
           <div className="relative fade-in-up animation-delay-200">
-            <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-card aspect-square">
+            <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-card aspect-[4/3]">
               {slides.map((slide, index) => (
                 <div
                   key={index}
@@ -67,13 +65,9 @@ const Technology = () => {
                 >
                   <img
                     src={slide.image}
-                    alt={slide.label}
-                    className="w-full h-full object-cover"
+                    alt={`AI Style Preview ${index + 1}`}
+                    className="w-full h-full object-contain"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8">
-                    <p className="text-white font-semibold text-xl">{slide.label}</p>
-                    <p className="text-white/80">{slide.caption}</p>
-                  </div>
                 </div>
               ))}
             </div>

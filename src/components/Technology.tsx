@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import carouselClient from "@/assets/carousel-client.jpg";
 import carouselInspiration from "@/assets/carousel-inspiration.jpg";
 import carouselPreview from "@/assets/carousel-preview.jpg";
+import carouselComposite from "@/assets/carousel-composite.png";
 
 const Technology = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Technology = () => {
       caption: "Choose your desired look",
     },
     { image: carouselPreview, label: "AI Preview", caption: "See your transformation" },
+    { image: carouselComposite, label: "Complete Process", caption: "From selfie to styled preview" },
   ];
 
   useEffect(() => {

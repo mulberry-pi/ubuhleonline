@@ -1,6 +1,6 @@
 const Mission = () => {
   return (
-    <section className="py-20 px-6 bg-gradient-to-b from-secondary/30 to-background relative overflow-hidden">
+    <section className="py-20 px-6 bg-gradient-to-b from-secondary/30 to-background relative overflow-hidden mt-0">
       {/* Geometric Pattern Background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_hsl(266_80%_82%)_1px,_transparent_1px)] bg-[length:50px_50px]" />

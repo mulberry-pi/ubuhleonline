@@ -7,18 +7,18 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section id="hero" className="min-h-screen flex items-center pt-20 pb-12 px-6">
-      <div className="container mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="relative fade-in-up">
+    <section id="hero" className="min-h-screen flex items-center pt-20 pb-0">
+      <div className="w-full">
+        <div className="grid lg:grid-cols-2 gap-0 items-center">
+          <div className="relative fade-in-up h-full">
             <img
               src={heroImage}
               alt="Professional beauty consultant"
-              className="rounded-3xl shadow-2xl w-full object-cover"
+              className="w-full h-full object-cover"
             />
           </div>
 
-          <div className="space-y-6 fade-in-up animation-delay-200">
+          <div className="space-y-6 fade-in-up animation-delay-200 px-6 lg:px-12 py-12">
             <h1
               className="text-5xl lg:text-6xl font-bold leading-tight"
               style={{ fontFamily: "'Playfair Display', serif" }}

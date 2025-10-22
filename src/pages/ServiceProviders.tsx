@@ -100,36 +100,28 @@ const ServiceProviders = () => {
           <nav className="hidden md:flex items-center gap-8">
             <button
               onClick={() => navigate("/style-preview")}
-              className={`transition-colors font-medium text-[18px] tracking-[0.6px] ${
-                isScrolled ? "text-[#C9B3F6]" : "text-white"
-              }`}
+              className="text-white/90 hover:text-white transition-colors font-medium text-[18px] tracking-[0.6px]"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              Our Technology
-            </button>
-            <button
-              onClick={() => navigate("/search")}
-              className={`transition-colors font-medium text-[18px] tracking-[0.6px] ${
-                isScrolled ? "text-[#C9B3F6]" : "text-white"
-              }`}
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              Find Stylist
+              Style Previewing
             </button>
             <button
               onClick={() => navigate("/service-providers")}
-              className={`transition-colors font-medium text-[18px] tracking-[0.6px] ${
-                isScrolled ? "text-[#C9B3F6]" : "text-white"
-              }`}
+              className="text-white/90 hover:text-white transition-colors font-medium text-[18px] tracking-[0.6px]"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               Service Providers
             </button>
+            <button
+              onClick={() => navigate("/search")}
+              className="text-white/90 hover:text-white transition-colors font-medium text-[18px] tracking-[0.6px]"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              Find Stylist
+            </button>
             <Button
               onClick={() => navigate("/get-started")}
-              className={`px-6 transition-colors text-[18px] tracking-[0.6px] ${
-                isScrolled ? "bg-[#C9B3F6] text-[#261E36]" : "bg-white/10 text-white"
-              }`}
+              className="bg-white/10 text-white hover:bg-white/20 px-6 text-[18px] tracking-[0.6px]"
               style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 500 }}
             >
               Get Started
@@ -163,7 +155,7 @@ const ServiceProviders = () => {
         {/* Hero Content - Bottom Third, Left Aligned */}
         <div className="relative z-20 pb-20 px-6 md:px-12 lg:px-20 max-w-5xl">
           <h1
-            className="text-[42px] md:text-[48px] font-semibold text-white leading-[52px] md:leading-[60px] mb-4"
+            className="text-[36px] md:text-[42px] font-semibold text-white leading-[44px] md:leading-[52px] mb-4"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             Empowering beauty professionals with the tools to grow, connect, and thrive.
@@ -264,6 +256,12 @@ const ServiceProviders = () => {
 
       {/* Benefits Grid */}
       <section className="py-24" style={{ background: "#E8E0F5", padding: "100px 10%" }}>
+        <h2
+          className="text-[32px] font-semibold text-[#261E36] text-center mb-12"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
+        >
+          How you benefit from working with us
+        </h2>
         <div className="grid md:grid-cols-2 gap-8">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;

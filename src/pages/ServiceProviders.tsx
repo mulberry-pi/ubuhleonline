@@ -139,29 +139,37 @@ const ServiceProviders = () => {
       </header>
 
       {/* Hero Section with Video Background */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-end overflow-hidden">
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
           <div
             className="absolute inset-0 z-10"
             style={{
               background:
-                "linear-gradient(180deg, rgba(38,30,54,0.4) 0%, rgba(38,30,54,0.2) 100%)",
+                "linear-gradient(180deg, rgba(38,30,54,0.3) 0%, rgba(38,30,54,0.6) 100%)",
             }}
           />
-          <div className="w-full h-full bg-[#261E36]" />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative z-20 text-center px-6 max-w-4xl mx-auto">
+        {/* Hero Content - Bottom Third, Left Aligned */}
+        <div className="relative z-20 pb-20 px-6 md:px-12 lg:px-20 max-w-5xl">
           <h1
-            className="text-[52px] font-semibold text-white leading-[64px] mb-6"
+            className="text-[42px] md:text-[48px] font-semibold text-white leading-[52px] md:leading-[60px] mb-4"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             Empowering beauty professionals with the tools to grow, connect, and thrive.
           </h1>
           <p
-            className="text-[20px] text-[#E8E0F5] max-w-[700px] mx-auto mb-8"
+            className="text-[18px] text-[#E8E0F5] max-w-[600px] mb-6"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             Ubuhle helps stylists, salons, and technicians manage bookings, analyze trends, and

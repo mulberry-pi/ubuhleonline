@@ -42,7 +42,7 @@ const Header = () => {
             Style Previewing
           </button>
           <button
-            onClick={() => scrollToSection("services")}
+            onClick={() => navigate("/service-providers")}
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
           >
             Service Providers

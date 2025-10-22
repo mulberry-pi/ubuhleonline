@@ -54,7 +54,7 @@ const Header = () => {
             Find Stylist
           </button>
           <Button
-            onClick={() => navigate("/style-preview")}
+            onClick={() => navigate("/get-started")}
             className="bg-primary hover:bg-primary/90 text-white px-6 hover-glow"
           >
             Get Started
@@ -62,7 +62,7 @@ const Header = () => {
         </nav>
 
         <Button
-          onClick={() => navigate("/style-preview")}
+          onClick={() => navigate("/get-started")}
           className="md:hidden bg-primary hover:bg-primary/90 text-white hover-glow"
         >
           Get Started

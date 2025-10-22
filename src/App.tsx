@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Search from "./pages/Search";
 import StylePreview from "./pages/StylePreview";
 import Booking from "./pages/Booking";
+import GetStarted from "./pages/GetStarted";
+import ClientSignup from "./pages/ClientSignup";
+import ProviderSignup from "./pages/ProviderSignup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/search" element={<Search />} />
           <Route path="/style-preview" element={<StylePreview />} />
           <Route path="/booking" element={<Booking />} />
+          <Route path="/get-started" element={<GetStarted />} />
+          <Route path="/signup/client" element={<ClientSignup />} />
+          <Route path="/signup/provider" element={<ProviderSignup />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

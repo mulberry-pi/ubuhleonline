@@ -7,6 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }).max(100, { message: "Password must be less than 100 characters" }),
+  fullName: z.string().trim().min(1, { message: "Name is required" }).max(100, { message: "Name must be less than 100 characters" }).optional(),
+});
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,6 +28,20 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // Validate input
+      const validationData = isLogin 
+        ? { email, password }
+        : { email, password, fullName };
+      
+      const result = authSchema.safeParse(validationData);
+      
+      if (!result.success) {
+        const errorMessage = result.error.errors[0].message;
+        toast.error(errorMessage);
+        setLoading(false);
+        return;
+      }
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;

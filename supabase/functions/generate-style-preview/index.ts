@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
@@ -17,22 +18,22 @@ serve(async (req) => {
       throw new Error("Both selfie and inspiration images are required");
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
     console.log("Step 1: Analyzing inspiration image...");
 
     // Step 1: Analyze the inspiration image to extract style details
-    const analysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const analysisResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -65,24 +66,28 @@ serve(async (req) => {
     const styleDescription = analysisData.choices[0].message.content;
     console.log("Style analysis completed:", styleDescription.substring(0, 200) + "...");
 
-    console.log("Step 2: Generating style preview...");
+    console.log("Step 2: Analyzing selfie to describe the person...");
 
-    // Step 2: Generate preview by applying the style to the selfie
-    const generationResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Step 2: Analyze the selfie to get person details
+    const selfieAnalysisResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
+        model: "gpt-4o",
         messages: [
+          {
+            role: "system",
+            content: "You are a portrait description expert. Describe people accurately focusing on facial features, skin tone, face shape, and current hairstyle/appearance."
+          },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Transform this image by applying the following beauty style while keeping the person's facial features, skin tone, and overall appearance EXACTLY the same. Only change the hair/lashes according to this description:\n\n${styleDescription}\n\nIMPORTANT: Maintain the person's identity completely - same face, same skin, same person. Only the hairstyle/lashes should change to match the description.`
+                text: "Describe this person in detail: face shape, skin tone, facial features, current hairstyle, and overall appearance. Be specific and accurate so the person can be recreated in an image."
               },
               {
                 type: "image_url",
@@ -90,8 +95,46 @@ serve(async (req) => {
               }
             ]
           }
-        ],
-        modalities: ["image", "text"]
+        ]
+      }),
+    });
+
+    if (!selfieAnalysisResponse.ok) {
+      const errorText = await selfieAnalysisResponse.text();
+      console.error("Selfie analysis error:", selfieAnalysisResponse.status, errorText);
+      throw new Error(`Selfie analysis failed: ${errorText}`);
+    }
+
+    const selfieData = await selfieAnalysisResponse.json();
+    const personDescription = selfieData.choices[0].message.content;
+    console.log("Person description completed:", personDescription.substring(0, 200) + "...");
+
+    console.log("Step 3: Generating style preview with gpt-image-1...");
+
+    // Step 3: Generate the styled image combining person + style
+    const combinedPrompt = `Create a realistic portrait photo of a person with these exact characteristics:
+
+PERSON DETAILS (MUST MATCH EXACTLY):
+${personDescription}
+
+STYLE TO APPLY:
+${styleDescription}
+
+IMPORTANT: Keep the person's facial features, skin tone, and overall appearance IDENTICAL to the description. Only apply the hairstyle/lash style changes described. The result should look like a professional beauty salon photo.`;
+
+    const generationResponse = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-image-1",
+        prompt: combinedPrompt,
+        n: 1,
+        size: "1024x1536",
+        quality: "high",
+        output_format: "png"
       }),
     });
 
@@ -103,12 +146,16 @@ serve(async (req) => {
 
     const generationData = await generationResponse.json();
     
-    // Extract the generated image
-    const generatedImageUrl = generationData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract the generated image (gpt-image-1 returns base64)
+    const generatedImageBase64 = generationData.data?.[0]?.b64_json;
     
-    if (!generatedImageUrl) {
+    if (!generatedImageBase64) {
+      console.error("Generation response:", JSON.stringify(generationData));
       throw new Error("No image was generated");
     }
+
+    // Convert base64 to data URL
+    const generatedImageUrl = `data:image/png;base64,${generatedImageBase64}`;
 
     console.log("Style preview generated successfully");
 

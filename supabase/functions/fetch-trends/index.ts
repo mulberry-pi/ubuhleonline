@@ -25,13 +25,13 @@ serve(async (req) => {
     console.log("Fetching trends from Apify...");
 
     // Fetch from Instagram hashtag scraper dataset
-    const instagramDatasetId = "instagram-trends"; // Replace with actual dataset ID
+    const instagramDatasetId = "hO9JplZdPtMIwo6iD";
     const instagramResponse = await fetch(
       `https://api.apify.com/v2/datasets/${instagramDatasetId}/items?token=${APIFY_API_TOKEN}`
     );
     
     // Fetch from TikTok scraper dataset
-    const tiktokDatasetId = "tiktok-trends"; // Replace with actual dataset ID
+    const tiktokDatasetId = "D0Jo3fzMngJiBXSTl";
     const tiktokResponse = await fetch(
       `https://api.apify.com/v2/datasets/${tiktokDatasetId}/items?token=${APIFY_API_TOKEN}`
     );

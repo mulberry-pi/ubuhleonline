@@ -66,8 +66,8 @@ const StylistMatch = () => {
     }
   };
 
-  const handleBookStylist = (stylistId: string) => {
-    navigate(`/client/new-booking?provider=${stylistId}`);
+  const handleBookStylist = (providerId: string) => {
+    navigate(`/booking?provider=${providerId}`);
   };
 
   if (loading) {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import UploadInterface from "@/components/stylepreview/UploadInterface";
@@ -6,20 +7,62 @@ import ProcessingAnimation from "@/components/stylepreview/ProcessingAnimation";
 import ResultComparison from "@/components/stylepreview/ResultComparison";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { User } from "@supabase/supabase-js";
 
 const StylePreview = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [stage, setStage] = useState<"upload" | "processing" | "result">("upload");
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
   const [inspirationImage, setInspirationImage] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [styleAnalysis, setStyleAnalysis] = useState<string | null>(null);
 
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleUploadComplete = async (selfie: string, inspiration: string) => {
+    if (!user) {
+      toast.error("Please sign in to use the style preview feature");
+      navigate("/auth");
+      return;
+    }
+
     setSelfieImage(selfie);
     setInspirationImage(inspiration);
     setStage("processing");
     
     try {
+      // Check preview limit
+      const { data: limitData, error: limitError } = await supabase.functions.invoke("check-preview-limit", {
+        body: { user_id: user.id }
+      });
+
+      if (limitError) {
+        throw new Error("Failed to check preview limit");
+      }
+
+      if (!limitData?.allowed) {
+        toast.error(limitData?.error || "Preview limit reached");
+        setStage("upload");
+        return;
+      }
+
+      // Generate style preview
       const { data, error } = await supabase.functions.invoke("generate-style-preview", {
         body: {
           selfieUrl: selfie,
@@ -61,6 +104,17 @@ const StylePreview = () => {
     setGeneratedImage(null);
     setStyleAnalysis(null);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

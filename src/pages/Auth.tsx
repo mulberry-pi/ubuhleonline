@@ -17,6 +17,7 @@ const authSchema = z.object({
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [role, setRole] = useState<"client" | "provider">("client");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -45,14 +46,29 @@ export default function Auth() {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Welcome back!");
-        navigate("/provider/dashboard");
+        
+        // Get user role and redirect accordingly
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+          
+          const redirectPath = profile?.role === "provider" 
+            ? "/provider/dashboard" 
+            : "/client/dashboard";
+          
+          toast.success("Welcome back!");
+          navigate(redirectPath);
+        }
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/provider/dashboard`,
+            emailRedirectTo: `${window.location.origin}/${role}/dashboard`,
             data: { full_name: fullName },
           },
         });
@@ -64,13 +80,13 @@ export default function Auth() {
               id: data.user.id,
               email: data.user.email!,
               full_name: fullName,
-              role: "provider",
+              role: role,
             },
           ]);
         }
 
         toast.success("Account created! Redirecting...");
-        navigate("/provider/dashboard");
+        navigate(`/${role}/dashboard`);
       }
     } catch (error: any) {
       toast.error(error.message || "Authentication failed");
@@ -86,21 +102,35 @@ export default function Auth() {
           <img src={logo} alt="Ubuhle" className="h-12 mx-auto mb-4" />
           <CardTitle className="text-2xl">{isLogin ? "Welcome Back" : "Create Account"}</CardTitle>
           <CardDescription>
-            {isLogin ? "Sign in to access your dashboard" : "Join as a service provider"}
+            {isLogin ? "Sign in to access your dashboard" : "Join Ubuhle platform"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="role">I am a</Label>
+                  <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as "client" | "provider")}
+                    className="w-full h-10 px-3 py-2 text-sm rounded-md border border-input bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="client">Client</option>
+                    <option value="provider">Service Provider</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+              </>
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

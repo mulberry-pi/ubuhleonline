@@ -29,6 +29,7 @@ import ClientAppointments from "./pages/client/ClientAppointments";
 import StyleGallery from "./pages/client/StyleGallery";
 import ClientMessages from "./pages/client/ClientMessages";
 import ClientSettings from "./pages/client/ClientSettings";
+import StylistMatch from "./pages/client/StylistMatch";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="gallery" element={<StyleGallery />} />
             <Route path="messages" element={<ClientMessages />} />
             <Route path="settings" element={<ClientSettings />} />
+            <Route path="stylist-match" element={<StylistMatch />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

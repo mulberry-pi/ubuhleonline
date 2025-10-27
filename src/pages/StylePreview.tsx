@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import UploadInterface from "@/components/stylepreview/UploadInterface";
 import ProcessingAnimation from "@/components/stylepreview/ProcessingAnimation";
 import ResultComparison from "@/components/stylepreview/ResultComparison";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
@@ -153,11 +154,31 @@ const StylePreview = () => {
           )}
           
           {stage === "result" && selfieImage && generatedImage && (
-            <ResultComparison 
-              originalImage={selfieImage}
-              generatedImage={generatedImage}
-              onReset={handleReset}
-            />
+            <>
+              <ResultComparison 
+                originalImage={selfieImage}
+                generatedImage={generatedImage}
+                onReset={handleReset}
+              />
+              
+              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  onClick={() => navigate(`/client/stylist-match?type=preview&image=${encodeURIComponent(generatedImage)}`)}
+                  className="flex-1 sm:flex-initial"
+                >
+                  Search Using Style Preview
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate(`/client/stylist-match?type=inspiration&image=${encodeURIComponent(inspirationImage!)}`)}
+                  className="flex-1 sm:flex-initial"
+                >
+                  Search Using Style Inspiration
+                </Button>
+              </div>
+            </>
           )}
           
           {/* Style Analysis - Optional Display */}

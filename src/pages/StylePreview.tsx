@@ -4,23 +4,54 @@ import Footer from "@/components/Footer";
 import UploadInterface from "@/components/stylepreview/UploadInterface";
 import ProcessingAnimation from "@/components/stylepreview/ProcessingAnimation";
 import ResultComparison from "@/components/stylepreview/ResultComparison";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const StylePreview = () => {
   const [stage, setStage] = useState<"upload" | "processing" | "result">("upload");
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
   const [inspirationImage, setInspirationImage] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [styleAnalysis, setStyleAnalysis] = useState<string | null>(null);
 
-  const handleUploadComplete = (selfie: string, inspiration: string) => {
+  const handleUploadComplete = async (selfie: string, inspiration: string) => {
     setSelfieImage(selfie);
     setInspirationImage(inspiration);
     setStage("processing");
     
-    // Simulate AI processing (replace with actual API call)
-    setTimeout(() => {
-      setGeneratedImage(selfie); // Mock: use selfie as generated for now
-      setStage("result");
-    }, 4000);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-style-preview", {
+        body: {
+          selfieUrl: selfie,
+          inspirationUrl: inspiration
+        }
+      });
+
+      if (error) {
+        console.error("Edge function error:", error);
+        throw error;
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.success && data?.previewUrl) {
+        setGeneratedImage(data.previewUrl);
+        setStyleAnalysis(data.styleAnalysis);
+        setStage("result");
+      } else {
+        throw new Error("Invalid response from style preview service");
+      }
+    } catch (error) {
+      console.error("Error generating style preview:", error);
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : "Failed to generate preview. Please try again."
+      );
+      setStage("upload");
+    }
   };
 
   const handleReset = () => {
@@ -28,6 +59,7 @@ const StylePreview = () => {
     setSelfieImage(null);
     setInspirationImage(null);
     setGeneratedImage(null);
+    setStyleAnalysis(null);
   };
 
   return (
@@ -72,6 +104,14 @@ const StylePreview = () => {
               generatedImage={generatedImage}
               onReset={handleReset}
             />
+          )}
+          
+          {/* Style Analysis - Optional Display */}
+          {stage === "result" && styleAnalysis && (
+            <div className="mt-8 bg-card rounded-2xl p-6 shadow-elegant border border-border/50">
+              <h3 className="text-xl font-semibold mb-3">Style Analysis</h3>
+              <p className="text-muted-foreground whitespace-pre-line">{styleAnalysis}</p>
+            </div>
           )}
         </div>
       </section>

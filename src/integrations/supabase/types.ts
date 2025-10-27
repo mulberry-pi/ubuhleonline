@@ -281,19 +281,28 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          max_previews: number
+          previews_used: number
           role: Database["public"]["Enums"]["user_role"]
+          subscription_status: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          max_previews?: number
+          previews_used?: number
           role: Database["public"]["Enums"]["user_role"]
+          subscription_status?: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          max_previews?: number
+          previews_used?: number
           role?: Database["public"]["Enums"]["user_role"]
+          subscription_status?: string
           user_id?: string
         }
         Relationships: []

@@ -19,8 +19,26 @@ export default function MarketTrends() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTrends();
+    fetchAndLoadTrends();
   }, []);
+
+  const fetchAndLoadTrends = async () => {
+    try {
+      // First, fetch fresh trends from Apify
+      const { error: fetchError } = await supabase.functions.invoke("fetch-trends");
+      
+      if (fetchError) {
+        console.error("Error fetching trends from Apify:", fetchError);
+        toast.error("Could not fetch latest trends");
+      }
+      
+      // Then load the trends from database
+      await loadTrends();
+    } catch (error) {
+      console.error("Error in fetchAndLoadTrends:", error);
+      await loadTrends(); // Still try to load existing trends
+    }
+  };
 
   const loadTrends = async () => {
     try {

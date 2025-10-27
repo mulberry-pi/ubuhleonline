@@ -7,6 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { toast } from "sonner";
 
 interface UploadInterfaceProps {
   onUploadComplete: (selfie: string, inspiration: string) => void;
@@ -35,6 +37,37 @@ const UploadInterface = ({ onUploadComplete }: UploadInterfaceProps) => {
     }
   };
 
+  const handleNativeCamera = async (
+    source: CameraSource,
+    type: "selfie" | "inspiration"
+  ) => {
+    try {
+      const image = await CapacitorCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: source,
+        promptLabelHeader: source === CameraSource.Camera ? 'Take a Photo' : 'Choose from Gallery',
+        promptLabelCancel: 'Cancel',
+        promptLabelPhoto: 'Photo Gallery',
+        promptLabelPicture: 'Camera',
+      });
+
+      if (image.dataUrl) {
+        if (type === "selfie") {
+          setSelfie(image.dataUrl);
+        } else {
+          setInspiration(image.dataUrl);
+        }
+      }
+    } catch (error: any) {
+      if (error.message !== 'User cancelled photos app') {
+        console.error('Camera error:', error);
+        toast.error('Failed to access camera or gallery. Please check permissions.');
+      }
+    }
+  };
+
   const handleGenerate = () => {
     if (selfie && inspiration) {
       onUploadComplete(selfie, inspiration);
@@ -49,6 +82,7 @@ const UploadInterface = ({ onUploadComplete }: UploadInterfaceProps) => {
           title="Upload Your Selfie"
           image={selfie}
           onFileUpload={(e) => handleFileUpload(e, "selfie")}
+          onNativeCamera={(source) => handleNativeCamera(source, "selfie")}
           icon={<Camera className="w-12 h-12 text-primary/60" />}
         />
 
@@ -57,6 +91,7 @@ const UploadInterface = ({ onUploadComplete }: UploadInterfaceProps) => {
           title="Upload Your Inspiration"
           image={inspiration}
           onFileUpload={(e) => handleFileUpload(e, "inspiration")}
+          onNativeCamera={(source) => handleNativeCamera(source, "inspiration")}
           icon={<ImageIcon className="w-12 h-12 text-primary/60" />}
         />
       </div>
@@ -82,10 +117,11 @@ interface UploadBoxProps {
   title: string;
   image: string | null;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onNativeCamera: (source: CameraSource) => void;
   icon: React.ReactNode;
 }
 
-const UploadBox = ({ title, image, onFileUpload, icon }: UploadBoxProps) => {
+const UploadBox = ({ title, image, onFileUpload, onNativeCamera, icon }: UploadBoxProps) => {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-center">{title}</h3>
@@ -128,35 +164,27 @@ const UploadBox = ({ title, image, onFileUpload, icon }: UploadBoxProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                <DropdownMenuItem 
+                  onClick={() => onNativeCamera(CameraSource.Photos)}
+                  className="cursor-pointer"
+                >
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Photo Gallery
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onNativeCamera(CameraSource.Camera)}
+                  className="cursor-pointer"
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Take a Photo
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <label className="cursor-pointer w-full">
+                  <label className="cursor-pointer w-full flex items-center">
+                    <Upload className="w-4 h-4 mr-2" />
                     My Files
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={onFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <label className="cursor-pointer w-full">
-                    Photo Gallery
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={onFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <label className="cursor-pointer w-full">
-                    Take a Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="user"
                       onChange={onFileUpload}
                       className="hidden"
                     />

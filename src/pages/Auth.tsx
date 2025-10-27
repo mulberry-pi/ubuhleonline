@@ -50,13 +50,13 @@ export default function Auth() {
         // Get user role and redirect accordingly
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
+          const { data: userRole } = await supabase
+            .from("user_roles")
             .select("role")
-            .eq("id", user.id)
+            .eq("user_id", user.id)
             .single();
           
-          const redirectPath = profile?.role === "provider" 
+          const redirectPath = userRole?.role === "provider" 
             ? "/provider/dashboard" 
             : "/client/dashboard";
           
@@ -74,15 +74,17 @@ export default function Auth() {
         });
         if (error) throw error;
 
-        if (data.user) {
-          await supabase.from("profiles").insert([
-            {
-              id: data.user.id,
-              email: data.user.email!,
-              full_name: fullName,
-              role: role,
-            },
-          ]);
+        if (data.user && data.session) {
+          // Call secure edge function to assign role (uses service role key)
+          const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
+            body: { role, full_name: fullName }
+          });
+
+          if (roleError) {
+            console.error('Role assignment error:', roleError);
+            toast.error('Failed to assign role. Please contact support.');
+            return;
+          }
         }
 
         toast.success("Account created! Redirecting...");

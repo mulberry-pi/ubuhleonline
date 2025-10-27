@@ -48,17 +48,17 @@ const StylePreview = () => {
     setStage("processing");
     
     try {
-      // Check preview limit
-      const { data: limitData, error: limitError } = await supabase.functions.invoke("check-preview-limit", {
-        body: { user_id: user.id }
-      });
+      // Check preview limit - function now uses authenticated user from JWT
+      const { data: limitCheck, error: limitError } = await supabase.functions.invoke(
+        'check-preview-limit'
+      );
 
       if (limitError) {
         throw new Error("Failed to check preview limit");
       }
 
-      if (!limitData?.allowed) {
-        toast.error(limitData?.error || "Preview limit reached");
+      if (!limitCheck?.allowed) {
+        toast.error(limitCheck?.error || "Preview limit reached");
         setStage("upload");
         return;
       }

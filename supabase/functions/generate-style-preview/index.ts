@@ -109,18 +109,18 @@ serve(async (req) => {
     const personDescription = selfieData.choices[0].message.content;
     console.log("Person description completed:", personDescription.substring(0, 200) + "...");
 
-    console.log("Step 3: Generating style preview with gpt-image-1...");
+    console.log("Step 3: Generating style preview with DALL-E...");
 
-    // Step 3: Generate the styled image combining person + style
-    const combinedPrompt = `Create a realistic portrait photo of a person with these exact characteristics:
+    // Step 3: Generate the styled image using DALL-E
+    const combinedPrompt = `Create a realistic portrait photo of a person with these characteristics and style:
 
-PERSON DETAILS (MUST MATCH EXACTLY):
+PERSON (maintain these features exactly):
 ${personDescription}
 
-STYLE TO APPLY:
+APPLY THIS STYLE:
 ${styleDescription}
 
-IMPORTANT: Keep the person's facial features, skin tone, and overall appearance IDENTICAL to the description. Only apply the hairstyle/lash style changes described. The result should look like a professional beauty salon photo.`;
+Create a professional beauty salon photo showing this person with the new hairstyle/lash style. Keep facial features and skin tone identical.`;
 
     const generationResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
@@ -129,12 +129,12 @@ IMPORTANT: Keep the person's facial features, skin tone, and overall appearance 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-image-1",
+        model: "dall-e-3",
         prompt: combinedPrompt,
         n: 1,
-        size: "1024x1536",
-        quality: "high",
-        output_format: "png"
+        size: "1024x1792",
+        quality: "hd",
+        response_format: "b64_json"
       }),
     });
 

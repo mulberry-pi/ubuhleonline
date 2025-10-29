@@ -2,6 +2,7 @@ import { Provider } from '@/types/provider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProviderCardProps {
   provider: Provider;
@@ -9,6 +10,11 @@ interface ProviderCardProps {
 }
 
 const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
+  const navigate = useNavigate();
+
+  const handleBookNow = () => {
+    navigate(`/booking?provider=${provider.id}`);
+  };
   if (viewMode === 'list') {
     return (
       <div className="bg-card rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_rgba(139,92,246,0.3)] transition-all duration-500 hover:-translate-y-2 flex gap-6 border border-border/50">
@@ -57,7 +63,7 @@ const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
             <span className="text-base font-bold text-primary">
               R{provider.price_min} - R{provider.price_max}
             </span>
-            <Button className="bg-primary hover:bg-primary/90 text-white h-10 px-8 rounded-full shadow-md hover:shadow-lg transition-all">
+            <Button onClick={handleBookNow} className="bg-primary hover:bg-primary/90 text-white h-10 px-8 rounded-full shadow-md hover:shadow-lg transition-all">
               Book Now
             </Button>
           </div>
@@ -116,7 +122,7 @@ const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
           <span className="text-sm font-bold text-primary">
             R{provider.price_min} - R{provider.price_max}
           </span>
-          <Button className="bg-primary hover:bg-primary/90 text-white h-9 px-6 rounded-full shadow-md hover:shadow-lg transition-all">
+          <Button onClick={handleBookNow} className="bg-primary hover:bg-primary/90 text-white h-9 px-6 rounded-full shadow-md hover:shadow-lg transition-all">
             Book
           </Button>
         </div>

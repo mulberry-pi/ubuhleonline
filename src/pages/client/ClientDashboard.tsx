@@ -150,7 +150,7 @@ export default function ClientDashboard() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/client/new-booking")}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/search")}>
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
@@ -161,7 +161,7 @@ export default function ClientDashboard() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Try a new style with AI preview and book instantly
+              Browse stylists and book appointments directly
             </p>
           </CardContent>
         </Card>
@@ -204,8 +204,8 @@ export default function ClientDashboard() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Styles You Might Love</CardTitle>
-              <CardDescription>Based on trending beauty looks</CardDescription>
+              <CardTitle>Trending Styles</CardTitle>
+              <CardDescription>Popular beauty looks from across the web</CardDescription>
             </div>
             <TrendingUp className="h-5 w-5 text-primary" />
           </div>
@@ -213,7 +213,7 @@ export default function ClientDashboard() {
         <CardContent>
           {recommendations.length === 0 ? (
             <p className="text-center py-8 text-muted-foreground">
-              Recommendations will appear here based on your preferences
+              Trending styles will appear here as they're discovered
             </p>
           ) : (
             <div className="grid gap-4 md:grid-cols-3">

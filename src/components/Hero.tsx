@@ -2,9 +2,32 @@ import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-image-new.png";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Hero = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGetStarted = () => {
+    if (isLoggedIn) {
+      navigate('/style-preview');
+    } else {
+      navigate('/get-started');
+    }
+  };
 
   return (
     <section id="hero" className="min-h-screen flex items-center pt-20 pb-0">
@@ -39,7 +62,7 @@ const Hero = () => {
                 borderRadius: '50px',
                 borderWidth: '1px'
               }}
-              onClick={() => navigate('/get-started')}
+              onClick={handleGetStarted}
             >
               Get Started
               <ArrowRight className="w-5 h-5 ml-2" style={{ color: '#5345BA' }} />

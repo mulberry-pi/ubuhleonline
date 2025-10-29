@@ -15,5 +15,5 @@ verify_jwt = false
 [functions.process-payment]
 verify_jwt = true
 
-[functions.assign-user-role]
+[functions.match-stylists]
 verify_jwt = true

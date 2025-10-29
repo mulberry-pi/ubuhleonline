@@ -158,6 +158,7 @@ export type Database = {
       }
       provider_profiles: {
         Row: {
+          availability_status: string | null
           bank_account_holder_name: string | null
           bank_account_number: string | null
           bank_name: string | null
@@ -165,16 +166,22 @@ export type Database = {
           business_description: string | null
           business_logo_url: string | null
           business_name: string | null
+          city: string | null
           created_at: string
+          gallery_images: string[] | null
           id: string
           is_public: boolean | null
           payout_date: number | null
           payout_frequency: string | null
+          price_range: string | null
           rating: number | null
+          review_count: number | null
+          suburb: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          availability_status?: string | null
           bank_account_holder_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
@@ -182,16 +189,22 @@ export type Database = {
           business_description?: string | null
           business_logo_url?: string | null
           business_name?: string | null
+          city?: string | null
           created_at?: string
+          gallery_images?: string[] | null
           id?: string
           is_public?: boolean | null
           payout_date?: number | null
           payout_frequency?: string | null
+          price_range?: string | null
           rating?: number | null
+          review_count?: number | null
+          suburb?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          availability_status?: string | null
           bank_account_holder_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
@@ -199,12 +212,17 @@ export type Database = {
           business_description?: string | null
           business_logo_url?: string | null
           business_name?: string | null
+          city?: string | null
           created_at?: string
+          gallery_images?: string[] | null
           id?: string
           is_public?: boolean | null
           payout_date?: number | null
           payout_frequency?: string | null
+          price_range?: string | null
           rating?: number | null
+          review_count?: number | null
+          suburb?: string | null
           updated_at?: string
           user_id?: string
         }

@@ -52,22 +52,22 @@ serve(async (req) => {
       throw new Error("Both selfie and inspiration images are required");
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
     console.log("Step 1: Analyzing inspiration image...");
 
     // Step 1: Analyze the inspiration image to extract style details
-    const analysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const analysisResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -103,14 +103,14 @@ serve(async (req) => {
     console.log("Step 2: Analyzing selfie to describe the person...");
 
     // Step 2: Analyze the selfie to get person details
-    const selfieAnalysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const selfieAnalysisResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -143,9 +143,9 @@ serve(async (req) => {
     const personDescription = selfieData.choices[0].message.content;
     console.log("Person description completed:", personDescription.substring(0, 200) + "...");
 
-    console.log("Step 3: Generating style preview with Gemini image model...");
+    console.log("Step 3: Generating style preview with DALL-E 3...");
 
-    // Step 3: Generate the styled image using Gemini image generation
+    // Step 3: Generate the styled image using DALL-E 3
     const combinedPrompt = `Create a hyper-realistic professional beauty salon portrait photograph showing this exact person with a new hairstyle:
 
 CRITICAL - PERSON FEATURES (MUST remain 100% identical):
@@ -162,21 +162,19 @@ REQUIREMENTS:
 - Sharp focus on hair details and texture
 - Natural, flattering angle`;
 
-    const generationResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const generationResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: combinedPrompt
-          }
-        ],
-        modalities: ["image", "text"]
+        model: "dall-e-3",
+        prompt: combinedPrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "hd",
+        style: "natural"
       }),
     });
 
@@ -188,8 +186,8 @@ REQUIREMENTS:
 
     const generationData = await generationResponse.json();
     
-    // Extract the generated image from Gemini response
-    const generatedImageUrl = generationData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    // Extract the generated image URL
+    const generatedImageUrl = generationData.data?.[0]?.url;
     
     if (!generatedImageUrl) {
       console.error("Generation response:", JSON.stringify(generationData));

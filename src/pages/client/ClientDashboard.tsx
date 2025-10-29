@@ -42,9 +42,10 @@ export default function ClientDashboard() {
         .eq("id", user.id)
         .maybeSingle();
 
-      // Use full_name if available, otherwise use first part of email
+      // Use first name from full_name if available, otherwise use first part of email
       if (profile?.full_name) {
-        setUserName(profile.full_name);
+        const firstName = profile.full_name.split(' ')[0];
+        setUserName(firstName);
       } else if (user.email) {
         const emailName = user.email.split('@')[0];
         setUserName(emailName.charAt(0).toUpperCase() + emailName.slice(1));

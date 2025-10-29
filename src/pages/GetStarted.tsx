@@ -32,7 +32,7 @@ const GetStarted = () => {
                 <Users className="w-8 h-8 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-2">🪞 Client</h3>
+                <h3 className="text-xl font-semibold mb-2">Client</h3>
                 <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                   I'm looking for stylists, artists, and beauty experts to help me achieve my desired look.
                 </p>
@@ -53,7 +53,7 @@ const GetStarted = () => {
                 <Scissors className="w-8 h-8 text-accent" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold mb-2">💼 Service Provider</h3>
+                <h3 className="text-xl font-semibold mb-2">Service Provider</h3>
                 <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                   I'm a beauty professional or salon owner looking to grow my business and connect with clients.
                 </p>

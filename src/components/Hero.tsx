@@ -39,7 +39,7 @@ const Hero = () => {
                 borderRadius: '50px',
                 borderWidth: '1px'
               }}
-              onClick={() => navigate('/style-preview')}
+              onClick={() => navigate('/get-started')}
             >
               Get Started
               <ArrowRight className="w-5 h-5 ml-2" style={{ color: '#5345BA' }} />

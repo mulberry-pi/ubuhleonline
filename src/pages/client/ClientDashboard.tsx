@@ -99,7 +99,7 @@ export default function ClientDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold">Hi {userName}, ready for your next glow-up? ✨</h2>
+        <h2 className="text-3xl font-semibold">Hi {userName}, ready for your next glow-up?</h2>
         <p className="text-muted-foreground mt-2">
           Explore styles, book appointments, and connect with beauty professionals
         </p>

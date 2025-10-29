@@ -88,7 +88,7 @@ serve(async (req) => {
           user_id: user_id,
           role: 'client',
           previews_used: 0,
-          max_previews: 1,
+          max_previews: 5,
           subscription_status: 'free'
         })
         .select()

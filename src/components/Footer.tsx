@@ -4,21 +4,8 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-foreground text-background py-16 px-6 relative overflow-hidden">
-      {/* Oversized Watermark */}
-      <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-        style={{
-          fontSize: "clamp(8rem, 20vw, 16rem)",
-          fontWeight: 700,
-          opacity: 0.03,
-          letterSpacing: "0.1em",
-        }}
-      >
-        UBUHLE
-      </div>
-
-      <div className="container mx-auto relative z-10">
+    <footer className="bg-foreground text-background py-16 px-6">
+      <div className="container mx-auto">
         <div className="grid md:grid-cols-3 gap-12 mb-12">
           {/* Navigation Links */}
           <div>

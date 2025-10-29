@@ -136,131 +136,138 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
+    <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-12 px-6">
-        <div className="container mx-auto max-w-6xl">
-          {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-              Find My Stylists
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Discover and book appointments with top-rated beauty professionals in Cape Town
-            </p>
-          </div>
+      {/* Main Layout with Sticky Sidebar */}
+      <div className="pt-20 flex w-full">
+        {/* Left Sidebar - Search and Filters */}
+        <aside className="w-80 bg-card border-r sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="p-6 space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                Find Stylists
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Discover beauty professionals
+              </p>
+            </div>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-8">
             <SearchBar
               onSearch={handleSearch}
               activeMode={searchMode}
               onModeChange={setSearchMode}
             />
-          </div>
 
-          {/* Filter Bar */}
-          <div className="flex items-center justify-center gap-4 flex-wrap mb-6">
-            <FiltersPanel filters={filters} onFiltersChange={setFilters} />
-          </div>
-          
-          {/* View Controls */}
-          {viewMode !== 'map' && (
-            <div className="flex justify-center">
-              <ResultsHeader
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                totalResults={filteredProviders.length}
-                currentPage={currentPage}
-                pageSize={pageSize}
-              />
+            <div className="border-t pt-6">
+              <h3 className="font-semibold text-lg mb-4">Filters</h3>
+              <FiltersPanel filters={filters} onFiltersChange={setFilters} />
             </div>
-          )}
-        </div>
-      </section>
-
-      {/* Results Section */}
-      <main className="container mx-auto px-6 pb-16 max-w-7xl">
-        {loading ? (
-          <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground text-lg">Finding your perfect stylists...</p>
           </div>
-        ) : (
-          <>
-            {viewMode === 'map' ? (
-              <ProviderMap providers={filteredProviders} />
-            ) : (
-              <>
-                {paginatedProviders.length === 0 ? (
-                  <div className="text-center py-20 bg-card rounded-3xl shadow-lg">
-                    <div className="max-w-md mx-auto">
-                      <p className="text-muted-foreground text-xl mb-2">No stylists found</p>
-                      <p className="text-sm text-muted-foreground">Try adjusting your search filters or location</p>
+        </aside>
+
+        {/* Right Content - Map and Results */}
+        <main className="flex-1 p-6 overflow-auto">
+          {/* View Controls */}
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-semibold">
+                {filteredProviders.length} Stylist{filteredProviders.length !== 1 ? 's' : ''} Found
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Showing results {currentPage > 0 ? (currentPage - 1) * pageSize + 1 : 0} - {Math.min(currentPage * pageSize, filteredProviders.length)}
+              </p>
+            </div>
+            <ResultsHeader
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              totalResults={filteredProviders.length}
+              currentPage={currentPage}
+              pageSize={pageSize}
+            />
+          </div>
+
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground text-lg">Finding your perfect stylists...</p>
+            </div>
+          ) : (
+            <>
+              {viewMode === 'map' ? (
+                <div className="h-[calc(100vh-12rem)]">
+                  <ProviderMap providers={filteredProviders} />
+                </div>
+              ) : (
+                <>
+                  {paginatedProviders.length === 0 ? (
+                    <div className="text-center py-20 bg-card rounded-2xl shadow-sm border">
+                      <div className="max-w-md mx-auto">
+                        <p className="text-muted-foreground text-xl mb-2">No stylists found</p>
+                        <p className="text-sm text-muted-foreground">Try adjusting your search filters or location</p>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div
-                    className={`grid gap-6 ${
-                      viewMode === 'grid'
-                        ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                        : 'grid-cols-1 max-w-4xl mx-auto'
-                    }`}
-                  >
-                    {paginatedProviders.map((provider) => (
-                      <ProviderCard
-                        key={provider.id}
-                        provider={provider}
-                        viewMode={viewMode === 'list' ? 'list' : 'grid'}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-12">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="rounded-full"
+                  ) : (
+                    <div
+                      className={`grid gap-6 ${
+                        viewMode === 'grid'
+                          ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                          : 'grid-cols-1 max-w-4xl'
+                      }`}
                     >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
+                      {paginatedProviders.map((provider) => (
+                        <ProviderCard
+                          key={provider.id}
+                          provider={provider}
+                          viewMode={viewMode === 'list' ? 'list' : 'grid'}
+                        />
+                      ))}
+                    </div>
+                  )}
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-12">
                       <Button
-                        key={page}
-                        variant={currentPage === page ? 'default' : 'outline'}
-                        className="w-10 h-10 rounded-full"
-                        onClick={() => setCurrentPage(page)}
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="rounded-full"
                       >
-                        {page}
+                        <ChevronLeft className="w-4 h-4" />
                       </Button>
-                    ))}
 
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      className="rounded-full"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </main>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? 'default' : 'outline'}
+                          className="w-10 h-10 rounded-full"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="rounded-full"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </main>
+      </div>
     </div>
   );
 };

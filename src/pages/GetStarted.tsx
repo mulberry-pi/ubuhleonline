@@ -1,81 +1,75 @@
 import { useNavigate } from "react-router-dom";
 import { Users, Scissors } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import logo from "@/assets/logo.png";
 
 const GetStarted = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#C9B3F6] to-[#F7F2EE]">
-      <Header />
-      
-      <main className="container mx-auto px-6 pt-32 pb-20">
-        <div className="max-w-5xl mx-auto bg-white rounded-[32px] shadow-xl p-12 animate-fade-in">
-          {/* Illustration */}
-          <div className="flex justify-center mb-8">
-            <div className="w-64 h-48 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl flex items-center justify-center">
-              <div className="flex gap-8">
-                <Users className="w-16 h-16 text-primary" />
-                <Scissors className="w-16 h-16 text-accent" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C9B3F6] to-[#F7F2EE] p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="text-center">
+          <img src={logo} alt="Ubuhle" className="h-12 mx-auto mb-4" />
+          <CardTitle className="text-3xl">Join Ubuhle</CardTitle>
+          <CardDescription>
+            Choose your account type to get started
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Client Card */}
+          <button
+            onClick={() => navigate("/auth")}
+            className="w-full bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20 rounded-2xl p-6 hover:scale-[1.02] hover:shadow-lg hover:border-primary/40 transition-all duration-300 text-left group"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <Users className="w-8 h-8 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold mb-2">🪞 Client</h3>
+                <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                  I'm looking for stylists, artists, and beauty experts to help me achieve my desired look.
+                </p>
+                <div className="text-primary font-medium group-hover:translate-x-1 transition-transform duration-300 text-sm">
+                  Continue as Client →
+                </div>
               </div>
             </div>
-          </div>
+          </button>
 
-          {/* Headline */}
-          <h1 className="text-4xl font-semibold text-center text-[#261E36] mb-4">
-            Who are you joining Ubuhle as?
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-xl text-center text-[#261E36]/70 font-medium mb-12" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '32px' }}>
-            We'll tailor your experience based on your role.
-          </p>
-
-          {/* Account Type Cards */}
-          <div className="flex flex-col md:flex-row gap-8 justify-between">
-            {/* Client Card */}
-            <button
-              onClick={() => navigate("/signup/client")}
-              className="flex-1 bg-white border-2 border-[#E8E0F5] rounded-3xl p-8 hover:scale-[1.03] hover:shadow-[0_6px_16px_rgba(134,134,249,0.25)] transition-all duration-300 text-left group"
-            >
-              <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center">
-                  <Users className="w-10 h-10 text-primary" />
+          {/* Service Provider Card */}
+          <button
+            onClick={() => navigate("/auth")}
+            className="w-full bg-gradient-to-br from-accent/5 to-accent/10 border-2 border-accent/20 rounded-2xl p-6 hover:scale-[1.02] hover:shadow-lg hover:border-accent/40 transition-all duration-300 text-left group"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <Scissors className="w-8 h-8 text-accent" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold mb-2">💼 Service Provider</h3>
+                <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                  I'm a beauty professional or salon owner looking to grow my business and connect with clients.
+                </p>
+                <div className="text-primary font-medium group-hover:translate-x-1 transition-transform duration-300 text-sm">
+                  Continue as Service Provider →
                 </div>
               </div>
-              <h3 className="text-2xl font-semibold text-[#261E36] mb-3">🪞 Client</h3>
-              <p className="text-[#261E36]/70 mb-6 leading-relaxed">
-                I'm looking for stylists, artists, and beauty experts.
-              </p>
-              <div className="text-primary font-medium group-hover:translate-x-2 transition-transform duration-300">
-                Continue as Client →
-              </div>
-            </button>
+            </div>
+          </button>
 
-            {/* Service Provider Card */}
+          <div className="text-center text-sm text-muted-foreground pt-4">
+            Already have an account?{" "}
             <button
-              onClick={() => navigate("/signup/provider")}
-              className="flex-1 bg-white border-2 border-[#E8E0F5] rounded-3xl p-8 hover:scale-[1.03] hover:shadow-[0_6px_16px_rgba(134,134,249,0.25)] transition-all duration-300 text-left group"
+              onClick={() => navigate("/auth")}
+              className="text-primary hover:underline font-medium"
             >
-              <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full flex items-center justify-center">
-                  <Scissors className="w-10 h-10 text-accent" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-semibold text-[#261E36] mb-3">💼 Service Provider</h3>
-              <p className="text-[#261E36]/70 mb-6 leading-relaxed">
-                I'm a beauty professional or salon owner looking to grow my business.
-              </p>
-              <div className="text-primary font-medium group-hover:translate-x-2 transition-transform duration-300">
-                Continue as Service Provider →
-              </div>
+              Sign in
             </button>
           </div>
-        </div>
-      </main>
-
-      <Footer />
+        </CardContent>
+      </Card>
     </div>
   );
 };

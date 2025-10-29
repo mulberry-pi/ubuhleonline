@@ -23,12 +23,41 @@ const authSchema = z.object({
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [role, setRole] = useState<"client" | "provider">("client");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Validate email
+      const emailValidation = z.string().email().safeParse(email);
+      if (!emailValidation.success) {
+        toast.error("Please enter a valid email address");
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast.success("Password reset link sent! Check your email.");
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset email");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,13 +137,44 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <img src={logo} alt="Ubuhle" className="h-12 mx-auto mb-4" />
-          <CardTitle className="text-2xl">{isLogin ? "Welcome Back" : "Create Account"}</CardTitle>
+          <CardTitle className="text-2xl">
+            {isForgotPassword ? "Reset Password" : isLogin ? "Welcome Back" : "Create Account"}
+          </CardTitle>
           <CardDescription>
-            {isLogin ? "Sign in to access your dashboard" : "Join Ubuhle platform"}
+            {isForgotPassword 
+              ? "Enter your email to receive a password reset link" 
+              : isLogin ? "Sign in to access your dashboard" : "Join Ubuhle platform"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+          {isForgotPassword ? (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="your@email.com"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Sending..." : "Send Reset Link"}
+              </Button>
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Back to sign in
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
               <>
                 <div className="space-y-2">
@@ -169,14 +229,30 @@ export default function Auth() {
               {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary hover:underline"
-            >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
-            </button>
+          )}
+          <div className="mt-4 space-y-2">
+            {isLogin && !isForgotPassword && (
+              <div className="text-center text-sm">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-primary hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
+            {!isForgotPassword && (
+              <div className="text-center text-sm">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-primary hover:underline"
+                >
+                  {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+                </button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,6 +17,51 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        loadUserRole(session.user.id);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        loadUserRole(session.user.id);
+      } else {
+        setUserRole(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadUserRole = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+    
+    if (data) {
+      setUserRole(data.role);
+    }
+  };
+
+  const handleUserClick = () => {
+    if (user && userRole) {
+      const dashboardPath = userRole === "provider" 
+        ? "/provider/dashboard" 
+        : "/client/dashboard";
+      navigate(dashboardPath);
+    } else {
+      navigate("/get-started");
+    }
+  };
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -54,18 +102,18 @@ const Header = () => {
             Find Stylist
           </button>
           <Button
-            onClick={() => navigate("/get-started")}
+            onClick={handleUserClick}
             className="bg-primary hover:bg-primary/90 text-white px-6 hover-glow"
           >
-            Get Started
+            {user ? `Hi, ${user.user_metadata?.full_name?.split(' ')[0] || 'User'}` : 'Get Started'}
           </Button>
         </nav>
 
         <Button
-          onClick={() => navigate("/get-started")}
+          onClick={handleUserClick}
           className="md:hidden bg-primary hover:bg-primary/90 text-white hover-glow"
         >
-          Get Started
+          {user ? `Hi, ${user.user_metadata?.full_name?.split(' ')[0] || 'User'}` : 'Get Started'}
         </Button>
       </div>
     </header>

@@ -475,6 +475,71 @@ export type Database = {
       }
     }
     Views: {
+      client_visible_provider_profiles: {
+        Row: {
+          availability_status: string | null
+          business_address: string | null
+          business_description: string | null
+          business_logo_url: string | null
+          business_name: string | null
+          city: string | null
+          created_at: string | null
+          gallery_images: string[] | null
+          id: string | null
+          is_public: boolean | null
+          price_range: string | null
+          rating: number | null
+          review_count: number | null
+          suburb: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          availability_status?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_logo_url?: string | null
+          business_name?: string | null
+          city?: string | null
+          created_at?: string | null
+          gallery_images?: string[] | null
+          id?: string | null
+          is_public?: boolean | null
+          price_range?: string | null
+          rating?: number | null
+          review_count?: number | null
+          suburb?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          availability_status?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_logo_url?: string | null
+          business_name?: string | null
+          city?: string | null
+          created_at?: string | null
+          gallery_images?: string[] | null
+          id?: string | null
+          is_public?: boolean | null
+          price_range?: string | null
+          rating?: number | null
+          review_count?: number | null
+          suburb?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_provider_profiles: {
         Row: {
           availability_status: string | null

@@ -10,7 +10,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.fetch-trends]
-verify_jwt = false
+verify_jwt = true
 
 [functions.process-payment]
 verify_jwt = true

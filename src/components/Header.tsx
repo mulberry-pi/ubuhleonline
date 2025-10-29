@@ -41,25 +41,52 @@ const Header = () => {
   }, []);
 
   const loadUserRole = async (userId: string) => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
-    
-    if (data) {
-      setUserRole(data.role);
+    try {
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+      
+      if (roleData) {
+        setUserRole(roleData.role);
+      }
+    } catch (error) {
+      console.error("Error loading user role:", error);
     }
   };
 
-  const handleUserClick = () => {
-    if (user && userRole) {
+  const handleUserClick = async () => {
+    if (!user) {
+      navigate("/get-started");
+      return;
+    }
+
+    // If role is already loaded, navigate immediately
+    if (userRole) {
       const dashboardPath = userRole === "provider" 
         ? "/provider/dashboard" 
         : "/client/dashboard";
       navigate(dashboardPath);
-    } else {
-      navigate("/get-started");
+      return;
+    }
+
+    // Otherwise, load the role first
+    try {
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+      
+      const role = roleData?.role || "client";
+      const dashboardPath = role === "provider" 
+        ? "/provider/dashboard" 
+        : "/client/dashboard";
+      navigate(dashboardPath);
+    } catch (error) {
+      console.error("Error loading user role:", error);
+      navigate("/client/dashboard"); // Default to client dashboard
     }
   };
 

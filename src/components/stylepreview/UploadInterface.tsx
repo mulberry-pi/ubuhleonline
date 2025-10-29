@@ -153,13 +153,13 @@ const UploadBox = ({ title, image, onFileUpload, onNativeCamera, icon }: UploadB
             </div>
           </>
         ) : (
-          <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer">
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
             {icon}
             <p className="mt-4 text-sm font-medium text-foreground/80">Upload from…</p>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="mt-4" onClick={(e) => e.preventDefault()}>
+                <Button variant="outline" className="mt-4">
                   Choose Source
                 </Button>
               </DropdownMenuTrigger>
@@ -192,7 +192,7 @@ const UploadBox = ({ title, image, onFileUpload, onNativeCamera, icon }: UploadB
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </label>
+          </div>
         )}
       </div>
     </div>

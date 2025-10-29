@@ -69,13 +69,62 @@ serve(async (req) => {
       .from("user_roles")
       .select("role, previews_used, max_previews, subscription_status")
       .eq("user_id", user_id)
-      .single();
+      .maybeSingle();
 
-    if (fetchError || !userRole) {
-      console.error("User not found or error fetching user:", fetchError);
+    if (fetchError) {
+      console.error("Error fetching user:", fetchError);
       return new Response(
-        JSON.stringify({ error: "User not found" }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Error fetching user data" }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // If user doesn't exist, create default entry
+    if (!userRole) {
+      console.log(`User role not found, creating default entry for user: ${user_id}`);
+      const { data: newUserRole, error: createError } = await supabase
+        .from("user_roles")
+        .insert({
+          user_id: user_id,
+          role: 'client',
+          previews_used: 0,
+          max_previews: 1,
+          subscription_status: 'free'
+        })
+        .select()
+        .single();
+
+      if (createError || !newUserRole) {
+        console.error("Error creating user role:", createError);
+        return new Response(
+          JSON.stringify({ error: "Failed to create user profile" }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Use the newly created user role
+      const { data: userRoleData, error: fetchNewError } = await supabase
+        .from("user_roles")
+        .select("role, previews_used, max_previews, subscription_status")
+        .eq("user_id", user_id)
+        .single();
+
+      if (fetchNewError || !userRoleData) {
+        console.error("Error fetching newly created user:", fetchNewError);
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch user profile" }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          allowed: true,
+          previews_used: 0,
+          max_previews: userRoleData.max_previews,
+          subscription_status: userRoleData.subscription_status
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

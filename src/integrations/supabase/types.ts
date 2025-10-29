@@ -68,12 +68,14 @@ export type Database = {
         Row: {
           appointment_date: string
           appointment_time: string
+          client_calendar_event_id: string | null
           client_id: string
           created_at: string
           id: string
           inspiration_image_url: string | null
           notes: string | null
           preview_image_url: string | null
+          provider_calendar_event_id: string | null
           provider_id: string
           service_id: string
           status: Database["public"]["Enums"]["appointment_status"]
@@ -82,12 +84,14 @@ export type Database = {
         Insert: {
           appointment_date: string
           appointment_time: string
+          client_calendar_event_id?: string | null
           client_id: string
           created_at?: string
           id?: string
           inspiration_image_url?: string | null
           notes?: string | null
           preview_image_url?: string | null
+          provider_calendar_event_id?: string | null
           provider_id: string
           service_id: string
           status?: Database["public"]["Enums"]["appointment_status"]
@@ -96,12 +100,14 @@ export type Database = {
         Update: {
           appointment_date?: string
           appointment_time?: string
+          client_calendar_event_id?: string | null
           client_id?: string
           created_at?: string
           id?: string
           inspiration_image_url?: string | null
           notes?: string | null
           preview_image_url?: string | null
+          provider_calendar_event_id?: string | null
           provider_id?: string
           service_id?: string
           status?: Database["public"]["Enums"]["appointment_status"]

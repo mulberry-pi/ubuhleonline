@@ -12,11 +12,14 @@ import { toast } from "sonner";
 
 interface UploadInterfaceProps {
   onUploadComplete: (selfie: string, inspiration: string) => void;
+  selfieImage: string | null;
+  inspirationImage: string | null;
+  serviceType: 'hair' | 'lash';
 }
 
-const UploadInterface = ({ onUploadComplete }: UploadInterfaceProps) => {
-  const [selfie, setSelfie] = useState<string | null>(null);
-  const [inspiration, setInspiration] = useState<string | null>(null);
+const UploadInterface = ({ onUploadComplete, selfieImage, inspirationImage, serviceType }: UploadInterfaceProps) => {
+  const [selfie, setSelfie] = useState<string | null>(selfieImage);
+  const [inspiration, setInspiration] = useState<string | null>(inspirationImage);
 
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -75,8 +78,18 @@ const UploadInterface = ({ onUploadComplete }: UploadInterfaceProps) => {
   };
 
   return (
-    <div className="bg-card rounded-2xl p-8 md:p-12 shadow-elegant border border-border/50">
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <h2 className="text-3xl font-bold">
+          {serviceType === 'hair' ? 'Try Your New Hairstyle' : 'Try Your New Lash Style'}
+        </h2>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Upload a selfie and an inspiration image to see how the {serviceType === 'hair' ? 'hairstyle' : 'lash style'} would look on you
+        </p>
+      </div>
+      
+      <div className="bg-card rounded-2xl p-8 md:p-12 shadow-elegant border border-border/50">
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
         {/* Selfie Upload */}
         <UploadBox
           title="Upload Your Selfie"
@@ -94,20 +107,21 @@ const UploadInterface = ({ onUploadComplete }: UploadInterfaceProps) => {
           onNativeCamera={(source) => handleNativeCamera(source, "inspiration")}
           icon={<ImageIcon className="w-12 h-12 text-primary/60" />}
         />
-      </div>
+        </div>
 
-      <div className="text-center">
-        <Button
-          onClick={handleGenerate}
-          disabled={!selfie || !inspiration}
-          size="lg"
-          className="px-12 hover-glow text-lg h-14"
-        >
-          Generate Your Preview
-        </Button>
-        <p className="text-sm text-muted-foreground mt-4">
-          Your images are processed securely and never stored permanently
-        </p>
+        <div className="text-center">
+          <Button
+            onClick={handleGenerate}
+            disabled={!selfie || !inspiration}
+            size="lg"
+            className="px-12 hover-glow text-lg h-14"
+          >
+            Generate Your Preview
+          </Button>
+          <p className="text-sm text-muted-foreground mt-4">
+            Your images are processed securely and never stored permanently
+          </p>
+        </div>
       </div>
     </div>
   );

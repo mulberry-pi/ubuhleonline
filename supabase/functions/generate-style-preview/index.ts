@@ -46,7 +46,7 @@ serve(async (req) => {
 
     console.log(`Generating style preview for authenticated user: ${user.id}`);
 
-    const { selfieUrl, inspirationUrl } = await req.json();
+    const { selfieUrl, inspirationUrl, serviceType = 'hair' } = await req.json();
 
     if (!selfieUrl || !inspirationUrl) {
       throw new Error("Both selfie and inspiration images are required");
@@ -71,14 +71,16 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a beauty style analyst specializing in hairstyles and lash styles for people of colour. Provide detailed, technical breakdowns of styles in uploaded images. Focus on specific, actionable details that can be replicated."
+            content: `You are a beauty style analyst specializing in ${serviceType === 'hair' ? 'hairstyles' : 'lash extensions and styles'} for people of colour. Provide detailed, technical breakdowns of styles in uploaded images. Focus on specific, actionable details that can be replicated.`
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Analyze this beauty style in extreme detail. Focus on: hair/lash length, texture, volume, colour/tone, parting/shape, any accessories, structural elements, and overall aesthetic. Be very specific and technical."
+                text: serviceType === 'hair' 
+                  ? "Analyze this hairstyle in extreme detail. Focus on: length, texture, volume, color/tone, parting, layers, any accessories, styling technique, and overall aesthetic. Be very specific and technical."
+                  : "Analyze this lash style in extreme detail. Focus on: lash length, curl type, volume/density, thickness, style (classic/volume/hybrid/mega), any color or embellishments, application pattern, and overall aesthetic. Be very specific and technical."
               },
               {
                 type: "image_url",
@@ -146,7 +148,8 @@ serve(async (req) => {
     console.log("Step 3: Generating style preview with DALL-E 3...");
 
     // Step 3: Generate the styled image using DALL-E 3
-    const combinedPrompt = `Create a hyper-realistic professional beauty salon portrait photograph showing this exact person with a new hairstyle:
+    const combinedPrompt = serviceType === 'hair'
+      ? `Create a hyper-realistic professional beauty salon portrait photograph showing this exact person with a new hairstyle:
 
 CRITICAL - PERSON FEATURES (MUST remain 100% identical):
 ${personDescription}
@@ -160,7 +163,24 @@ REQUIREMENTS:
 - Ultra-realistic photography quality
 - Professional beauty salon lighting
 - Sharp focus on hair details and texture
-- Natural, flattering angle`;
+- Natural, flattering angle
+- Photo-realistic, not cartoon or illustration`
+      : `Create a hyper-realistic professional beauty portrait photograph showing this exact person with new lash extensions:
+
+CRITICAL - PERSON FEATURES (MUST remain 100% identical):
+${personDescription}
+
+CRITICAL - NEW LASH STYLE TO APPLY (add THESE lashes to the person above):
+${styleDescription}
+
+REQUIREMENTS:
+- Keep the person's face, skin tone, and all facial features EXACTLY as described
+- ONLY add/change the eyelashes to match the lash style description
+- Ultra-realistic photography quality
+- Professional beauty lighting with focus on the eyes
+- Sharp focus on lash details, length, curl, and volume
+- Natural, slightly closer portrait to show lash details clearly
+- Photo-realistic, not cartoon or illustration`;
 
     const generationResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",

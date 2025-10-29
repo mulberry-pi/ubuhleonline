@@ -57,10 +57,13 @@ function ClientSidebar({ user }: { user: User | null }) {
       .from("profiles")
       .select("full_name")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
     
     if (data?.full_name) {
       setUserName(data.full_name);
+    } else if (user.email) {
+      const emailName = user.email.split('@')[0];
+      setUserName(emailName.charAt(0).toUpperCase() + emailName.slice(1));
     }
   };
 
@@ -90,9 +93,9 @@ function ClientSidebar({ user }: { user: User | null }) {
                   {user?.email?.charAt(0).toUpperCase() || "C"}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">{userName || "Client"}</span>
-                <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-medium truncate">{userName || "Client"}</span>
+                <span className="text-xs text-muted-foreground truncate">
                   {user?.email}
                 </span>
               </div>

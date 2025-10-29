@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Sparkles, TrendingUp, Plus } from "lucide-react";
+import { Calendar, Sparkles, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -20,17 +20,9 @@ interface Appointment {
   };
 }
 
-interface Recommendation {
-  id: string;
-  name: string;
-  description: string | null;
-  image_url: string | null;
-}
-
 export default function ClientDashboard() {
   const [upcomingAppointment, setUpcomingAppointment] = useState<Appointment | null>(null);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [userName, setUserName] = useState("Client");
+  const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -48,10 +40,16 @@ export default function ClientDashboard() {
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
+      // Use full_name if available, otherwise use first part of email
       if (profile?.full_name) {
         setUserName(profile.full_name);
+      } else if (user.email) {
+        const emailName = user.email.split('@')[0];
+        setUserName(emailName.charAt(0).toUpperCase() + emailName.slice(1));
+      } else {
+        setUserName("User");
       }
 
       // Get next upcoming appointment
@@ -75,15 +73,6 @@ export default function ClientDashboard() {
       if (appointments && appointments.length > 0) {
         setUpcomingAppointment(appointments[0]);
       }
-
-      // Get trending styles as recommendations
-      const { data: trends } = await supabase
-        .from("trends")
-        .select("id, name, description, image_url")
-        .order("popularity_score", { ascending: false })
-        .limit(3);
-
-      setRecommendations(trends || []);
     } catch (error) {
       console.error("Error loading dashboard:", error);
       toast.error("Failed to load dashboard data");
@@ -99,7 +88,9 @@ export default function ClientDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold">Hi {userName}, ready for your next glow-up?</h2>
+        <h2 className="text-3xl font-semibold">
+          {userName ? `Hi ${userName}, ready for your next glow-up?` : "Ready for your next glow-up?"}
+        </h2>
         <p className="text-muted-foreground mt-2">
           Explore styles, book appointments, and connect with beauty professionals
         </p>
@@ -198,48 +189,6 @@ export default function ClientDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Recommendations */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Trending Styles</CardTitle>
-              <CardDescription>Popular beauty looks from across the web</CardDescription>
-            </div>
-            <TrendingUp className="h-5 w-5 text-primary" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          {recommendations.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">
-              Trending styles will appear here as they're discovered
-            </p>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-3">
-              {recommendations.map((rec) => (
-                <div key={rec.id} className="group cursor-pointer">
-                  {rec.image_url && (
-                    <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-2">
-                      <img
-                        src={rec.image_url}
-                        alt={rec.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  )}
-                  <h4 className="font-medium">{rec.name}</h4>
-                  {rec.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {rec.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>

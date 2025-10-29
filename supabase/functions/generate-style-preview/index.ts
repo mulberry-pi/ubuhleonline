@@ -143,18 +143,24 @@ serve(async (req) => {
     const personDescription = selfieData.choices[0].message.content;
     console.log("Person description completed:", personDescription.substring(0, 200) + "...");
 
-    console.log("Step 3: Generating style preview with DALL-E...");
+    console.log("Step 3: Generating style preview with gpt-image-1...");
 
-    // Step 3: Generate the styled image using DALL-E
-    const combinedPrompt = `Create a realistic portrait photo of a person with these characteristics and style:
+    // Step 3: Generate the styled image using gpt-image-1 (better for hairstyle transfer)
+    const combinedPrompt = `Create a hyper-realistic professional beauty salon portrait photograph showing this exact person with a new hairstyle:
 
-PERSON (maintain these features exactly):
+CRITICAL - PERSON FEATURES (MUST remain 100% identical):
 ${personDescription}
 
-APPLY THIS STYLE:
+CRITICAL - NEW HAIRSTYLE TO APPLY (transfer THIS style to the person above):
 ${styleDescription}
 
-Create a professional beauty salon photo showing this person with the new hairstyle/lash style. Keep facial features and skin tone identical.`;
+REQUIREMENTS:
+- Keep the person's face, skin tone, and facial features EXACTLY as described
+- ONLY change the hairstyle to match the style description
+- Ultra-realistic photography quality
+- Professional beauty salon lighting
+- Sharp focus on hair details and texture
+- Natural, flattering angle`;
 
     const generationResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
@@ -163,12 +169,12 @@ Create a professional beauty salon photo showing this person with the new hairst
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "dall-e-3",
+        model: "gpt-image-1",
         prompt: combinedPrompt,
         n: 1,
-        size: "1024x1792",
-        quality: "hd",
-        response_format: "b64_json"
+        size: "1024x1536",
+        quality: "high",
+        output_format: "png"
       }),
     });
 

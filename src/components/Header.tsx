@@ -8,6 +8,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const Header = () => {
 
   const loadUserRole = async (userId: string) => {
     try {
+      // Load role
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
@@ -51,8 +53,22 @@ const Header = () => {
       if (roleData) {
         setUserRole(roleData.role);
       }
+
+      // Load profile to get name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userId)
+        .maybeSingle();
+      
+      if (profile?.full_name) {
+        const firstName = profile.full_name.split(' ')[0];
+        setUserName(firstName);
+      } else {
+        setUserName("User");
+      }
     } catch (error) {
-      console.error("Error loading user role:", error);
+      console.error("Error loading user data:", error);
     }
   };
 
@@ -132,7 +148,7 @@ const Header = () => {
             onClick={handleUserClick}
             className="bg-primary hover:bg-primary/90 text-white px-6 hover-glow"
           >
-            {user ? `Hi, ${user.user_metadata?.full_name?.split(' ')[0] || 'User'}` : 'Get Started'}
+            {user ? `Hi, ${userName || 'User'}` : 'Get Started'}
           </Button>
         </nav>
 
@@ -140,7 +156,7 @@ const Header = () => {
           onClick={handleUserClick}
           className="md:hidden bg-primary hover:bg-primary/90 text-white hover-glow"
         >
-          {user ? `Hi, ${user.user_metadata?.full_name?.split(' ')[0] || 'User'}` : 'Get Started'}
+          {user ? `Hi, ${userName || 'User'}` : 'Get Started'}
         </Button>
       </div>
     </header>

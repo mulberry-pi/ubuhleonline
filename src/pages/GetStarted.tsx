@@ -10,7 +10,12 @@ const GetStarted = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C9B3F6] to-[#F7F2EE] p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <img src={logo} alt="Ubuhle" className="h-12 mx-auto mb-4" />
+          <img 
+            src={logo} 
+            alt="Ubuhle" 
+            className="h-12 mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={() => navigate("/")}
+          />
           <CardTitle className="text-3xl">Join Ubuhle</CardTitle>
           <CardDescription>
             Choose your account type to get started

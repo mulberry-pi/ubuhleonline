@@ -13,6 +13,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Switch } from "@/components/ui/switch";
 import { Stylist, BookingFormData } from "@/types/booking";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const bookingSchema = z.object({
   service: z.string().min(1, "Please select a service"),
@@ -48,8 +50,40 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
     },
   });
 
-  const handleSubmit = (data: BookingFormData) => {
-    onSubmit(data);
+  const handleSubmit = async (data: BookingFormData) => {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please log in to book an appointment');
+        return;
+      }
+
+      // Create appointment in database
+      const { error } = await supabase
+        .from('appointments')
+        .insert({
+          client_id: user.id,
+          provider_id: stylist.id,
+          service_id: data.service,
+          appointment_date: format(data.date, 'yyyy-MM-dd'),
+          appointment_time: data.time,
+          notes: `Location: ${data.location}, Contact: ${data.name}, ${data.email}, ${data.phone}`,
+          status: 'pending'
+        });
+
+      if (error) {
+        console.error('Booking error:', error);
+        toast.error('Failed to create booking. Please try again.');
+        return;
+      }
+
+      toast.success('Appointment created successfully!');
+      onSubmit(data);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred');
+    }
   };
 
   return (

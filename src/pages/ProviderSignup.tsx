@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ChevronLeft, ChevronRight, Upload, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ServicePrice {
   service: string;
@@ -127,16 +128,86 @@ const ProviderSignup = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      // Create auth account
+      const { data, error } = await supabase.auth.signUp({
+        email: ownerInfo.email,
+        password: ownerInfo.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/provider/dashboard`,
+          data: { full_name: ownerInfo.fullName },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user && data.session) {
+        // Call edge function to create profile and assign provider role
+        const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
+          body: { role: 'provider', full_name: ownerInfo.fullName }
+        });
+
+        if (roleError) {
+          console.error('Role assignment error:', roleError);
+        }
+
+        // Create provider profile
+        const { error: profileError } = await supabase
+          .from('provider_profiles')
+          .insert({
+            user_id: data.user.id,
+            business_name: businessInfo.businessName,
+            business_description: businessInfo.description,
+            business_address: businessInfo.address || null,
+            is_public: true,
+            rating: 0
+          });
+
+        if (profileError) {
+          console.error('Provider profile error:', profileError);
+        }
+
+        // Create services
+        if (servicePrices.length > 0) {
+          const servicesData = servicePrices
+            .filter(sp => sp.price && parseFloat(sp.price) > 0)
+            .map(sp => ({
+              provider_id: data.user.id,
+              name: sp.service,
+              price: parseFloat(sp.price),
+              duration_minutes: 60, // Default duration
+              is_available: true
+            }));
+
+          if (servicesData.length > 0) {
+            const { error: servicesError } = await supabase
+              .from('services')
+              .insert(servicesData);
+
+            if (servicesError) {
+              console.error('Services error:', servicesError);
+            }
+          }
+        }
+      }
+
       toast({
         title: "Welcome to Ubuhle 💜",
         description: "Your beauty business just got smarter.",
       });
-      navigate("/");
-    }, 1500);
+      navigate("/provider/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Signup failed",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

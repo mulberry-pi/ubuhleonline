@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const ClientSignup = () => {
   const navigate = useNavigate();
@@ -37,15 +38,48 @@ const ClientSignup = () => {
 
     setIsLoading(true);
     
-    // Simulate account creation
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/client/dashboard`,
+          data: { full_name: formData.fullName },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user && data.session) {
+        // Call edge function to create profile and assign role
+        const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
+          body: { role: 'client', full_name: formData.fullName }
+        });
+
+        if (roleError) {
+          console.error('Role assignment error:', roleError);
+          toast({
+            title: "Account created with issues",
+            description: "Please contact support if you experience problems.",
+            variant: "destructive",
+          });
+        }
+      }
+
       toast({
         title: "Welcome to Ubuhle 🌸",
         description: "Your personalized style journey starts here.",
       });
-      navigate("/");
-    }, 1500);
+      navigate("/client/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Signup failed",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

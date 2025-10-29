@@ -187,12 +187,7 @@ export default function ProviderDashboardLayout() {
             <SidebarTrigger>
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <h1 
-              className="text-xl font-semibold cursor-pointer hover:text-primary transition-colors"
-              onClick={() => navigate("/")}
-            >
-              Ubuhle Provider Dashboard
-            </h1>
+            <h1 className="text-xl font-semibold">Ubuhle Provider Dashboard</h1>
           </header>
           <div className="p-6">
             <Outlet />

@@ -92,7 +92,12 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C9B3F6] to-[#F7F2EE] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <img src={logo} alt="Ubuhle" className="h-12 mx-auto mb-4" />
+          <img 
+            src={logo} 
+            alt="Ubuhle" 
+            className="h-12 mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={() => navigate("/")}
+          />
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-primary" />
           </div>

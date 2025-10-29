@@ -136,7 +136,12 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C9B3F6] to-[#F7F2EE] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <img src={logo} alt="Ubuhle" className="h-12 mx-auto mb-4" />
+          <img 
+            src={logo} 
+            alt="Ubuhle" 
+            className="h-12 mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={() => navigate("/")}
+          />
           <CardTitle className="text-2xl">
             {isForgotPassword ? "Reset Password" : isLogin ? "Welcome Back" : "Create Account"}
           </CardTitle>

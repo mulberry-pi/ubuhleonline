@@ -13,10 +13,61 @@ serve(async (req) => {
   }
 
   try {
-    const { afterServiceImageUrl, comparisonImageUrl } = await req.json();
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
+    const { afterServiceImageUrl, comparisonImageUrl, appointmentId } = await req.json();
 
     if (!afterServiceImageUrl || !comparisonImageUrl) {
       throw new Error('Missing required images');
+    }
+
+    // Verify user is the provider for the appointment
+    if (appointmentId) {
+      const { data: appointment, error: appointmentError } = await supabase
+        .from('appointments')
+        .select('provider_id')
+        .eq('id', appointmentId)
+        .single();
+
+      if (appointmentError || !appointment) {
+        console.error('Appointment not found:', appointmentError);
+        return new Response(
+          JSON.stringify({ error: 'Appointment not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (appointment.provider_id !== user.id) {
+        console.error('User not authorized for this appointment');
+        return new Response(
+          JSON.stringify({ error: 'Forbidden - You are not the provider for this appointment' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');

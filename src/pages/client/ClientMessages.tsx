@@ -7,6 +7,19 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { z } from "zod";
+
+const messageSchema = z.object({
+  content: z.string()
+    .trim()
+    .min(1, 'Message cannot be empty')
+    .max(5000, 'Message must be less than 5000 characters')
+    .refine(
+      (val) => !val.match(/<script|javascript:|on\w+=/i),
+      'Message contains invalid content'
+    ),
+  receiver_id: z.string().uuid('Invalid recipient')
+});
 
 interface Message {
   id: string;
@@ -155,13 +168,18 @@ export default function ClientMessages() {
     if (!newMessage.trim() || !selectedConversation || !currentUserId) return;
 
     try {
+      const validated = messageSchema.parse({
+        content: newMessage,
+        receiver_id: selectedConversation
+      });
+
       const { error } = await supabase
         .from("messages")
         .insert([
           {
             sender_id: currentUserId,
-            receiver_id: selectedConversation,
-            content: newMessage.trim(),
+            receiver_id: validated.receiver_id,
+            content: validated.content,
           },
         ]);
 
@@ -169,8 +187,12 @@ export default function ClientMessages() {
       setNewMessage("");
       loadMessages(selectedConversation);
     } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        console.error("Error sending message:", error);
+        toast.error("Failed to send message");
+      }
     }
   };
 
@@ -278,17 +300,23 @@ export default function ClientMessages() {
                   </div>
                 </ScrollArea>
                 <div className="p-4 border-t flex gap-2">
-                  <Input
-                    placeholder="Type your message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                  />
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Type your message..."
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
+                      maxLength={5000}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {newMessage.length}/5000 characters
+                    </p>
+                  </div>
                   <Button onClick={sendMessage}>
                     <Send className="h-4 w-4" />
                   </Button>

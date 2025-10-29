@@ -15,6 +15,7 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapboxToken, setMapboxToken] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
     // Get token from environment variable
@@ -35,6 +36,14 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
         style: 'mapbox://styles/mapbox/light-v11',
         center: [18.4241, -33.9249], // Cape Town center
         zoom: 11,
+      });
+
+      // Listen for map load errors
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+        if (e.error?.message?.includes('Not Authorized') || e.error?.message?.includes('Invalid Token')) {
+          setMapError('Invalid Mapbox token. Please update your MAPBOX_PUBLIC_TOKEN secret with a valid token from https://mapbox.com/');
+        }
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -70,8 +79,31 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
 
   if (!mapboxToken) {
     return (
-      <div className="bg-card rounded-2xl p-8 shadow-lg h-[640px] flex items-center justify-center">
+      <div className="bg-card rounded-2xl p-8 shadow-lg h-[640px] flex flex-col items-center justify-center gap-4">
         <p className="text-muted-foreground">Loading map...</p>
+        <p className="text-sm text-muted-foreground text-center max-w-md">
+          If the map doesn't load, please ensure you have a valid Mapbox token configured.
+        </p>
+      </div>
+    );
+  }
+
+  if (mapError) {
+    return (
+      <div className="bg-card rounded-2xl p-8 shadow-lg h-[640px] flex flex-col items-center justify-center gap-4">
+        <div className="text-center max-w-md space-y-4">
+          <div className="text-destructive font-semibold">Map Token Error</div>
+          <p className="text-sm text-muted-foreground">{mapError}</p>
+          <div className="bg-muted p-4 rounded-lg text-left text-xs space-y-2">
+            <p className="font-medium">To fix this:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Go to <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a></li>
+              <li>Sign in or create an account</li>
+              <li>Copy your public token from the Tokens section</li>
+              <li>Update the MAPBOX_PUBLIC_TOKEN secret in your backend</li>
+            </ol>
+          </div>
+        </div>
       </div>
     );
   }

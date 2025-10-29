@@ -136,104 +136,130 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background font-jakarta">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
       <Header />
-      <main className="container mx-auto px-6 pt-24 pb-12">
-        <div className="flex gap-8">
-          {/* Left Sidebar - Filters */}
-          <aside className="w-80 flex-shrink-0">
-            <div className="sticky top-24 bg-card rounded-2xl p-6 shadow-lg">
-              <SearchBar
-                onSearch={handleSearch}
-                activeMode={searchMode}
-                onModeChange={setSearchMode}
-              />
-              <div className="border-t border-border my-6" />
-              <h2 className="text-xl font-semibold mb-6">Filters</h2>
-              <FiltersPanel filters={filters} onFiltersChange={setFilters} />
-            </div>
-          </aside>
+      
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-12 px-6">
+        <div className="container mx-auto max-w-6xl">
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+              Find My Stylists
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Discover and book appointments with top-rated beauty professionals in Cape Town
+            </p>
+          </div>
 
-          {/* Main Content - Results */}
-          <div className="flex-1 min-w-0">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Loading providers...</p>
-              </div>
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <SearchBar
+              onSearch={handleSearch}
+              activeMode={searchMode}
+              onModeChange={setSearchMode}
+            />
+          </div>
+
+          {/* Filter Bar */}
+          <div className="flex items-center justify-center gap-4 flex-wrap mb-6">
+            <FiltersPanel filters={filters} onFiltersChange={setFilters} />
+          </div>
+          
+          {/* View Controls */}
+          {viewMode !== 'map' && (
+            <div className="flex justify-center">
+              <ResultsHeader
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                totalResults={filteredProviders.length}
+                currentPage={currentPage}
+                pageSize={pageSize}
+              />
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Results Section */}
+      <main className="container mx-auto px-6 pb-16 max-w-7xl">
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground text-lg">Finding your perfect stylists...</p>
+          </div>
+        ) : (
+          <>
+            {viewMode === 'map' ? (
+              <ProviderMap providers={filteredProviders} />
             ) : (
               <>
-                {viewMode !== 'map' && (
-                  <ResultsHeader
-                    viewMode={viewMode}
-                    onViewModeChange={setViewMode}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                    totalResults={filteredProviders.length}
-                    currentPage={currentPage}
-                    pageSize={pageSize}
-                  />
+                {paginatedProviders.length === 0 ? (
+                  <div className="text-center py-20 bg-card rounded-3xl shadow-lg">
+                    <div className="max-w-md mx-auto">
+                      <p className="text-muted-foreground text-xl mb-2">No stylists found</p>
+                      <p className="text-sm text-muted-foreground">Try adjusting your search filters or location</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className={`grid gap-6 ${
+                      viewMode === 'grid'
+                        ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                        : 'grid-cols-1 max-w-4xl mx-auto'
+                    }`}
+                  >
+                    {paginatedProviders.map((provider) => (
+                      <ProviderCard
+                        key={provider.id}
+                        provider={provider}
+                        viewMode={viewMode === 'list' ? 'list' : 'grid'}
+                      />
+                    ))}
+                  </div>
                 )}
 
-                {viewMode === 'map' ? (
-                  <ProviderMap providers={filteredProviders} />
-                ) : (
-                  <>
-                    <div
-                      className={`grid gap-6 ${
-                        viewMode === 'grid'
-                          ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
-                          : 'grid-cols-1'
-                      }`}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-12">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="rounded-full"
                     >
-                      {paginatedProviders.map((provider) => (
-                        <ProviderCard
-                          key={provider.id}
-                          provider={provider}
-                          viewMode={viewMode === 'list' ? 'list' : 'grid'}
-                        />
-                      ))}
-                    </div>
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
 
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-2 mt-12">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                          disabled={currentPage === 1}
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? 'default' : 'outline'}
+                        className="w-10 h-10 rounded-full"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    ))}
 
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <Button
-                            key={page}
-                            variant={currentPage === page ? 'default' : 'outline'}
-                            className="w-10 h-10"
-                            onClick={() => setCurrentPage(page)}
-                          >
-                            {page}
-                          </Button>
-                        ))}
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                          disabled={currentPage === totalPages}
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="rounded-full"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
                 )}
               </>
             )}
-          </div>
-        </div>
+          </>
+        )}
       </main>
     </div>
   );

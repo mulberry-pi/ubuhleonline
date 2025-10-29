@@ -42,6 +42,27 @@ function ClientSidebar({ user }: { user: User | null }) {
   const location = useLocation();
   const navigate = useNavigate();
   const collapsed = state === "collapsed";
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    if (user?.id) {
+      loadUserName();
+    }
+  }, [user?.id]);
+
+  const loadUserName = async () => {
+    if (!user?.id) return;
+    
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+    
+    if (data?.full_name) {
+      setUserName(data.full_name);
+    }
+  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -70,7 +91,7 @@ function ClientSidebar({ user }: { user: User | null }) {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">Client</span>
+                <span className="text-sm font-medium">{userName || "Client"}</span>
                 <span className="text-xs text-muted-foreground truncate max-w-[120px]">
                   {user?.email}
                 </span>
@@ -161,7 +182,12 @@ export default function ClientDashboardLayout() {
             <SidebarTrigger>
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <h1 className="text-xl font-semibold">Ubuhle</h1>
+            <h1 
+              className="text-xl font-semibold cursor-pointer hover:text-primary transition-colors"
+              onClick={() => navigate("/")}
+            >
+              Ubuhle
+            </h1>
           </header>
           <div className="p-6">
             <Outlet />

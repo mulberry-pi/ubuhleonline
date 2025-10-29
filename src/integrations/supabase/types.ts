@@ -475,9 +475,84 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_provider_profiles: {
+        Row: {
+          availability_status: string | null
+          business_address: string | null
+          business_description: string | null
+          business_logo_url: string | null
+          business_name: string | null
+          city: string | null
+          created_at: string | null
+          gallery_images: string[] | null
+          id: string | null
+          is_public: boolean | null
+          price_range: string | null
+          rating: number | null
+          review_count: number | null
+          suburb: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          availability_status?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_logo_url?: string | null
+          business_name?: string | null
+          city?: string | null
+          created_at?: string | null
+          gallery_images?: string[] | null
+          id?: string | null
+          is_public?: boolean | null
+          price_range?: string | null
+          rating?: number | null
+          review_count?: number | null
+          suburb?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          availability_status?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_logo_url?: string | null
+          business_name?: string | null
+          city?: string | null
+          created_at?: string | null
+          gallery_images?: string[] | null
+          id?: string | null
+          is_public?: boolean | null
+          price_range?: string | null
+          rating?: number | null
+          review_count?: number | null
+          suburb?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      get_calendar_sync_status: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          provider: string
+          token_expiry: string
+          updated_at: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -488,6 +563,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_calendar_tokens: {
+        Args: {
+          _access_token: string
+          _provider: string
+          _refresh_token: string
+          _token_expiry: string
+          _user_id: string
+        }
+        Returns: string
       }
     }
     Enums: {

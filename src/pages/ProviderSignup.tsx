@@ -57,12 +57,15 @@ const ProviderSignup = () => {
     payoutDate: 15 as 15 | 25 | 30,
   });
 
-  // Step 4: Services
+  // Step 4: Portfolio Upload
+  const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
+
+  // Step 5: Services
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState("");
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
 
-  // Step 5: Operating Hours
+  // Step 6: Operating Hours
   const [operatingHours, setOperatingHours] = useState<OperatingHours>({
     Monday: { open: true, start: "09:00", end: "17:00" },
     Tuesday: { open: true, start: "09:00", end: "17:00" },
@@ -83,7 +86,16 @@ const ProviderSignup = () => {
     "Barbering",
   ];
 
-  const totalSteps = 5;
+  const totalSteps = 6;
+
+  const handlePortfolioImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setPortfolioImages([...portfolioImages, ...files].slice(0, 10)); // Max 10 images
+  };
+
+  const removePortfolioImage = (index: number) => {
+    setPortfolioImages(portfolioImages.filter((_, i) => i !== index));
+  };
   const progress = (currentStep / totalSteps) * 100;
 
   const handleServiceToggle = (service: string) => {
@@ -155,6 +167,25 @@ const ProviderSignup = () => {
       if (error) throw error;
 
       if (data.user && data.session) {
+        // Upload portfolio images to storage
+        const portfolioImageUrls: string[] = [];
+        if (portfolioImages.length > 0) {
+          for (const image of portfolioImages) {
+            const fileExt = image.name.split('.').pop();
+            const fileName = `${data.user.id}/${Math.random()}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage
+              .from('portfolio-images')
+              .upload(fileName, image);
+
+            if (!uploadError) {
+              const { data: urlData } = supabase.storage
+                .from('portfolio-images')
+                .getPublicUrl(fileName);
+              portfolioImageUrls.push(urlData.publicUrl);
+            }
+          }
+        }
+
         // Call edge function to create profile and assign provider role
         const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
           body: { role: 'provider', full_name: ownerInfo.fullName }
@@ -174,6 +205,7 @@ const ProviderSignup = () => {
             business_address: businessInfo.address || null,
             is_public: true,
             rating: 0,
+            gallery_images: portfolioImageUrls,
             bank_account_holder_name: paymentInfo.bankAccountHolderName,
             bank_name: paymentInfo.bankName,
             bank_account_number: paymentInfo.bankAccountNumber,
@@ -207,6 +239,9 @@ const ProviderSignup = () => {
             }
           }
         }
+
+        // Sync initial appointment to calendar (if any future appointments exist)
+        // This will be handled automatically when appointments are created
       }
 
       toast({
@@ -480,8 +515,77 @@ const ProviderSignup = () => {
             </div>
           )}
 
-          {/* Step 4: Services Offered */}
+          {/* Step 4: Portfolio Upload */}
           {currentStep === 4 && (
+            <div className="space-y-6 animate-fade-in">
+              <h2 className="text-3xl font-bold text-foreground mb-6">Showcase Your Work</h2>
+              <p className="text-muted-foreground mb-6">
+                Upload 3-10 images of your best work to show potential clients your skills and style.
+              </p>
+              
+              <div className="space-y-4">
+                <Label htmlFor="portfolio">Portfolio Images (Max 10)</Label>
+                <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary transition-colors">
+                  <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    PNG, JPG, WEBP up to 5MB each
+                  </p>
+                  <Input
+                    id="portfolio"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePortfolioImageSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('portfolio')?.click()}
+                  >
+                    Select Images
+                  </Button>
+                </div>
+
+                {/* Preview uploaded images */}
+                {portfolioImages.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+                    {portfolioImages.map((image, index) => (
+                      <div key={index} className="relative group rounded-xl overflow-hidden border-2 border-border">
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`Portfolio ${index + 1}`}
+                          className="w-full h-40 object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removePortfolioImage(index)}
+                          className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2">
+                          {image.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {portfolioImages.length > 0 && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    {portfolioImages.length} image{portfolioImages.length !== 1 ? 's' : ''} selected (Max 10)
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Services Offered */}
+          {currentStep === 5 && (
             <div className="space-y-6 animate-fade-in">
               <h2 className="text-3xl font-bold text-foreground mb-6">Select your services</h2>
               
@@ -547,8 +651,8 @@ const ProviderSignup = () => {
             </div>
           )}
 
-          {/* Step 5: Operating Hours */}
-          {currentStep === 5 && (
+          {/* Step 6: Operating Hours */}
+          {currentStep === 6 && (
             <div className="space-y-6 animate-fade-in">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-foreground">Set your availability</h2>

@@ -60,7 +60,7 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
       }
 
       // Create appointment in database
-      const { error } = await supabase
+      const { data: appointmentData, error } = await supabase
         .from('appointments')
         .insert({
           client_id: user.id,
@@ -70,12 +70,33 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
           appointment_time: data.time,
           notes: `Location: ${data.location}, Contact: ${data.name}, ${data.email}, ${data.phone}`,
           status: 'pending'
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Booking error:', error);
         toast.error('Failed to create booking. Please try again.');
         return;
+      }
+
+      // Automatically sync to calendar if enabled
+      if (appointmentData) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          await supabase.functions.invoke('sync-calendar', {
+            body: { 
+              appointmentId: appointmentData.id,
+              action: 'create'
+            },
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`
+            }
+          });
+        } catch (syncError) {
+          // Calendar sync is optional, don't block the booking
+          console.log('Calendar sync skipped or failed:', syncError);
+        }
       }
 
       toast.success('Appointment created successfully!');

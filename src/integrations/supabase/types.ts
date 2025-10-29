@@ -81,6 +81,42 @@ export type Database = {
           },
         ]
       }
+      calendar_sync_settings: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          provider: string
+          refresh_token: string | null
+          token_expiry: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          provider: string
+          refresh_token?: string | null
+          token_expiry?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          provider?: string
+          refresh_token?: string | null
+          token_expiry?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_url: string | null
@@ -132,8 +168,11 @@ export type Database = {
           created_at: string
           email: string
           full_name: string | null
+          google_calendar_enabled: boolean | null
+          google_calendar_refresh_token: string | null
           id: string
           phone: string | null
+          phone_calendar_enabled: boolean | null
           updated_at: string
         }
         Insert: {
@@ -141,8 +180,11 @@ export type Database = {
           created_at?: string
           email: string
           full_name?: string | null
+          google_calendar_enabled?: boolean | null
+          google_calendar_refresh_token?: string | null
           id: string
           phone?: string | null
+          phone_calendar_enabled?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -150,8 +192,11 @@ export type Database = {
           created_at?: string
           email?: string
           full_name?: string | null
+          google_calendar_enabled?: boolean | null
+          google_calendar_refresh_token?: string | null
           id?: string
           phone?: string | null
+          phone_calendar_enabled?: boolean | null
           updated_at?: string
         }
         Relationships: []

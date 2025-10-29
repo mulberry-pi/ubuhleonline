@@ -173,6 +173,42 @@ export default function ClientSettings() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Calendar Integration</CardTitle>
+          <CardDescription>Sync your appointments to your calendar</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="google_calendar">Google Calendar</Label>
+              <p className="text-sm text-muted-foreground">
+                Automatically sync appointments to your Google Calendar
+              </p>
+            </div>
+            <Button variant="outline" size="sm">
+              Connect
+            </Button>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="phone_calendar">Phone Calendar</Label>
+              <p className="text-sm text-muted-foreground">
+                Add appointments to your device calendar
+              </p>
+            </div>
+            <Switch
+              id="phone_calendar"
+              disabled
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Note: Phone calendar sync is automatically available when you download appointments.
+            Google Calendar requires authorization.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Account Actions</CardTitle>
           <CardDescription>Manage your account</CardDescription>
         </CardHeader>

@@ -114,7 +114,7 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
         Back to Profile
       </Button>
 
-      <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+      <h2 className="text-3xl font-bold mb-2">
         Book Your Appointment
       </h2>
       <p className="text-muted-foreground mb-8">

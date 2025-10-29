@@ -14,8 +14,6 @@ export default {
     },
     extend: {
       fontFamily: {
-        outfit: ["'Outfit'", "sans-serif"],
-        playfair: ["'Playfair Display'", "serif"],
         jakarta: ["'Plus Jakarta Sans'", "sans-serif"],
       },
       colors: {

@@ -53,7 +53,7 @@ const StylistProfileModal = ({ stylist, onClose, onBook }: StylistProfileModalPr
         <div className="p-8 space-y-8">
           {/* Header */}
           <div>
-            <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-3xl font-bold mb-2">
               {stylist.name}
             </h2>
             <p className="text-lg text-muted-foreground mb-4">{stylist.businessName}</p>

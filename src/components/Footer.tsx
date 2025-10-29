@@ -10,7 +10,6 @@ const Footer = () => {
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
         style={{
           fontSize: "clamp(8rem, 20vw, 16rem)",
-          fontFamily: "'Playfair Display', serif",
           fontWeight: 700,
           opacity: 0.03,
           letterSpacing: "0.1em",
@@ -23,7 +22,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-3 gap-12 mb-12">
           {/* Navigation Links */}
           <div>
-            <h3 className="font-semibold text-lg mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <h3 className="font-semibold text-lg mb-4">
               Services
             </h3>
             <ul className="space-y-2">
@@ -46,7 +45,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <h3 className="font-semibold text-lg mb-4">
               Company
             </h3>
             <ul className="space-y-2">
@@ -72,7 +71,6 @@ const Footer = () => {
           <div className="md:text-right">
             <p
               className="text-2xl font-bold mb-2"
-              style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Connecting you to the right people, <span className="text-primary">faster.</span>
             </p>

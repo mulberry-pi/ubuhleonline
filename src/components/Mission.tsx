@@ -8,10 +8,7 @@ const Mission = () => {
 
       <div className="container mx-auto relative z-10 max-w-4xl text-center">
         <div className="space-y-6 fade-in-up">
-          <h2
-            className="text-4xl lg:text-5xl font-bold leading-tight"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
             Our mission is to connect{" "}
             <span className="text-primary">beauty professionals</span> with clients through
             seamless, smart technology.

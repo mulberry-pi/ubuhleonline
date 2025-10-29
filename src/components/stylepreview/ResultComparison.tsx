@@ -28,10 +28,7 @@ const ResultComparison = ({
     <div className="space-y-8 animate-fade-in-up">
       {/* Success Message */}
       <div className="text-center">
-        <h2 
-          className="text-4xl font-bold mb-4"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
+        <h2 className="text-4xl font-bold mb-4">
           Your style preview is <span className="text-primary">ready!</span>
         </h2>
         <p className="text-lg text-muted-foreground">

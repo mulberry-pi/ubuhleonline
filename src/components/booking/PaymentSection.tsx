@@ -162,7 +162,7 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
             <Lock className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-2xl font-bold">
               Secure Payment
             </h2>
             <p className="text-sm text-muted-foreground">Your payment information is encrypted and secure</p>

@@ -42,10 +42,7 @@ const Hero = () => {
           </div>
 
           <div className="space-y-6 fade-in-up animation-delay-200 px-6 lg:px-12 py-12">
-            <h1
-              className="text-5xl lg:text-6xl font-bold leading-tight"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
+            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
               Connecting you to the right people,{" "}
               <span className="text-primary">faster.</span>
             </h1>

@@ -32,10 +32,7 @@ const Services = () => {
     <section id="services" className="py-20 px-6">
       <div className="container mx-auto">
         <div className="text-center mb-16 fade-in-up">
-          <h2
-            className="text-4xl lg:text-5xl font-bold mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h2 className="text-4xl lg:text-5xl font-bold mb-4">
             Everything you need to discover, book and{" "}
             <span className="text-primary">manage beauty services</span>
           </h2>

@@ -35,10 +35,7 @@ const Technology = () => {
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 fade-in-up">
-            <h2
-              className="text-4xl lg:text-5xl font-bold"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
+            <h2 className="text-4xl lg:text-5xl font-bold">
               Fast. Easy. <span className="text-primary">Reliable.</span>
             </h2>
             <p className="text-lg text-muted-foreground">

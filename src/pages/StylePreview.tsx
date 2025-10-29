@@ -138,10 +138,7 @@ const StylePreview = () => {
         </div>
 
         <div className="container mx-auto text-center relative z-10">
-          <h1 
-            className="text-5xl md:text-6xl font-bold mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
             See your next look, <span className="text-primary">instantly.</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">

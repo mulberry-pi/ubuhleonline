@@ -47,10 +47,7 @@ const BookingConfirmation = ({ stylist, bookingData, onReset }: BookingConfirmat
 
         {/* Success Message */}
         <div className="space-y-4">
-          <h1
-            className="text-5xl md:text-6xl font-bold"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h1 className="text-5xl md:text-6xl font-bold">
             Booking <span className="text-primary">Confirmed</span> ✨
           </h1>
           <p className="text-xl text-muted-foreground max-w-lg mx-auto">

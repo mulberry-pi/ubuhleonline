@@ -60,7 +60,7 @@ const ProcessingAnimation = () => {
         </svg>
       </div>
 
-      <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+      <h2 className="text-2xl font-bold mb-4">
         Generating your preview…
       </h2>
       

@@ -182,18 +182,18 @@ export default function ClientDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/client/gallery")}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/search")}>
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle className="text-lg">Style Gallery</CardTitle>
+              <CardTitle className="text-lg">Find Stylists</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Browse your past looks and favorites
+              Browse and connect with beauty professionals
             </p>
           </CardContent>
         </Card>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, Check } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, Check, Lock } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -269,16 +269,33 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
           </div>
         </div>
 
-        {/* Deposit Toggle */}
-        <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-xl border border-border/50">
-          <div className="space-y-0.5">
-            <Label htmlFor="deposit">Pay Deposit Now</Label>
-            <p className="text-sm text-muted-foreground">Secure your booking with a 30% deposit</p>
+        {/* Deposit Information */}
+        <div className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <Lock className="w-5 h-5 text-primary" />
+            Payment Information
+          </h3>
+          <div className="space-y-2 text-sm">
+            <p className="text-muted-foreground">
+              To secure your appointment, a 25% deposit plus a R50 service fee is required.
+            </p>
+            <ul className="space-y-1 text-muted-foreground ml-4">
+              <li>• The provider's address will be revealed after payment</li>
+              <li>• Remaining balance due at your appointment</li>
+              <li>• Secure payment processing via PayFast</li>
+            </ul>
           </div>
-          <Switch
-            id="deposit"
-            onCheckedChange={(checked) => form.setValue("payDeposit", checked)}
-          />
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-primary/20">
+            <div className="space-y-0.5">
+              <Label htmlFor="deposit">Pay Deposit Now</Label>
+              <p className="text-xs text-muted-foreground">Required to confirm booking</p>
+            </div>
+            <Switch
+              id="deposit"
+              defaultChecked={true}
+              onCheckedChange={(checked) => form.setValue("payDeposit", checked)}
+            />
+          </div>
         </div>
 
         {/* Submit Button */}

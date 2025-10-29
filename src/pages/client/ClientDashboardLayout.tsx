@@ -33,7 +33,6 @@ const menuItems = [
   { title: "Dashboard", url: "/client/dashboard", icon: LayoutDashboard },
   { title: "New Booking", url: "/client/new-booking", icon: Plus },
   { title: "My Appointments", url: "/client/appointments", icon: Calendar },
-  { title: "Style Gallery", url: "/client/gallery", icon: ImageIcon },
   { title: "Messages", url: "/client/messages", icon: MessageSquare },
   { title: "Settings", url: "/client/settings", icon: Settings },
 ];

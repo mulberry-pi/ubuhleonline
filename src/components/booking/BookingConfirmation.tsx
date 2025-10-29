@@ -1,8 +1,10 @@
-import { CheckCircle2, Calendar, Home } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, Calendar, Home, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Stylist, BookingFormData } from "@/types/booking";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BookingConfirmationProps {
   stylist: Stylist;
@@ -12,6 +14,24 @@ interface BookingConfirmationProps {
 
 const BookingConfirmation = ({ stylist, bookingData, onReset }: BookingConfirmationProps) => {
   const navigate = useNavigate();
+  const [providerAddress, setProviderAddress] = useState<string>('');
+
+  useEffect(() => {
+    // Fetch provider's full address now that payment is complete
+    const fetchProviderAddress = async () => {
+      const { data, error } = await supabase
+        .from('provider_profiles')
+        .select('business_address, city, suburb')
+        .eq('user_id', stylist.id)
+        .single();
+
+      if (data && !error) {
+        setProviderAddress(data.business_address || `${data.city || ''}${data.suburb ? ', ' + data.suburb : ''}`);
+      }
+    };
+
+    fetchProviderAddress();
+  }, [stylist.id]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-16">
@@ -67,9 +87,23 @@ const BookingConfirmation = ({ stylist, bookingData, onReset }: BookingConfirmat
               <div>
                 <p className="font-medium">{stylist.name}</p>
                 <p className="text-sm text-muted-foreground">{stylist.businessName}</p>
-                <p className="text-sm text-muted-foreground">{stylist.location}</p>
               </div>
             </div>
+
+            {providerAddress && (
+              <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Location Address</p>
+                  <p className="text-sm text-muted-foreground">{providerAddress}</p>
+                  <p className="text-xs text-muted-foreground mt-1 italic">
+                    Address revealed after payment confirmation
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">

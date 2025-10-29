@@ -10,6 +10,8 @@ export interface Provider {
   lng: number;
   verified: boolean;
   distance?: number;
+  city?: string;
+  suburb?: string;
 }
 
 export interface SearchFilters {

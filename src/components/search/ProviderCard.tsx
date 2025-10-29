@@ -39,6 +39,12 @@ const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
                 <span>{provider.distance} km away</span>
               </div>
             )}
+            {provider.city && (
+              <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+                <MapPin className="w-4 h-4" />
+                <span>{provider.city}{provider.suburb ? `, ${provider.suburb}` : ''}</span>
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {provider.services.slice(0, 4).map((service) => (
@@ -90,6 +96,12 @@ const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
             <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
               <MapPin className="w-4 h-4" />
               <span>{provider.distance} km</span>
+            </div>
+          )}
+          {provider.city && (
+            <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+              <MapPin className="w-4 h-4" />
+              <span>{provider.city}{provider.suburb ? `, ${provider.suburb}` : ''}</span>
             </div>
           )}
         </div>

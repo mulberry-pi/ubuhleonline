@@ -43,10 +43,11 @@ const Search = () => {
           user_id,
           business_name,
           business_description,
-          business_address,
           business_logo_url,
           rating,
           is_public,
+          city,
+          suburb,
           profiles!provider_profiles_user_id_fkey (
             id,
             full_name,
@@ -80,7 +81,9 @@ const Search = () => {
             lat: -33.9249,
             lng: 18.4241,
             verified: true,
-            distance: 0
+            distance: 0,
+            city: p.city || '',
+            suburb: p.suburb || ''
           };
         })
       );

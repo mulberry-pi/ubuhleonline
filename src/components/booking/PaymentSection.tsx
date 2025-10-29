@@ -70,8 +70,10 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
   const [isProcessing, setIsProcessing] = useState(false);
   
   const selectedService = stylist.services.find(s => s.id === bookingData.service);
-  const depositAmount = selectedService ? Math.round(selectedService.price * 0.3) : 0;
+  const SERVICE_FEE = 50; // ZAR 50 service fee
   const fullPrice = selectedService?.price || 0;
+  const depositPercentage = 0.25; // 25% deposit
+  const depositAmount = selectedService ? Math.round(selectedService.price * depositPercentage) + SERVICE_FEE : SERVICE_FEE;
 
   const {
     register,
@@ -189,13 +191,25 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
               <span className="text-muted-foreground">Location</span>
               <span className="font-medium capitalize">{bookingData.location} Visit</span>
             </div>
-            <div className="border-t border-primary/20 pt-3 mt-3">
-              <div className="flex justify-between text-base">
-                <span className="font-semibold">Deposit Amount (30%)</span>
+            <div className="border-t border-primary/20 pt-3 mt-3 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Service Price</span>
+                <span>R{fullPrice}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Deposit (25%)</span>
+                <span>R{Math.round(fullPrice * 0.25)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Service Fee</span>
+                <span>R{SERVICE_FEE}</span>
+              </div>
+              <div className="border-t border-primary/20 pt-2 flex justify-between text-base">
+                <span className="font-semibold">Total Due Now</span>
                 <span className="font-bold text-primary text-lg">R{depositAmount}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Remaining R{fullPrice - depositAmount} to be paid at appointment
+                Remaining R{fullPrice - Math.round(fullPrice * 0.25)} to be paid at appointment
               </p>
             </div>
           </div>

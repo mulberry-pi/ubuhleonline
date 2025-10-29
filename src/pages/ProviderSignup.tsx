@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -47,12 +48,21 @@ const ProviderSignup = () => {
     logo: null as File | null,
   });
 
-  // Step 3: Services
+  // Step 3: Payment Information
+  const [paymentInfo, setPaymentInfo] = useState({
+    bankAccountHolderName: "",
+    bankName: "",
+    bankAccountNumber: "",
+    payoutFrequency: "monthly" as "weekly" | "bi-weekly" | "monthly",
+    payoutDate: 15 as 15 | 25 | 30,
+  });
+
+  // Step 4: Services
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState("");
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
 
-  // Step 4: Operating Hours
+  // Step 5: Operating Hours
   const [operatingHours, setOperatingHours] = useState<OperatingHours>({
     Monday: { open: true, start: "09:00", end: "17:00" },
     Tuesday: { open: true, start: "09:00", end: "17:00" },
@@ -73,7 +83,7 @@ const ProviderSignup = () => {
     "Barbering",
   ];
 
-  const totalSteps = 4;
+  const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
   const handleServiceToggle = (service: string) => {
@@ -163,7 +173,12 @@ const ProviderSignup = () => {
             business_description: businessInfo.description,
             business_address: businessInfo.address || null,
             is_public: true,
-            rating: 0
+            rating: 0,
+            bank_account_holder_name: paymentInfo.bankAccountHolderName,
+            bank_name: paymentInfo.bankName,
+            bank_account_number: paymentInfo.bankAccountNumber,
+            payout_frequency: paymentInfo.payoutFrequency,
+            payout_date: paymentInfo.payoutFrequency === 'monthly' ? paymentInfo.payoutDate : null,
           });
 
         if (profileError) {
@@ -360,8 +375,113 @@ const ProviderSignup = () => {
             </div>
           )}
 
-          {/* Step 3: Services Offered */}
+          {/* Step 3: Payment Information */}
           {currentStep === 3 && (
+            <div className="space-y-6 animate-fade-in">
+              <h2 className="text-3xl font-bold text-foreground mb-6">Payment Information</h2>
+              <p className="text-muted-foreground mb-6">
+                Configure where you'd like to receive your payouts from bookings.
+              </p>
+              
+              <div className="space-y-2">
+                <Label htmlFor="bankAccountHolderName">Account Holder Name</Label>
+                <Input
+                  id="bankAccountHolderName"
+                  type="text"
+                  placeholder="Full name on bank account"
+                  value={paymentInfo.bankAccountHolderName}
+                  onChange={(e) => setPaymentInfo({ ...paymentInfo, bankAccountHolderName: e.target.value })}
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bankName">Bank Name</Label>
+                <Input
+                  id="bankName"
+                  type="text"
+                  placeholder="e.g., First National Bank, Standard Bank"
+                  value={paymentInfo.bankName}
+                  onChange={(e) => setPaymentInfo({ ...paymentInfo, bankName: e.target.value })}
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bankAccountNumber">Bank Account Number</Label>
+                <Input
+                  id="bankAccountNumber"
+                  type="text"
+                  placeholder="Your account number"
+                  value={paymentInfo.bankAccountNumber}
+                  onChange={(e) => setPaymentInfo({ ...paymentInfo, bankAccountNumber: e.target.value })}
+                  className="h-12 text-base"
+                  required
+                />
+              </div>
+
+              <div className="space-y-4 pt-6 border-t">
+                <Label>Payout Frequency</Label>
+                <RadioGroup
+                  value={paymentInfo.payoutFrequency}
+                  onValueChange={(value) => setPaymentInfo({ ...paymentInfo, payoutFrequency: value as "weekly" | "bi-weekly" | "monthly" })}
+                >
+                  <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                    <RadioGroupItem value="weekly" id="weekly" />
+                    <Label htmlFor="weekly" className="cursor-pointer flex-1 font-normal">
+                      Weekly
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                    <RadioGroupItem value="bi-weekly" id="bi-weekly" />
+                    <Label htmlFor="bi-weekly" className="cursor-pointer flex-1 font-normal">
+                      Every 2 Weeks
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor="monthly" className="cursor-pointer flex-1 font-normal">
+                      Monthly
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {paymentInfo.payoutFrequency === 'monthly' && (
+                <div className="space-y-4">
+                  <Label>Payout Date</Label>
+                  <RadioGroup
+                    value={paymentInfo.payoutDate.toString()}
+                    onValueChange={(value) => setPaymentInfo({ ...paymentInfo, payoutDate: parseInt(value) as 15 | 25 | 30 })}
+                  >
+                    <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                      <RadioGroupItem value="15" id="day-15" />
+                      <Label htmlFor="day-15" className="cursor-pointer flex-1 font-normal">
+                        15th of each month
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                      <RadioGroupItem value="25" id="day-25" />
+                      <Label htmlFor="day-25" className="cursor-pointer flex-1 font-normal">
+                        25th of each month
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                      <RadioGroupItem value="30" id="day-30" />
+                      <Label htmlFor="day-30" className="cursor-pointer flex-1 font-normal">
+                        30th of each month (or last day)
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 4: Services Offered */}
+          {currentStep === 4 && (
             <div className="space-y-6 animate-fade-in">
               <h2 className="text-3xl font-bold text-foreground mb-6">Select your services</h2>
               
@@ -427,8 +547,8 @@ const ProviderSignup = () => {
             </div>
           )}
 
-          {/* Step 4: Operating Hours */}
-          {currentStep === 4 && (
+          {/* Step 5: Operating Hours */}
+          {currentStep === 5 && (
             <div className="space-y-6 animate-fade-in">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-foreground">Set your availability</h2>

@@ -158,6 +158,9 @@ export type Database = {
       }
       provider_profiles: {
         Row: {
+          bank_account_holder_name: string | null
+          bank_account_number: string | null
+          bank_name: string | null
           business_address: string | null
           business_description: string | null
           business_logo_url: string | null
@@ -165,11 +168,16 @@ export type Database = {
           created_at: string
           id: string
           is_public: boolean | null
+          payout_date: number | null
+          payout_frequency: string | null
           rating: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          bank_account_holder_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           business_address?: string | null
           business_description?: string | null
           business_logo_url?: string | null
@@ -177,11 +185,16 @@ export type Database = {
           created_at?: string
           id?: string
           is_public?: boolean | null
+          payout_date?: number | null
+          payout_frequency?: string | null
           rating?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          bank_account_holder_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           business_address?: string | null
           business_description?: string | null
           business_logo_url?: string | null
@@ -189,6 +202,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_public?: boolean | null
+          payout_date?: number | null
+          payout_frequency?: string | null
           rating?: number | null
           updated_at?: string
           user_id?: string

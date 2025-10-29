@@ -17,6 +17,14 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 
   useEffect(() => {
+    // Get token from environment variable
+    const token = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN;
+    if (token) {
+      setMapboxToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!mapContainer.current || !mapboxToken) return;
 
     try {
@@ -25,7 +33,7 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [28.0473, -26.2041], // Johannesburg center
+        center: [18.4241, -33.9249], // Cape Town center
         zoom: 11,
       });
 
@@ -62,25 +70,8 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
 
   if (!mapboxToken) {
     return (
-      <div className="bg-card rounded-2xl p-8 shadow-lg h-[640px] flex flex-col items-center justify-center gap-4">
-        <h3 className="text-xl font-semibold">Mapbox Token Required</h3>
-        <p className="text-muted-foreground text-center max-w-md">
-          To view the map, please enter your Mapbox public token. Get yours at{' '}
-          <a
-            href="https://mapbox.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary underline"
-          >
-            mapbox.com
-          </a>
-        </p>
-        <input
-          type="text"
-          placeholder="Enter Mapbox token"
-          className="px-4 py-2 border rounded-lg w-full max-w-md"
-          onChange={(e) => setMapboxToken(e.target.value)}
-        />
+      <div className="bg-card rounded-2xl p-8 shadow-lg h-[640px] flex items-center justify-center">
+        <p className="text-muted-foreground">Loading map...</p>
       </div>
     );
   }

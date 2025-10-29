@@ -14,13 +14,9 @@ interface FiltersPanelProps {
 const serviceTypes = [
   'Hair Styling',
   'Braiding',
-  'Makeup',
-  'Nails',
   'Natural Hair',
   'Color',
-  'Spa',
   'Lashes',
-  'Treatments',
   'Weaves',
 ];
 

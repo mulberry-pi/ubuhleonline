@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_reviews: {
+        Row: {
+          after_service_image_url: string
+          ai_summary: string
+          appointment_id: string
+          comparison_image_url: string
+          comparison_type: string
+          created_at: string
+          id: string
+          is_published: boolean | null
+          provider_id: string
+          similarity_score: number
+          updated_at: string
+        }
+        Insert: {
+          after_service_image_url: string
+          ai_summary: string
+          appointment_id: string
+          comparison_image_url: string
+          comparison_type: string
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          provider_id: string
+          similarity_score: number
+          updated_at?: string
+        }
+        Update: {
+          after_service_image_url?: string
+          ai_summary?: string
+          appointment_id?: string
+          comparison_image_url?: string
+          comparison_type?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          provider_id?: string
+          similarity_score?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_reviews_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           appointment_date: string

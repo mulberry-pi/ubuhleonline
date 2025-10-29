@@ -58,29 +58,6 @@ const SearchBar = ({ onSearch, activeMode, onModeChange }: SearchBarProps) => {
         </Button>
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          variant={activeMode === 'browse' ? 'default' : 'outline'}
-          className="w-[120px] h-10"
-          onClick={() => onModeChange('browse')}
-        >
-          Browse
-        </Button>
-        <Button
-          variant={activeMode === 'map' ? 'default' : 'outline'}
-          className="w-[120px] h-10"
-          onClick={() => onModeChange('map')}
-        >
-          Map
-        </Button>
-        <Button
-          variant={activeMode === 'nearme' ? 'default' : 'outline'}
-          className="w-[120px] h-10"
-          onClick={() => onModeChange('nearme')}
-        >
-          Near me
-        </Button>
-      </div>
     </div>
   );
 };

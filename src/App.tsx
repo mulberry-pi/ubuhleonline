@@ -14,6 +14,7 @@ import ServiceProviders from "./pages/ServiceProviders";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
 import ProviderDashboardLayout from "./pages/provider/ProviderDashboardLayout";
 import Dashboard from "./pages/provider/Dashboard";
 import Appointments from "./pages/provider/Appointments";
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/signup/client" element={<ClientSignup />} />
           <Route path="/signup/provider" element={<ProviderSignup />} />
           <Route path="/service-providers" element={<ServiceProviders />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           

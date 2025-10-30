@@ -125,7 +125,7 @@ const Header = () => {
           onClick={() => navigate("/")}
         />
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
           <button
             onClick={() => navigate("/style-preview")}
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
@@ -143,6 +143,12 @@ const Header = () => {
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
           >
             Find Stylist
+          </button>
+          <button
+            onClick={() => navigate("/pricing")}
+            className="text-foreground/80 hover:text-primary transition-colors font-medium"
+          >
+            Pricing
           </button>
           <Button
             onClick={handleUserClick}

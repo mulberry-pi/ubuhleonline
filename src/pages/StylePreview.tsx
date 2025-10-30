@@ -222,42 +222,39 @@ const StylePreview = () => {
                           Hair, lashes, nails — show us your dream look
                         </p>
                         
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="lg" className="hover-glow">
-                              <Upload className="w-4 h-4 mr-2" />
-                              Choose Image
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem 
-                              onClick={() => handleNativeCamera(CameraSource.Photos)}
-                              className="cursor-pointer"
-                            >
-                              <ImageIcon className="w-4 h-4 mr-2" />
-                              Photo Gallery
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleNativeCamera(CameraSource.Camera)}
-                              className="cursor-pointer"
-                            >
-                              <Camera className="w-4 h-4 mr-2" />
-                              Take a Photo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <label className="cursor-pointer w-full flex items-center">
-                                <Upload className="w-4 h-4 mr-2" />
-                                My Files
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleFileUpload}
-                                  className="hidden"
-                                />
-                              </label>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <Button 
+                            size="lg" 
+                            className="hover-glow"
+                            onClick={() => document.getElementById('file-upload')?.click()}
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Choose from Files
+                          </Button>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                          <Button 
+                            size="lg" 
+                            variant="outline"
+                            onClick={() => handleNativeCamera(CameraSource.Photos)}
+                          >
+                            <ImageIcon className="w-4 h-4 mr-2" />
+                            Photo Gallery
+                          </Button>
+                          <Button 
+                            size="lg" 
+                            variant="outline"
+                            onClick={() => handleNativeCamera(CameraSource.Camera)}
+                          >
+                            <Camera className="w-4 h-4 mr-2" />
+                            Take Photo
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

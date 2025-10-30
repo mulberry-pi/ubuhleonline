@@ -8,7 +8,7 @@ import ProviderMap from '@/components/search/ProviderMap';
 import { Button } from '@/components/ui/button';
 import { SearchFilters, ViewMode, SortOption, Provider } from '@/types/provider';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { mockProviders } from '@/data/mockProviders';
 import { toast } from 'sonner';
 
 const Search = () => {
@@ -37,58 +37,25 @@ const Search = () => {
   const loadProviders = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('provider_profiles')
-        .select(`
-          user_id,
-          business_name,
-          business_description,
-          business_logo_url,
-          rating,
-          is_public,
-          city,
-          suburb,
-          profiles!provider_profiles_user_id_fkey (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('is_public', true);
+      // Using mock data for testing
+      const providersData: Provider[] = mockProviders.map((p) => ({
+        id: p.user_id,
+        name: p.business_name,
+        avatar: p.business_logo_url,
+        rating: p.rating,
+        services: ['Hair Styling', 'Makeup', 'Nails'], // Mock services
+        price_min: parseInt(p.price_range.split(' - ')[0].replace('R', '')),
+        price_max: parseInt(p.price_range.split(' - ')[1].replace('R', '')),
+        lat: -33.9249 + (Math.random() - 0.5) * 0.1, // Random coords near Cape Town
+        lng: 18.4241 + (Math.random() - 0.5) * 0.1,
+        verified: true,
+        distance: Math.round(Math.random() * 10),
+        city: p.city,
+        suburb: p.suburb
+      }));
 
-      if (error) throw error;
-
-      // Get services for each provider
-      const providersWithServices = await Promise.all(
-        (data || []).map(async (p) => {
-          const { data: services } = await supabase
-            .from('services')
-            .select('name, price')
-            .eq('provider_id', p.user_id)
-            .eq('is_available', true);
-
-          const serviceNames = (services || []).map(s => s.name);
-          const prices = (services || []).map(s => Number(s.price));
-
-          return {
-            id: p.user_id,
-            name: p.profiles?.full_name || p.business_name || 'Professional',
-            avatar: p.profiles?.avatar_url || p.business_logo_url || '/placeholder.svg',
-            rating: Number(p.rating) || 0,
-            services: serviceNames,
-            price_min: prices.length > 0 ? Math.min(...prices) : 0,
-            price_max: prices.length > 0 ? Math.max(...prices) : 0,
-            lat: -33.9249,
-            lng: 18.4241,
-            verified: true,
-            distance: 0,
-            city: p.city || '',
-            suburb: p.suburb || ''
-          };
-        })
-      );
-
-      setProviders(providersWithServices);
+      setProviders(providersData);
+      toast.success(`Found ${providersData.length} providers!`);
     } catch (error) {
       console.error('Error loading providers:', error);
       toast.error('Failed to load providers');

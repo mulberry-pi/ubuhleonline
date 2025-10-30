@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { mockProviders } from "@/data/mockProviders";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,25 +39,22 @@ const StylistMatch = () => {
 
   const fetchStylists = async () => {
     try {
-      const { data, error } = await supabase
-        .from("provider_profiles")
-        .select(`
-          id,
-          user_id,
-          business_name,
-          business_description,
-          business_address,
-          business_logo_url,
-          rating,
-          profiles!inner (
-            full_name
-          )
-        `)
-        .eq("is_public", true)
-        .order("rating", { ascending: false });
-
-      if (error) throw error;
-      setStylists(data || []);
+      // Using mock data for testing
+      const mockData = mockProviders.map(provider => ({
+        id: provider.id,
+        user_id: provider.user_id,
+        business_name: provider.business_name,
+        business_description: provider.business_description,
+        business_address: provider.business_address || `${provider.suburb}, ${provider.city}`,
+        business_logo_url: provider.business_logo_url,
+        rating: provider.rating,
+        profiles: {
+          full_name: provider.business_name
+        }
+      }));
+      
+      setStylists(mockData);
+      toast.success(`Found ${mockData.length} stylists for you!`);
     } catch (error) {
       console.error("Error fetching stylists:", error);
       toast.error("Failed to load stylists");

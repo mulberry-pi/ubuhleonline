@@ -8,7 +8,7 @@ import ResultsHeader from "@/components/search/ResultsHeader";
 import ProviderCard from "@/components/search/ProviderCard";
 import ProviderMap from "@/components/search/ProviderMap";
 import { Provider, SearchFilters, ViewMode, SortOption } from "@/types/provider";
-import { supabase } from "@/integrations/supabase/client";
+import { mockProviders } from "@/data/mockProviders";
 import { toast } from "sonner";
 
 const Search = () => {
@@ -38,55 +38,20 @@ const Search = () => {
   const loadProviders = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('provider_profiles')
-        .select(`
-          *,
-          profiles!inner (
-            id,
-            full_name,
-            avatar_url,
-            email
-          ),
-          services (
-            id,
-            name,
-            price,
-            duration_minutes,
-            description
-          )
-        `)
-        .eq('is_public', true);
-
-      // Apply rating filter
-      if (filters.minRating > 0) {
-        query = query.gte('rating', filters.minRating);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      // Transform to Provider type
-      const transformedProviders: Provider[] = (data || []).map((p: any) => {
-        const services = Array.isArray(p.services) ? p.services : [];
-        const prices = services.map((s: any) => parseFloat(s.price?.toString() || '0'));
-        const serviceNames = services.map((s: any) => s.name);
-
-        return {
-          id: p.user_id,
-          name: p.profiles.full_name || p.business_name || 'Professional',
-          avatar: p.profiles.avatar_url || p.business_logo_url || '/placeholder.svg',
-          rating: parseFloat(p.rating?.toString() || '0'),
-          services: serviceNames,
-          price_min: prices.length > 0 ? Math.min(...prices) : 0,
-          price_max: prices.length > 0 ? Math.max(...prices) : 0,
-          lat: -33.9249, // Default Cape Town coords
-          lng: 18.4241,
-          verified: true,
-          distance: 0
-        };
-      });
+      // Using mock data for testing
+      const transformedProviders: Provider[] = mockProviders.map((p) => ({
+        id: p.user_id,
+        name: p.business_name,
+        avatar: p.business_logo_url,
+        rating: p.rating,
+        services: ['Hair Styling', 'Makeup', 'Nails'], // Mock services
+        price_min: parseInt(p.price_range.split(' - ')[0].replace('R', '')),
+        price_max: parseInt(p.price_range.split(' - ')[1].replace('R', '')),
+        lat: -33.9249 + (Math.random() - 0.5) * 0.1,
+        lng: 18.4241 + (Math.random() - 0.5) * 0.1,
+        verified: true,
+        distance: Math.round(Math.random() * 10)
+      }));
 
       // Apply service type filter
       let filtered = transformedProviders;
@@ -98,6 +63,11 @@ const Search = () => {
             )
           )
         );
+      }
+
+      // Apply rating filter
+      if (filters.minRating > 0) {
+        filtered = filtered.filter(p => p.rating >= filters.minRating);
       }
 
       // Apply price range filter
@@ -113,6 +83,7 @@ const Search = () => {
       });
 
       setProviders(sorted);
+      toast.success(`Found ${sorted.length} providers!`);
     } catch (error) {
       console.error('Error loading providers:', error);
       toast.error('Failed to load providers');

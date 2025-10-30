@@ -6,11 +6,11 @@ const ProcessingAnimation = () => {
   const [stepIndex, setStepIndex] = useState(0);
 
   const steps = [
-    "Analyzing your facial features...",
-    "Matching style inspiration...",
-    "Applying texture and color...",
-    "Refining details...",
-    "Finalizing your preview...",
+    "Analyzing your style inspiration...",
+    "Understanding the details...",
+    "Searching our provider database...",
+    "Calculating compatibility scores...",
+    "Finding your perfect matches...",
   ];
 
   useEffect(() => {
@@ -61,11 +61,11 @@ const ProcessingAnimation = () => {
       </div>
 
       <h2 className="text-2xl font-bold mb-4">
-        Generating your preview…
+        Finding your matches…
       </h2>
       
       <p className="text-muted-foreground mb-6">
-        Ubuhle's AI is analyzing your look and style inspiration.
+        AI is analyzing your style and searching for the perfect stylists.
       </p>
 
       {/* Progress Bar */}

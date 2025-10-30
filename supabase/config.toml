@@ -3,10 +3,7 @@ project_id = "qfyouvryuhwjnxvvtaqt"
 [functions.assign-user-role]
 verify_jwt = true
 
-[functions.check-preview-limit]
-verify_jwt = true
-
-[functions.generate-style-preview]
+[functions.analyze-inspiration]
 verify_jwt = true
 
 [functions.fetch-trends]

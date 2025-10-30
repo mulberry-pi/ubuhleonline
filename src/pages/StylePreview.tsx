@@ -2,24 +2,29 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import UploadInterface from "@/components/stylepreview/UploadInterface";
 import ProcessingAnimation from "@/components/stylepreview/ProcessingAnimation";
-import ResultComparison from "@/components/stylepreview/ResultComparison";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
+import { Upload, Image as ImageIcon, Camera } from "lucide-react";
+import { Camera as CapacitorCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const StylePreview = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [stage, setStage] = useState<'select-service' | 'upload' | 'processing' | 'result'>('select-service');
-  const [serviceType, setServiceType] = useState<'hair' | 'lash' | null>(null);
-  const [selfieImage, setSelfieImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [inspirationImage, setInspirationImage] = useState<string | null>(null);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [styleAnalysis, setStyleAnalysis] = useState<string | null>(null);
+  const [textDescription, setTextDescription] = useState<string>("");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -37,81 +42,102 @@ const StylePreview = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleUploadComplete = async (selfie: string, inspiration: string) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInspirationImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleNativeCamera = async (source: CameraSource) => {
+    try {
+      const image = await CapacitorCamera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: source,
+        promptLabelHeader: source === CameraSource.Camera ? 'Take a Photo' : 'Choose from Gallery',
+        promptLabelCancel: 'Cancel',
+        promptLabelPhoto: 'Photo Gallery',
+        promptLabelPicture: 'Camera',
+      });
+
+      if (image.dataUrl) {
+        setInspirationImage(image.dataUrl);
+      }
+    } catch (error: any) {
+      if (error.message !== 'User cancelled photos app') {
+        console.error('Camera error:', error);
+        toast.error('Failed to access camera or gallery. Please check permissions.');
+      }
+    }
+  };
+
+  const handleFindMatches = async () => {
     if (!user) {
-      toast.error("Please sign in to use the style preview feature");
+      toast.error("Please sign in to find stylist matches");
       navigate("/auth");
       return;
     }
 
-    setSelfieImage(selfie);
-    setInspirationImage(inspiration);
-    setStage("processing");
-    
+    if (!inspirationImage && !textDescription.trim()) {
+      toast.error("Please upload an image or describe your desired look");
+      return;
+    }
+
+    setIsAnalyzing(true);
+
     try {
-      // Check preview limit - function now uses authenticated user from JWT
-      const { data: limitCheck, error: limitError } = await supabase.functions.invoke(
-        'check-preview-limit'
-      );
+      let finalDescription = textDescription;
 
-      if (limitError) {
-        throw new Error("Failed to check preview limit");
-      }
+      // If there's an image, analyze it with AI
+      if (inspirationImage) {
+        const { data, error } = await supabase.functions.invoke("analyze-inspiration", {
+          body: { inspirationImageUrl: inspirationImage }
+        });
 
-      if (!limitCheck?.allowed) {
-        toast.error(limitCheck?.error || "Preview limit reached");
-        setStage("upload");
-        return;
-      }
-
-      // Generate style preview
-      const { data, error } = await supabase.functions.invoke("generate-style-preview", {
-        body: {
-          selfieUrl: selfie,
-          inspirationUrl: inspiration,
-          serviceType: serviceType,
+        if (error) {
+          console.error("Edge function error:", error);
+          throw error;
         }
-      });
 
-      if (error) {
-        console.error("Edge function error:", error);
-        throw error;
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+
+        if (data?.success && data?.description) {
+          finalDescription = data.description;
+          // Combine with user text if provided
+          if (textDescription.trim()) {
+            finalDescription = `${finalDescription}\n\nAdditional details: ${textDescription}`;
+          }
+        } else {
+          throw new Error("Failed to analyze inspiration image");
+        }
       }
 
-      if (data?.error) {
-        throw new Error(data.error);
+      // Navigate to stylist match page with the description and image
+      const params = new URLSearchParams();
+      params.set('description', finalDescription);
+      if (inspirationImage) {
+        params.set('image', inspirationImage);
       }
+      
+      navigate(`/client/stylist-match?${params.toString()}`);
 
-      if (data?.success && data?.previewUrl) {
-        setGeneratedImage(data.previewUrl);
-        setStyleAnalysis(data.styleAnalysis);
-        setStage("result");
-      } else {
-        throw new Error("Invalid response from style preview service");
-      }
     } catch (error) {
-      console.error("Error generating style preview:", error);
+      console.error("Error finding matches:", error);
       toast.error(
         error instanceof Error 
           ? error.message 
-          : "Failed to generate preview. Please try again."
+          : "Failed to find matches. Please try again."
       );
-      setStage("upload");
+      setIsAnalyzing(false);
     }
-  };
-
-  const handleReset = () => {
-    setStage("select-service");
-    setServiceType(null);
-    setSelfieImage(null);
-    setInspirationImage(null);
-    setGeneratedImage(null);
-    setStyleAnalysis(null);
-  };
-
-  const handleServiceSelect = (type: 'hair' | 'lash') => {
-    setServiceType(type);
-    setStage("upload");
   };
 
   if (loading) {
@@ -139,111 +165,140 @@ const StylePreview = () => {
 
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            See your next look, <span className="text-primary">instantly.</span>
+            Find your perfect <span className="text-primary">style match.</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
-            Upload a selfie and your inspiration image to visualize your new style before booking.
+            Upload your style inspiration and let AI connect you with the best stylists for your look.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
       <section className="flex-1 px-6 pb-16">
-        <div className="container mx-auto max-w-5xl">
-          {stage === 'select-service' && (
-            <div className="max-w-2xl mx-auto text-center space-y-8">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-bold">Choose Your Service</h2>
-                <p className="text-lg text-muted-foreground">
-                  Select the type of style preview you'd like to see
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <button
-                  onClick={() => handleServiceSelect('hair')}
-                  className="group p-8 rounded-2xl border-2 border-border hover:border-primary transition-all hover:shadow-lg bg-card"
-                >
-                  <div className="space-y-4">
-                    <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                      </svg>
-                    </div>
-                    <h3 className="text-2xl font-semibold">Hairstyle</h3>
-                    <p className="text-muted-foreground">
-                      Preview different hairstyles and colors on yourself
-                    </p>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => handleServiceSelect('lash')}
-                  className="group p-8 rounded-2xl border-2 border-border hover:border-primary transition-all hover:shadow-lg bg-card"
-                >
-                  <div className="space-y-4">
-                    <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-2xl font-semibold">Lash Style</h3>
-                    <p className="text-muted-foreground">
-                      See how different lash extensions look on you
-                    </p>
-                  </div>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {stage === "upload" && serviceType && (
-            <UploadInterface 
-              onUploadComplete={handleUploadComplete}
-              selfieImage={selfieImage}
-              inspirationImage={inspirationImage}
-              serviceType={serviceType}
-            />
-          )}
-          
-          {stage === "processing" && (
+        <div className="container mx-auto max-w-4xl">
+          {isAnalyzing ? (
             <ProcessingAnimation />
-          )}
-          
-          {stage === "result" && selfieImage && generatedImage && (
-            <>
-              <ResultComparison 
-                originalImage={selfieImage}
-                generatedImage={generatedImage}
-                onReset={handleReset}
-              />
-              
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  size="lg"
-                  onClick={() => navigate(`/client/stylist-match?type=preview&image=${encodeURIComponent(generatedImage)}`)}
-                  className="flex-1 sm:flex-initial"
-                >
-                  Search Using Style Preview
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => navigate(`/client/stylist-match?type=inspiration&image=${encodeURIComponent(inspirationImage!)}`)}
-                  className="flex-1 sm:flex-initial"
-                >
-                  Search Using Style Inspiration
-                </Button>
+          ) : (
+            <div className="bg-card rounded-3xl p-8 md:p-12 shadow-elegant border border-border/50">
+              <div className="space-y-8">
+                {/* Upload Section */}
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-center">Upload Style Inspiration</h2>
+                  <p className="text-muted-foreground text-center">
+                    Show us what you're looking for and we'll find the perfect stylists
+                  </p>
+
+                  <div
+                    className={`relative aspect-video rounded-2xl border-2 border-dashed transition-all duration-300 overflow-hidden group ${
+                      inspirationImage
+                        ? "border-primary/50 bg-primary/5"
+                        : "border-border hover:border-primary/50 hover:bg-primary/5"
+                    }`}
+                  >
+                    {inspirationImage ? (
+                      <>
+                        <img
+                          src={inspirationImage}
+                          alt="Style inspiration"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <label className="cursor-pointer">
+                            <Upload className="w-12 h-12 text-white" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <ImageIcon className="w-16 h-16 text-primary/60 mb-4" />
+                        <p className="text-lg font-medium text-foreground/80 mb-2">Upload Your Inspiration</p>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Hair, lashes, nails — show us your dream look
+                        </p>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="lg" className="hover-glow">
+                              <Upload className="w-4 h-4 mr-2" />
+                              Choose Image
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem 
+                              onClick={() => handleNativeCamera(CameraSource.Photos)}
+                              className="cursor-pointer"
+                            >
+                              <ImageIcon className="w-4 h-4 mr-2" />
+                              Photo Gallery
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleNativeCamera(CameraSource.Camera)}
+                              className="cursor-pointer"
+                            >
+                              <Camera className="w-4 h-4 mr-2" />
+                              Take a Photo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <label className="cursor-pointer w-full flex items-center">
+                                <Upload className="w-4 h-4 mr-2" />
+                                My Files
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleFileUpload}
+                                  className="hidden"
+                                />
+                              </label>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-card text-muted-foreground font-medium">OR</span>
+                  </div>
+                </div>
+
+                {/* Text Description */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-center">Describe Your Desired Look</h3>
+                  <Textarea
+                    placeholder="E.g., 'waist-length knotless braids with honey-blonde highlights and curled ends' or 'wispy volume lashes with a natural curl'"
+                    value={textDescription}
+                    onChange={(e) => setTextDescription(e.target.value)}
+                    className="min-h-[120px] resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground text-center">
+                    The more details you provide, the better we can match you with the right stylists
+                  </p>
+                </div>
+
+                {/* Find Matches Button */}
+                <div className="text-center pt-4">
+                  <Button
+                    onClick={handleFindMatches}
+                    disabled={!inspirationImage && !textDescription.trim()}
+                    size="lg"
+                    className="px-12 hover-glow text-lg h-14 w-full sm:w-auto"
+                  >
+                    Find My Matches
+                  </Button>
+                </div>
               </div>
-            </>
-          )}
-          
-          {/* Style Analysis - Optional Display */}
-          {stage === "result" && styleAnalysis && (
-            <div className="mt-8 bg-card rounded-2xl p-6 shadow-elegant border border-border/50">
-              <h3 className="text-xl font-semibold mb-3">Style Analysis</h3>
-              <p className="text-muted-foreground whitespace-pre-line">{styleAnalysis}</p>
             </div>
           )}
         </div>

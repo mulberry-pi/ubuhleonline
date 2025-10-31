@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { UserAgreementDialog } from "@/components/UserAgreementDialog";
 import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -22,11 +24,21 @@ const ClientSignup = () => {
     preferredServices: "",
     receiveUpdates: false,
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!termsAccepted) {
+      toast({
+        title: "Agreement required",
+        description: "Please accept the Ubuhle Platform User Agreement to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -53,7 +65,7 @@ const ClientSignup = () => {
       if (data.user && data.session) {
         // Call edge function to create profile and assign role
         const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
-          body: { role: 'client', full_name: formData.fullName }
+          body: { role: 'client', full_name: formData.fullName, terms_accepted: true }
         });
 
         if (roleError) {
@@ -188,6 +200,27 @@ const ClientSignup = () => {
                 checked={formData.receiveUpdates}
                 onCheckedChange={(checked) => setFormData({ ...formData, receiveUpdates: checked })}
               />
+            </div>
+
+            {/* Terms Agreement */}
+            <div className="flex items-start space-x-3 p-4 border-2 border-border rounded-xl">
+              <Checkbox
+                id="terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                className="mt-1"
+              />
+              <Label htmlFor="terms" className="cursor-pointer text-sm leading-relaxed">
+                I have read and agree to the{" "}
+                <UserAgreementDialog>
+                  <button
+                    type="button"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Ubuhle Platform User Agreement
+                  </button>
+                </UserAgreementDialog>
+              </Label>
             </div>
 
             {/* Submit Button */}

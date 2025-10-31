@@ -229,6 +229,7 @@ export type Database = {
           id: string
           phone: string | null
           phone_calendar_enabled: boolean | null
+          terms_accepted: boolean
           updated_at: string
         }
         Insert: {
@@ -241,6 +242,7 @@ export type Database = {
           id: string
           phone?: string | null
           phone_calendar_enabled?: boolean | null
+          terms_accepted?: boolean
           updated_at?: string
         }
         Update: {
@@ -253,6 +255,7 @@ export type Database = {
           id?: string
           phone?: string | null
           phone_calendar_enabled?: boolean | null
+          terms_accepted?: boolean
           updated_at?: string
         }
         Relationships: []

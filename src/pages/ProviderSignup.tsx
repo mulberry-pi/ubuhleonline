@@ -10,7 +10,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ChevronLeft, ChevronRight, Upload, Sparkles } from "lucide-react";
+import { UserAgreementDialog } from "@/components/UserAgreementDialog";
+import { ChevronLeft, ChevronRight, Upload, Sparkles, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ServicePrice {
@@ -87,6 +88,7 @@ const ProviderSignup = () => {
   ];
 
   const totalSteps = 6;
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handlePortfolioImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -151,6 +153,15 @@ const ProviderSignup = () => {
   };
 
   const handleSubmit = async () => {
+    if (!termsAccepted) {
+      toast({
+        title: "Agreement required",
+        description: "Please accept the Ubuhle Platform User Agreement to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -188,7 +199,7 @@ const ProviderSignup = () => {
 
         // Call edge function to create profile and assign provider role
         const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
-          body: { role: 'provider', full_name: ownerInfo.fullName }
+          body: { role: 'provider', full_name: ownerInfo.fullName, terms_accepted: true }
         });
 
         if (roleError) {
@@ -708,6 +719,38 @@ const ProviderSignup = () => {
             </div>
           )}
 
+          {/* Terms Agreement - Show on Last Step */}
+          {currentStep === totalSteps && (
+            <div className="space-y-6 mt-8 pt-8 border-t">
+              <div className="flex items-start space-x-3 p-4 border-2 border-border rounded-xl">
+                <Checkbox
+                  id="terms"
+                  checked={termsAccepted}
+                  onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                  className="mt-1"
+                />
+                <Label htmlFor="terms" className="cursor-pointer text-sm leading-relaxed">
+                  I have read and agree to the{" "}
+                  <UserAgreementDialog>
+                    <button
+                      type="button"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Ubuhle Platform User Agreement
+                    </button>
+                  </UserAgreementDialog>
+                </Label>
+              </div>
+
+              <div className="flex items-start space-x-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">Service Provider Note:</strong> By joining as a Service Provider, you confirm that you are an independent contractor responsible for your own compliance, safety, and taxes.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-12 pt-6 border-t">
             <Button
@@ -726,7 +769,11 @@ const ProviderSignup = () => {
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={isLoading} className="h-12 px-8 bg-gradient-to-r from-primary to-accent">
+              <Button 
+                onClick={handleSubmit} 
+                disabled={isLoading || !termsAccepted} 
+                className="h-12 px-8 bg-gradient-to-r from-primary to-accent"
+              >
                 {isLoading ? "Submitting..." : "Complete Sign Up"}
               </Button>
             )}

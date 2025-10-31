@@ -41,7 +41,7 @@ serve(async (req) => {
       );
     }
 
-    const { role, full_name } = await req.json();
+    const { role, full_name, terms_accepted } = await req.json();
 
     if (!role || !['client', 'provider'].includes(role)) {
       return new Response(
@@ -62,7 +62,8 @@ serve(async (req) => {
       .insert({
         id: user.id,
         email: user.email,
-        full_name: full_name
+        full_name: full_name,
+        terms_accepted: terms_accepted || false
       });
 
     if (profileError) {

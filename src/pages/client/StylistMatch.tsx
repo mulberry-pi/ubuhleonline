@@ -85,7 +85,10 @@ const StylistMatch = () => {
     return "bg-red-500";
   };
 
-  const handleBookStylist = (providerId: string) => {
+  const handleBookStylist = (stylist: MatchedStylist) => {
+    // Use user_id if available, otherwise use id
+    const providerId = stylist.user_id || stylist.id;
+    console.log('Booking stylist:', { providerId, stylist });
     navigate(`/booking?provider=${providerId}`);
   };
 
@@ -181,7 +184,7 @@ const StylistMatch = () => {
                     )}
 
                     <Button
-                      onClick={() => handleBookStylist(stylist.user_id)}
+                      onClick={() => handleBookStylist(stylist)}
                       className="w-full bg-white text-primary hover:bg-white/90 font-semibold rounded-full py-6 text-lg"
                     >
                       Book Appointment

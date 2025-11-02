@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import CryptoJS from "https://esm.sh/crypto-js@4.1.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,7 +8,7 @@ const corsHeaders = {
 };
 
 // Helper function to generate PayFast signature
-async function generateSignature(data: Record<string, string>, passphrase: string): Promise<string> {
+function generateSignature(data: Record<string, string>, passphrase: string): string {
   // Create parameter string
   let pfOutput = "";
   for (const key in data) {
@@ -22,13 +23,8 @@ async function generateSignature(data: Record<string, string>, passphrase: strin
     getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, "+")}`;
   }
 
-  // Create MD5 hash
-  const encoder = new TextEncoder();
-  const data_arr = encoder.encode(getString);
-  
-  const hashBuffer = await crypto.subtle.digest("MD5", data_arr);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  // Create MD5 hash using crypto-js
+  return CryptoJS.MD5(getString).toString();
 }
 
 serve(async (req) => {
@@ -98,7 +94,7 @@ serve(async (req) => {
     };
 
     // Generate signature
-    const signature = await generateSignature(paymentData, passphrase || '');
+    const signature = generateSignature(paymentData, passphrase || '');
     paymentData.signature = signature;
 
     // PayFast endpoint

@@ -82,7 +82,12 @@ export default function Clients() {
         }
       });
 
-      setClients(Array.from(clientMap.values()));
+      // Filter to only show clients with 2 or more appointments
+      const qualifiedClients = Array.from(clientMap.values()).filter(
+        client => client.appointment_count >= 2
+      );
+
+      setClients(qualifiedClients);
     } catch (error) {
       console.error("Error loading clients:", error);
       toast.error("Failed to load clients");
@@ -139,14 +144,14 @@ export default function Clients() {
       <div>
         <h2 className="text-3xl font-semibold">Clients</h2>
         <p className="text-muted-foreground mt-2">
-          View and manage your client relationships
+          Clients who have booked with you at least twice
         </p>
       </div>
 
       {clients.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
-            <p>No clients yet</p>
+            <p>No repeat clients yet. Clients will appear here after booking at least twice.</p>
           </CardContent>
         </Card>
       ) : (

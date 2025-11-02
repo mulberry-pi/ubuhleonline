@@ -60,7 +60,8 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
       }
 
       // Check if this is a mock provider (for testing)
-      const isMockProvider = stylist.id.startsWith('00000000-0000-0000-0000');
+      const isMockProvider = stylist.id.startsWith('00000000-0000-0000-0000') || 
+                            stylist.id.startsWith('mock-');
       
       if (isMockProvider) {
         // Simulate booking for mock providers without database insert
@@ -73,8 +74,8 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
           location: data.location,
           contact: { name: data.name, email: data.email, phone: data.phone }
         });
-        toast.success('Booking details confirmed - proceeding to payment');
-        // Still trigger payment flow for testing
+        toast.success('Booking details confirmed');
+        // Trigger payment flow
         onSubmit(data);
         return;
       }

@@ -274,13 +274,13 @@ const StylePreview = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-center">Describe Your Desired Look</h3>
                   <Textarea
-                    placeholder="E.g., 'waist-length knotless braids with honey-blonde highlights and curled ends' or 'wispy volume lashes with a natural curl'"
+                    placeholder="Describe your hair type, length, and desired style. E.g., '4C coily hair, shoulder-length, want knotless braids with honey-blonde highlights' or 'almond-shaped eyes, want wispy volume lashes with natural curl'"
                     value={textDescription}
                     onChange={(e) => setTextDescription(e.target.value)}
                     className="min-h-[120px] resize-none"
                   />
                   <p className="text-xs text-muted-foreground text-center">
-                    The more details you provide, the better we can match you with the right stylists
+                    Include your hair type & length (for hair) or eye shape (for lashes) — the more details, the better the match!
                   </p>
                 </div>
 

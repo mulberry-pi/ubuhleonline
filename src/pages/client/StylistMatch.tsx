@@ -4,15 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, MapPin, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 interface MatchedStylist {
   id: string;
@@ -68,7 +61,11 @@ const StylistMatch = () => {
       if (error) throw error;
 
       if (data?.matches && data.matches.length > 0) {
-        setStylists(data.matches);
+        // Sort by rating (highest to lowest)
+        const sortedMatches = data.matches.sort((a: MatchedStylist, b: MatchedStylist) => {
+          return (b.rating || 0) - (a.rating || 0);
+        });
+        setStylists(sortedMatches);
         toast.success(`Found ${data.matches.length} perfect matches!`);
       } else {
         toast.info("No matches found at the moment");
@@ -125,97 +122,74 @@ const StylistMatch = () => {
         </div>
 
         {stylists.length > 0 && (
-          <div className="relative max-w-4xl mx-auto">
-            <Carousel
-              opts={{
-                align: "center",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4">
-                {stylists.map((stylist) => (
-                  <CarouselItem key={stylist.id} className="pl-4 md:basis-1/2 lg:basis-1/2">
-                    <div className="relative">
-                      <Card className="overflow-hidden rounded-3xl shadow-xl border-0 bg-gradient-to-b from-card to-card/90">
-                        {/* Background Image */}
-                        <div className="relative h-[500px]">
-                          <img
-                            src={stylist.gallery_images?.[0] || stylist.business_logo_url}
-                            alt={stylist.business_name}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                          
-                          {/* Predicted Success Badge */}
-                          <div className={`absolute top-4 right-4 ${getSuccessColor(stylist.predicted_success)} text-white rounded-full w-24 h-24 flex flex-col items-center justify-center shadow-lg`}>
-                            <span className="text-2xl font-bold">{stylist.predicted_success}%</span>
-                            <span className="text-xs text-center">Predicated<br/>success</span>
-                          </div>
+          <div className="grid gap-8 max-w-6xl mx-auto">
+            {stylists.map((stylist) => (
+              <Card key={stylist.id} className="overflow-hidden rounded-3xl shadow-xl border-0 bg-gradient-to-b from-card to-card/90">
+                <div className="relative h-[500px] md:h-[400px]">
+                  <img
+                    src={stylist.gallery_images?.[0] || stylist.business_logo_url}
+                    alt={stylist.business_name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  
+                  {/* Predicted Success Badge */}
+                  <div className={`absolute top-4 right-4 ${getSuccessColor(stylist.predicted_success)} text-white rounded-full w-24 h-24 flex flex-col items-center justify-center shadow-lg`}>
+                    <span className="text-2xl font-bold">{stylist.predicted_success}%</span>
+                    <span className="text-xs text-center">Predicated<br/>success</span>
+                  </div>
 
-                          {/* Content Overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <h2 className="text-2xl font-bold mb-2">{stylist.business_name}</h2>
-                            
-                            <div className="flex items-center gap-2 mb-2">
-                              <MapPin className="h-4 w-4" />
-                              <span className="text-sm">{stylist.suburb}, {stylist.city}</span>
-                            </div>
-
-                            <div className="flex items-center gap-2 mb-3">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-semibold">{stylist.rating?.toFixed(1) || "5.0"}</span>
-                              <span className="text-sm text-white/80">({stylist.review_count || 0})</span>
-                            </div>
-
-                            <Badge 
-                              variant={stylist.availability_status === "available" ? "default" : "secondary"}
-                              className="mb-4"
-                            >
-                              {stylist.availability_status === "available" ? "Available Today" : "Not Available Today"}
-                            </Badge>
-
-                            <div className="mb-4">
-                              <p className="text-sm text-white/80 mb-1">Service price range:</p>
-                              <p className="text-xl font-bold">{stylist.price_range || "R250 - R450"}</p>
-                            </div>
-
-                            {/* Portfolio Preview */}
-                            {stylist.gallery_images && stylist.gallery_images.length > 0 && (
-                              <div className="flex gap-2 mb-4 overflow-x-auto">
-                                {stylist.gallery_images.slice(0, 5).map((img, idx) => (
-                                  <img
-                                    key={idx}
-                                    src={img}
-                                    alt={`Portfolio ${idx + 1}`}
-                                    className="w-12 h-12 rounded-lg object-cover border-2 border-white/20"
-                                  />
-                                ))}
-                              </div>
-                            )}
-
-                            <Button
-                              onClick={() => handleBookStylist(stylist.user_id)}
-                              className="w-full bg-white text-primary hover:bg-white/90 font-semibold rounded-full py-6 text-lg"
-                            >
-                              Book Appointment
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
+                  {/* Content Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <h2 className="text-2xl font-bold mb-2">{stylist.business_name}</h2>
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-4 w-4" />
+                      <span className="text-sm">{stylist.suburb}, {stylist.city}</span>
                     </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12" />
-              <CarouselNext className="hidden md:flex -right-12" />
-            </Carousel>
 
-            <div className="text-center mt-8">
-              <p className="text-muted-foreground flex items-center justify-center gap-2">
-                Scroll to pass match <ChevronRight className="h-4 w-4" />
-              </p>
-            </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-semibold">{stylist.rating?.toFixed(1) || "5.0"}</span>
+                      <span className="text-sm text-white/80">({stylist.review_count || 0})</span>
+                    </div>
+
+                    <Badge 
+                      variant={stylist.availability_status === "available" ? "default" : "secondary"}
+                      className="mb-4"
+                    >
+                      {stylist.availability_status === "available" ? "Available Today" : "Not Available Today"}
+                    </Badge>
+
+                    <div className="mb-4">
+                      <p className="text-sm text-white/80 mb-1">Service price range:</p>
+                      <p className="text-xl font-bold">{stylist.price_range || "R250 - R450"}</p>
+                    </div>
+
+                    {/* Portfolio Preview */}
+                    {stylist.gallery_images && stylist.gallery_images.length > 0 && (
+                      <div className="flex gap-2 mb-4 overflow-x-auto">
+                        {stylist.gallery_images.slice(0, 5).map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img}
+                            alt={`Portfolio ${idx + 1}`}
+                            className="w-12 h-12 rounded-lg object-cover border-2 border-white/20"
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={() => handleBookStylist(stylist.user_id)}
+                      className="w-full bg-white text-primary hover:bg-white/90 font-semibold rounded-full py-6 text-lg"
+                    >
+                      Book Appointment
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
         )}
 

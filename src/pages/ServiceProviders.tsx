@@ -12,9 +12,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import carouselImage1 from "@/assets/carousel-1.png";
-import carouselImage2 from "@/assets/carousel-2.png";
-import carouselImage3 from "@/assets/carousel-3.png";
+import freelancerImage from "@/assets/freelancer-provider.png";
+import lashTechImage from "@/assets/lash-tech-provider.png";
+import salonTeamImage from "@/assets/salon-team-provider.png";
 
 const ServiceProviders = () => {
   const navigate = useNavigate();
@@ -63,19 +63,19 @@ const ServiceProviders = () => {
 
   const providerTypes = [
     {
-      image: carouselImage1,
+      image: freelancerImage,
       title: "Freelancer",
       subtitle: "Grow your independent brand with tools that help you stand out.",
     },
     {
-      image: carouselImage2,
-      title: "Salon",
-      subtitle: "Streamline your team's bookings and client communications.",
-    },
-    {
-      image: carouselImage3,
+      image: lashTechImage,
       title: "Lash Technician",
       subtitle: "Reach more clients who love your artistry.",
+    },
+    {
+      image: salonTeamImage,
+      title: "Salon",
+      subtitle: "Streamline your team's bookings and client communications.",
     },
   ];
 

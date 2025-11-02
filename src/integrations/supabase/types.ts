@@ -296,6 +296,7 @@ export type Database = {
           bank_account_holder_name: string | null
           bank_account_number: string | null
           bank_name: string | null
+          banner_image_url: string | null
           branch_code: string | null
           business_address: string | null
           business_description: string | null
@@ -322,6 +323,7 @@ export type Database = {
           bank_account_holder_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          banner_image_url?: string | null
           branch_code?: string | null
           business_address?: string | null
           business_description?: string | null
@@ -348,6 +350,7 @@ export type Database = {
           bank_account_holder_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          banner_image_url?: string | null
           branch_code?: string | null
           business_address?: string | null
           business_description?: string | null

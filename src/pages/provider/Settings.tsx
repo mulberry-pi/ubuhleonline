@@ -27,7 +27,10 @@ export default function Settings() {
     business_description: "",
     business_address: "",
     is_public: true,
+    banner_image_url: "",
   });
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [bankData, setBankData] = useState({
     bank_name: "",
     branch_code: "",
@@ -84,6 +87,7 @@ export default function Settings() {
         business_description: providerProfile?.business_description || "",
         business_address: providerProfile?.business_address || "",
         is_public: providerProfile?.is_public ?? true,
+        banner_image_url: providerProfile?.banner_image_url || "",
       });
 
       setBankData({
@@ -102,10 +106,47 @@ export default function Settings() {
     }
   };
 
+  const handleBannerUpload = async () => {
+    if (!bannerFile) return null;
+
+    try {
+      setUploadingBanner(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const fileExt = bannerFile.name.split('.').pop();
+      const fileName = `${user.id}-banner-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('business-logos')
+        .upload(fileName, bannerFile, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('business-logos')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      toast.error("Failed to upload banner");
+      return null;
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
   const saveSettings = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      let bannerUrl = profileData.banner_image_url;
+      if (bannerFile) {
+        const uploadedUrl = await handleBannerUpload();
+        if (uploadedUrl) bannerUrl = uploadedUrl;
+      }
 
       await supabase
         .from("profiles")
@@ -129,6 +170,7 @@ export default function Settings() {
             business_description: profileData.business_description,
             business_address: profileData.business_address,
             is_public: profileData.is_public,
+            banner_image_url: bannerUrl,
           })
           .eq("user_id", user.id);
       } else {
@@ -139,11 +181,13 @@ export default function Settings() {
             business_description: profileData.business_description,
             business_address: profileData.business_address,
             is_public: profileData.is_public,
+            banner_image_url: bannerUrl,
           },
         ]);
       }
 
       toast.success("Settings saved successfully");
+      setBannerFile(null);
     } catch (error) {
       console.error("Error saving settings:", error);
       toast.error("Failed to save settings");
@@ -252,12 +296,43 @@ export default function Settings() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="business_description">Business Description</Label>
+            <Label htmlFor="banner_upload">Profile Banner</Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Upload a banner image for your public profile
+            </p>
+            {profileData.banner_image_url && !bannerFile && (
+              <div className="mb-3">
+                <img 
+                  src={profileData.banner_image_url} 
+                  alt="Current banner" 
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+              </div>
+            )}
+            <Input
+              id="banner_upload"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setBannerFile(e.target.files?.[0] || null)}
+              disabled={uploadingBanner}
+            />
+            {bannerFile && (
+              <p className="text-sm text-muted-foreground">
+                New banner selected: {bannerFile.name}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="business_description">About Section (Public Profile)</Label>
+            <p className="text-sm text-muted-foreground">
+              This will be displayed as your "About" section on your public profile
+            </p>
             <Textarea
               id="business_description"
               value={profileData.business_description}
               onChange={(e) => setProfileData({ ...profileData, business_description: e.target.value })}
               rows={4}
+              placeholder="Tell clients about your business, specialties, and what makes you unique..."
             />
           </div>
           <div className="space-y-2">

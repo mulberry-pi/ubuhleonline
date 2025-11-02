@@ -7,6 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Settings() {
   const [profileData, setProfileData] = useState({
@@ -17,7 +26,17 @@ export default function Settings() {
     business_address: "",
     is_public: true,
   });
+  const [bankData, setBankData] = useState({
+    bank_name: "",
+    bank_account_number: "",
+    bank_account_holder_name: "",
+    payout_frequency: "monthly",
+    payout_date: "1",
+  });
   const [loading, setLoading] = useState(true);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [password, setPassword] = useState("");
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -47,6 +66,14 @@ export default function Settings() {
         business_description: providerProfile?.business_description || "",
         business_address: providerProfile?.business_address || "",
         is_public: providerProfile?.is_public ?? true,
+      });
+
+      setBankData({
+        bank_name: providerProfile?.bank_name || "",
+        bank_account_number: providerProfile?.bank_account_number || "",
+        bank_account_holder_name: providerProfile?.bank_account_holder_name || "",
+        payout_frequency: providerProfile?.payout_frequency || "monthly",
+        payout_date: providerProfile?.payout_date?.toString() || "1",
       });
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -100,6 +127,55 @@ export default function Settings() {
     } catch (error) {
       console.error("Error saving settings:", error);
       toast.error("Failed to save settings");
+    }
+  };
+
+  const handleBankDetailsClick = () => {
+    setShowPasswordDialog(true);
+  };
+
+  const verifyPasswordAndUpdateBank = async () => {
+    if (!password) {
+      toast.error("Please enter your password");
+      return;
+    }
+
+    try {
+      setVerifying(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) return;
+
+      // Verify password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: password,
+      });
+
+      if (signInError) {
+        toast.error("Incorrect password");
+        return;
+      }
+
+      // Update bank details
+      await supabase
+        .from("provider_profiles")
+        .update({
+          bank_name: bankData.bank_name,
+          bank_account_number: bankData.bank_account_number,
+          bank_account_holder_name: bankData.bank_account_holder_name,
+          payout_frequency: bankData.payout_frequency,
+          payout_date: parseInt(bankData.payout_date),
+        })
+        .eq("user_id", user.id);
+
+      toast.success("Bank details updated successfully");
+      setShowPasswordDialog(false);
+      setPassword("");
+    } catch (error) {
+      console.error("Error updating bank details:", error);
+      toast.error("Failed to update bank details");
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -186,6 +262,78 @@ export default function Settings() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Bank & Payout Details</CardTitle>
+          <CardDescription>Manage your banking information and payout schedule</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Bank Name</Label>
+            <Input
+              value={bankData.bank_name}
+              onChange={(e) => setBankData({ ...bankData, bank_name: e.target.value })}
+              placeholder="e.g., Standard Bank"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Account Holder Name</Label>
+            <Input
+              value={bankData.bank_account_holder_name}
+              onChange={(e) => setBankData({ ...bankData, bank_account_holder_name: e.target.value })}
+              placeholder="Full name as per bank account"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Account Number</Label>
+            <Input
+              value={bankData.bank_account_number}
+              onChange={(e) => setBankData({ ...bankData, bank_account_number: e.target.value })}
+              placeholder="Your bank account number"
+              type="password"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Payout Frequency</Label>
+              <Select
+                value={bankData.payout_frequency}
+                onValueChange={(value) => setBankData({ ...bankData, payout_frequency: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Payout Date</Label>
+              <Select
+                value={bankData.payout_date}
+                onValueChange={(value) => setBankData({ ...bankData, payout_date: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                    <SelectItem key={day} value={day.toString()}>
+                      Day {day}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Button onClick={handleBankDetailsClick} variant="outline" className="w-full">
+            Update Bank Details (Requires Password)
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Calendar Integration</CardTitle>
           <CardDescription>Sync your appointments to your calendar</CardDescription>
         </CardHeader>
@@ -221,6 +369,40 @@ export default function Settings() {
       </Card>
 
       <Button onClick={saveSettings} size="lg">Save Changes</Button>
+
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verify Password</DialogTitle>
+            <DialogDescription>
+              Please enter your password to update bank details
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowPasswordDialog(false);
+              setPassword("");
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={verifyPasswordAndUpdateBank} disabled={verifying}>
+              {verifying ? "Verifying..." : "Update Bank Details"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

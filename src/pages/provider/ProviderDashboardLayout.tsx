@@ -12,7 +12,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  Bookmark
+  Bookmark,
+  Image
 } from "lucide-react";
 import {
   Sidebar,
@@ -40,6 +41,7 @@ const menuItems = [
   { title: "Analytics", url: "/provider/analytics", icon: TrendingUp },
   { title: "Market Trends", url: "/provider/trends", icon: TrendingUp },
   { title: "Saved Trends", url: "/provider/saved-trends", icon: Bookmark },
+  { title: "Portfolio", url: "/provider/portfolio", icon: Image },
   { title: "Messages", url: "/provider/messages", icon: MessageSquare },
   { title: "Settings", url: "/provider/settings", icon: Settings },
 ];

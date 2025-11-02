@@ -150,11 +150,8 @@ const Booking = () => {
 
   const handleBookingSubmit = (data: BookingFormData) => {
     setBookingData(data);
-    if (data.payDeposit) {
-      setStage("payment");
-    } else {
-      setStage("confirmation");
-    }
+    // Payment temporarily disabled
+    setStage("confirmation");
   };
 
   const handlePaymentComplete = () => {

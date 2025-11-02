@@ -181,15 +181,6 @@ export default function MarketTrends() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {trend.image_url && (
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={trend.image_url}
-                        alt={trend.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Popularity Score</p>
@@ -223,15 +214,6 @@ export default function MarketTrends() {
                 return (
                   <Card key={trend.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
-                      {trend.image_url && (
-                        <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-3">
-                          <img
-                            src={trend.image_url}
-                            alt={trend.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-semibold text-sm">{trend.name}</h4>
                         <Badge className={popularity.class} variant="secondary">

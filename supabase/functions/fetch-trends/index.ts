@@ -60,13 +60,9 @@ serve(async (req) => {
     );
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!OPENAI_API_KEY) {
       throw new Error("OPENAI_API_KEY not configured");
-    }
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
     }
 
     // Get provider's service categories
@@ -147,66 +143,24 @@ serve(async (req) => {
 
     console.log(`Generated ${aiTrends.length} AI trends`);
 
-    // Generate images for top 5 trends using Lovable AI
-    const trendsWithImages = await Promise.all(
-      aiTrends.slice(0, 5).map(async (trend: any) => {
-        try {
-          const imagePrompt = `Professional beauty salon photo of ${trend.name}. High quality, well-lit, showing the style clearly. Realistic photography.`;
-          
-          const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'google/gemini-2.5-flash-image-preview',
-              messages: [
-                {
-                  role: 'user',
-                  content: imagePrompt
-                }
-              ],
-              modalities: ['image', 'text']
-            })
-          });
-
-          if (imageResponse.ok) {
-            const imageData = await imageResponse.json();
-            const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-            return { ...trend, image_url: imageUrl };
-          }
-        } catch (error) {
-          console.error(`Error generating image for ${trend.name}:`, error);
-        }
-        return { ...trend, image_url: null };
-      })
-    );
-
-    // Add the rest without images
-    const allTrendsWithImages = [
-      ...trendsWithImages,
-      ...aiTrends.slice(5).map((trend: any) => ({ ...trend, image_url: null }))
-    ];
-
-    if (allTrendsWithImages.length > 0) {
+    if (aiTrends.length > 0) {
       // Clear existing trends and insert new ones
       await supabaseClient.from("trends").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       
       const { error: insertError } = await supabaseClient
         .from("trends")
-        .insert(allTrendsWithImages);
+        .insert(aiTrends);
 
       if (insertError) {
         console.error("Error inserting trends:", insertError);
         throw insertError;
       }
 
-      console.log(`Successfully inserted ${allTrendsWithImages.length} AI-generated trends`);
+      console.log(`Successfully inserted ${aiTrends.length} AI-generated trends`);
     }
 
     return new Response(
-      JSON.stringify({ success: true, count: allTrendsWithImages.length }),
+      JSON.stringify({ success: true, count: aiTrends.length }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {

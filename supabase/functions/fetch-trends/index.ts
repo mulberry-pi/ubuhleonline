@@ -60,9 +60,13 @@ serve(async (req) => {
     );
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    const APIFY_API_TOKEN = Deno.env.get("APIFY_API_TOKEN");
     
     if (!OPENAI_API_KEY) {
       throw new Error("OPENAI_API_KEY not configured");
+    }
+    if (!APIFY_API_TOKEN) {
+      throw new Error("APIFY_API_TOKEN not configured");
     }
 
     // Get provider's service categories
@@ -84,23 +88,100 @@ serve(async (req) => {
     const doesHair = serviceCategories.includes('Hair Styling');
     const doesLashes = serviceCategories.includes('Lash Extensions');
 
-    let trendsPrompt = "Generate a list of 10 trending beauty styles with detailed descriptions. For each trend include: name, detailed description explaining why it's trending, and a popularity score (0-100). ";
-    
+    // Define hashtags based on service categories
+    let hashtags: string[] = [];
     if (doesHair && doesLashes) {
-      trendsPrompt += "Include 5 trending hairstyles and 5 trending lash extension styles.";
+      hashtags = ['braids', 'lashes', 'silkpress', 'lasheextensions', 'protectivestyles', 'volumelashes'];
     } else if (doesHair) {
-      trendsPrompt += "Focus on trending hairstyles only (box braids, silk press, boho braids, cornrows, fulani braids, etc).";
+      hashtags = ['braids', 'silkpress', 'boxbraids', 'knotlessbraids', 'protectivestyles', 'naturalhairstyles'];
     } else if (doesLashes) {
-      trendsPrompt += "Focus on trending lash extension styles only (wispy sets, volume sets, cat eye sets, individual lashes, cluster lashes, etc).";
+      hashtags = ['lashes', 'lashextensions', 'volumelashes', 'wispylashes', 'classiclashes', 'megalashes'];
     } else {
-      trendsPrompt += "Include a mix of trending hairstyles and lash extension styles.";
+      hashtags = ['braids', 'lashes', 'beauty', 'hairstyles'];
     }
 
-    trendsPrompt += " Return the data as a JSON array with objects containing: name, description, popularity_score.";
+    console.log(`Scraping Instagram hashtags:`, hashtags);
 
-    console.log("Generating AI trends analysis...");
+    // Run Instagram hashtag scraper
+    const instagramResults: any[] = [];
+    for (const hashtag of hashtags.slice(0, 3)) { // Limit to 3 hashtags to avoid rate limits
+      try {
+        console.log(`Scraping Instagram #${hashtag}...`);
+        const instagramResponse = await fetch(`https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            hashtags: [hashtag],
+            resultsLimit: 20,
+            addParentData: false
+          })
+        });
 
-    // Use OpenAI to generate trend insights
+        if (instagramResponse.ok) {
+          const data = await instagramResponse.json();
+          instagramResults.push(...(data || []));
+          console.log(`Scraped ${data?.length || 0} posts for #${hashtag}`);
+        }
+      } catch (error) {
+        console.error(`Error scraping Instagram #${hashtag}:`, error);
+      }
+    }
+
+    // Run TikTok scraper
+    console.log(`Scraping TikTok for beauty trends...`);
+    let tiktokResults: any[] = [];
+    try {
+      const tiktokKeywords = doesHair ? 'braids hairstyles' : doesLashes ? 'lash extensions' : 'beauty hair lashes';
+      const tiktokResponse = await fetch(`https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          searchQueries: [tiktokKeywords],
+          resultsPerPage: 20,
+          shouldDownloadVideos: false,
+          shouldDownloadCovers: false
+        })
+      });
+
+      if (tiktokResponse.ok) {
+        const data = await tiktokResponse.json();
+        tiktokResults = data || [];
+        console.log(`Scraped ${tiktokResults.length} TikTok videos`);
+      }
+    } catch (error) {
+      console.error('Error scraping TikTok:', error);
+    }
+
+    // Analyze scraped data with OpenAI
+    console.log("Analyzing real social media data with AI...");
+    
+    const analysisPrompt = `Analyze the following real social media data from Instagram and TikTok to identify the top 10 trending beauty styles.
+
+Instagram Posts (${instagramResults.length} posts):
+${JSON.stringify(instagramResults.slice(0, 30).map(post => ({
+  caption: post.caption,
+  likes: post.likesCount,
+  comments: post.commentsCount,
+  hashtags: post.hashtags
+})))}
+
+TikTok Videos (${tiktokResults.length} videos):
+${JSON.stringify(tiktokResults.slice(0, 30).map(video => ({
+  description: video.text,
+  likes: video.diggCount,
+  shares: video.shareCount,
+  views: video.playCount
+})))}
+
+Based on this REAL DATA, identify the top 10 trending styles. For each trend:
+1. Extract the actual style name from captions/hashtags
+2. Calculate popularity score (0-100) based on engagement metrics (likes, comments, shares, views)
+3. Write a description explaining why it's trending based on the actual posts
+
+Focus on: ${doesHair && doesLashes ? 'both hairstyles and lash extensions' : doesHair ? 'hairstyles only' : doesLashes ? 'lash extensions only' : 'beauty styles'}
+
+Return ONLY a JSON array with objects containing: name, description, popularity_score`;
+
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -112,11 +193,11 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are a beauty industry trend analyst. Generate realistic trending styles with detailed descriptions explaining why they are popular. Return only valid JSON.' 
+            content: 'You are a data analyst specializing in beauty industry trends. Analyze real social media data and extract concrete trending styles with accurate popularity metrics. Return only valid JSON.' 
           },
-          { role: 'user', content: trendsPrompt }
+          { role: 'user', content: analysisPrompt }
         ],
-        temperature: 0.8,
+        temperature: 0.3,
       }),
     });
 
@@ -132,7 +213,6 @@ serve(async (req) => {
     // Parse the JSON response
     let aiTrends = [];
     try {
-      // Extract JSON from markdown code blocks if present
       const jsonMatch = trendsText.match(/```(?:json)?\s*(\[[\s\S]*\])\s*```/) || trendsText.match(/(\[[\s\S]*\])/);
       const jsonStr = jsonMatch ? jsonMatch[1] : trendsText;
       aiTrends = JSON.parse(jsonStr);
@@ -141,7 +221,7 @@ serve(async (req) => {
       throw new Error("Could not parse trend data from AI");
     }
 
-    console.log(`Generated ${aiTrends.length} AI trends`);
+    console.log(`Analyzed ${aiTrends.length} trends from real social media data`);
 
     if (aiTrends.length > 0) {
       // Clear existing trends and insert new ones

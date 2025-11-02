@@ -30,10 +30,10 @@ export default function MarketTrends() {
       const { data, error: fetchError } = await supabase.functions.invoke("fetch-trends");
       
       if (fetchError) {
-        console.error("Error fetching trends from Apify:", fetchError);
-        toast.error("Could not fetch latest trends. Make sure APIFY_API_TOKEN is configured.");
+        console.error("Error fetching trends:", fetchError);
+        toast.error("Could not fetch latest trends. Please try again.");
       } else {
-        toast.success(`Successfully fetched ${data?.count || 0} trends`);
+        toast.success(`Successfully analyzed ${data?.count || 0} real trends from Instagram & TikTok`);
       }
       
       await loadTrends();
@@ -84,9 +84,9 @@ export default function MarketTrends() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-semibold">AI Market Trends</h2>
+          <h2 className="text-3xl font-semibold">Real-Time Market Trends</h2>
           <p className="text-muted-foreground mt-2">
-            Personalized trend insights powered by AI, tailored to your services (Hair & Lash styling)
+            Live trend analysis from Instagram & TikTok, tailored to your services
           </p>
         </div>
         <Button 
@@ -105,7 +105,7 @@ export default function MarketTrends() {
             <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">No trends available yet</h3>
             <p className="text-muted-foreground mb-4">
-              Click "Refresh Trends" to fetch the latest beauty trends from social media
+              Click "Refresh Trends" to analyze real Instagram & TikTok data for trending styles
             </p>
             <Button onClick={fetchAndLoadTrends} disabled={fetching}>
               <RefreshCw className={`h-4 w-4 mr-2 ${fetching ? 'animate-spin' : ''}`} />
@@ -238,7 +238,7 @@ export default function MarketTrends() {
         <CardHeader>
           <CardTitle>How Trend Analysis Works</CardTitle>
           <CardDescription>
-            Understanding AI-powered beauty trend insights
+            Real data from Instagram & TikTok analyzed by AI
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -247,9 +247,9 @@ export default function MarketTrends() {
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Real-time Social Media Analysis</p>
+              <p className="font-medium">Live Social Media Scraping</p>
               <p className="text-sm text-muted-foreground">
-                We monitor Instagram, TikTok, and Pinterest to identify emerging styles
+                We scrape Instagram hashtags and TikTok search results in real-time for your service categories
               </p>
             </div>
           </div>
@@ -258,9 +258,9 @@ export default function MarketTrends() {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Predictive Insights</p>
+              <p className="font-medium">Engagement-Based Scoring</p>
               <p className="text-sm text-muted-foreground">
-                Our AI predicts which trends will peak before they become mainstream
+                Popularity scores calculated from actual likes, comments, shares, and views from real posts
               </p>
             </div>
           </div>
@@ -269,9 +269,9 @@ export default function MarketTrends() {
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Local Market Adaptation</p>
+              <p className="font-medium">AI-Powered Analysis</p>
               <p className="text-sm text-muted-foreground">
-                Trends are weighted based on regional popularity and cultural relevance
+                OpenAI analyzes scraped data to identify patterns and extract meaningful trending styles
               </p>
             </div>
           </div>

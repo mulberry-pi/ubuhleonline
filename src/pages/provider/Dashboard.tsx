@@ -125,69 +125,6 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Stats Cards Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Upcoming</CardTitle>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold mb-1">{stats.upcomingAppointments}</div>
-            <p className="text-xs text-muted-foreground">Appointments</p>
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Users className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold mb-1">{stats.totalClients}</div>
-            <p className="text-xs text-muted-foreground">Clients</p>
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Monthly</CardTitle>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold mb-1">R{stats.monthlyRevenue.toFixed(0)}</div>
-            <p className="text-xs text-muted-foreground">Revenue</p>
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold mb-1">{stats.activeServices}</div>
-            <p className="text-xs text-muted-foreground">Services</p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Two Column Layout */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Upcoming Appointments - Takes 2 columns */}
@@ -271,6 +208,69 @@ export default function Dashboard() {
               <TrendingUp className="h-4 w-4 mr-3" />
               View Trends
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Stats Cards Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Upcoming</CardTitle>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold mb-1">{stats.upcomingAppointments}</div>
+            <p className="text-xs text-muted-foreground">Appointments</p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold mb-1">{stats.totalClients}</div>
+            <p className="text-xs text-muted-foreground">Clients</p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Monthly</CardTitle>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold mb-1">R{stats.monthlyRevenue.toFixed(0)}</div>
+            <p className="text-xs text-muted-foreground">Revenue</p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold mb-1">{stats.activeServices}</div>
+            <p className="text-xs text-muted-foreground">Services</p>
           </CardContent>
         </Card>
       </div>

@@ -34,9 +34,22 @@ export default function Settings() {
     bank_account_number: "",
     bank_account_holder_name: "",
     payout_frequency: "monthly",
-    payout_date: "1",
+    payout_date: "10",
     payout_start_date: "",
   });
+
+  // South African bank branch codes
+  const bankBranchCodes: { [key: string]: string } = {
+    "ABSA": "632005",
+    "African Bank": "430000",
+    "Capitec Bank": "470010",
+    "Discovery Bank": "679000",
+    "First National Bank (FNB)": "250655",
+    "Investec": "580105",
+    "Nedbank": "198765",
+    "Standard Bank": "051001",
+    "TymeBank": "678910",
+  };
   const [isBankSectionOpen, setIsBankSectionOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -79,7 +92,7 @@ export default function Settings() {
         bank_account_number: providerProfile?.bank_account_number || "",
         bank_account_holder_name: providerProfile?.bank_account_holder_name || "",
         payout_frequency: providerProfile?.payout_frequency || "monthly",
-        payout_date: providerProfile?.payout_date?.toString() || "1",
+        payout_date: providerProfile?.payout_date?.toString() || "10",
         payout_start_date: providerProfile?.payout_start_date || "",
       });
     } catch (error) {
@@ -271,13 +284,13 @@ export default function Settings() {
 
       <Card>
         <Collapsible open={isBankSectionOpen} onOpenChange={setIsBankSectionOpen}>
-          <CardHeader>
-            <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-80 transition-opacity">
-              <div>
+          <CardHeader className="p-0">
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-6 hover:opacity-80 transition-opacity">
+              <div className="text-left">
                 <CardTitle>Bank & Payout Details</CardTitle>
                 <CardDescription>Manage your banking information and payout schedule</CardDescription>
               </div>
-              <ChevronDown className={`h-5 w-5 transition-transform ${isBankSectionOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-5 w-5 transition-transform flex-shrink-0 ${isBankSectionOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>
@@ -286,7 +299,11 @@ export default function Settings() {
                 <Label>Bank Name</Label>
                 <Select
                   value={bankData.bank_name}
-                  onValueChange={(value) => setBankData({ ...bankData, bank_name: value })}
+                  onValueChange={(value) => setBankData({ 
+                    ...bankData, 
+                    bank_name: value,
+                    branch_code: bankBranchCodes[value] || ""
+                  })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select your bank" />
@@ -309,8 +326,10 @@ export default function Settings() {
                 <Input
                   value={bankData.branch_code}
                   onChange={(e) => setBankData({ ...bankData, branch_code: e.target.value })}
-                  placeholder="6-digit branch code"
+                  placeholder="Auto-filled from bank selection"
                   maxLength={6}
+                  disabled
+                  className="bg-muted"
                 />
               </div>
               <div className="space-y-2">
@@ -358,11 +377,10 @@ export default function Settings() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                          <SelectItem key={day} value={day.toString()}>
-                            Day {day}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="10">10th of the month</SelectItem>
+                        <SelectItem value="15">15th of the month</SelectItem>
+                        <SelectItem value="25">25th of the month</SelectItem>
+                        <SelectItem value="31">Last day of the month</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

@@ -34,6 +34,19 @@ const ProviderSignup = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
+  // South African bank branch codes
+  const bankBranchCodes: { [key: string]: string } = {
+    "ABSA": "632005",
+    "African Bank": "430000",
+    "Capitec Bank": "470010",
+    "Discovery Bank": "679000",
+    "First National Bank (FNB)": "250655",
+    "Investec": "580105",
+    "Nedbank": "198765",
+    "Standard Bank": "051001",
+    "TymeBank": "678910",
+  };
+
   // Step 1: Owner Information
   const [ownerInfo, setOwnerInfo] = useState({
     fullName: "",
@@ -57,7 +70,7 @@ const ProviderSignup = () => {
     branchCode: "",
     bankAccountNumber: "",
     payoutFrequency: "monthly" as "weekly" | "biweekly" | "monthly",
-    payoutDate: 15 as 15 | 25 | 30,
+    payoutDate: 10 as 10 | 15 | 25 | 31,
     payoutStartDate: "",
   });
 
@@ -489,7 +502,11 @@ const ProviderSignup = () => {
                 <Label htmlFor="bankName">Bank Name</Label>
                 <Select
                   value={paymentInfo.bankName}
-                  onValueChange={(value) => setPaymentInfo({ ...paymentInfo, bankName: value })}
+                  onValueChange={(value) => setPaymentInfo({ 
+                    ...paymentInfo, 
+                    bankName: value,
+                    branchCode: bankBranchCodes[value] || ""
+                  })}
                 >
                   <SelectTrigger className="h-12">
                     <SelectValue placeholder="Select your bank" />
@@ -513,11 +530,12 @@ const ProviderSignup = () => {
                 <Input
                   id="branchCode"
                   type="text"
-                  placeholder="6-digit branch code"
+                  placeholder="Auto-filled from bank selection"
                   value={paymentInfo.branchCode}
                   onChange={(e) => setPaymentInfo({ ...paymentInfo, branchCode: e.target.value })}
-                  className="h-12 text-base"
+                  className="h-12 text-base bg-muted"
                   maxLength={6}
+                  disabled
                   required
                 />
               </div>
@@ -567,8 +585,14 @@ const ProviderSignup = () => {
                   <Label>Payout Date</Label>
                   <RadioGroup
                     value={paymentInfo.payoutDate.toString()}
-                    onValueChange={(value) => setPaymentInfo({ ...paymentInfo, payoutDate: parseInt(value) as 15 | 25 | 30 })}
+                    onValueChange={(value) => setPaymentInfo({ ...paymentInfo, payoutDate: parseInt(value) as 10 | 15 | 25 | 31 })}
                   >
+                    <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                      <RadioGroupItem value="10" id="day-10" />
+                      <Label htmlFor="day-10" className="cursor-pointer flex-1 font-normal">
+                        10th of each month
+                      </Label>
+                    </div>
                     <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
                       <RadioGroupItem value="15" id="day-15" />
                       <Label htmlFor="day-15" className="cursor-pointer flex-1 font-normal">
@@ -582,9 +606,9 @@ const ProviderSignup = () => {
                       </Label>
                     </div>
                     <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
-                      <RadioGroupItem value="30" id="day-30" />
-                      <Label htmlFor="day-30" className="cursor-pointer flex-1 font-normal">
-                        30th of each month (or last day)
+                      <RadioGroupItem value="31" id="day-31" />
+                      <Label htmlFor="day-31" className="cursor-pointer flex-1 font-normal">
+                        Last day of each month
                       </Label>
                     </div>
                   </RadioGroup>

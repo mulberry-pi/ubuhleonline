@@ -286,7 +286,7 @@ export default function Settings() {
         <Collapsible open={isBankSectionOpen} onOpenChange={setIsBankSectionOpen}>
           <CardHeader className="p-0">
             <CollapsibleTrigger className="flex items-center justify-between w-full p-6 hover:opacity-80 transition-opacity">
-              <div className="text-left">
+              <div className="text-left space-y-1.5">
                 <CardTitle>Bank & Payout Details</CardTitle>
                 <CardDescription>Manage your banking information and payout schedule</CardDescription>
               </div>

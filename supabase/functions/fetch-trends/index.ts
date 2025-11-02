@@ -178,6 +178,8 @@ Based on this REAL DATA, identify the top 10 trending styles. For each trend:
 2. Calculate popularity score (0-100) based on engagement metrics (likes, comments, shares, views)
 3. Write a description explaining why it's trending based on the actual posts
 
+IMPORTANT: EXCLUDE "Viking Braids" from results (often used sarcastically online).
+
 Focus on: ${doesHair && doesLashes ? 'both hairstyles and lash extensions' : doesHair ? 'hairstyles only' : doesLashes ? 'lash extensions only' : 'beauty styles'}
 
 Return ONLY a JSON array with objects containing: name, description, popularity_score`;
@@ -220,6 +222,11 @@ Return ONLY a JSON array with objects containing: name, description, popularity_
       console.error("Error parsing OpenAI response:", e);
       throw new Error("Could not parse trend data from AI");
     }
+
+    // Filter out Viking Braids (used sarcastically online)
+    aiTrends = aiTrends.filter((trend: any) => 
+      !trend.name?.toLowerCase().includes('viking')
+    );
 
     console.log(`Analyzed ${aiTrends.length} trends from real social media data`);
 

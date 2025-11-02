@@ -252,7 +252,12 @@ const ProviderSignup = () => {
 
         // Call edge function to create profile and assign provider role
         const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
-          body: { role: 'provider', full_name: ownerInfo.fullName, terms_accepted: true }
+          body: { 
+            role: 'provider', 
+            full_name: ownerInfo.fullName, 
+            phone: ownerInfo.phone,
+            terms_accepted: true 
+          }
         });
 
         if (roleError) {

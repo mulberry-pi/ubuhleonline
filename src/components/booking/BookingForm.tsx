@@ -64,7 +64,7 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
       
       if (isMockProvider) {
         // Simulate booking for mock providers without database insert
-        console.log('Mock booking created:', {
+        console.log('Mock booking data prepared:', {
           client_id: user.id,
           provider_id: stylist.id,
           service_id: data.service,
@@ -73,7 +73,8 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
           location: data.location,
           contact: { name: data.name, email: data.email, phone: data.phone }
         });
-        toast.success('Test appointment created successfully!');
+        toast.success('Booking details confirmed - proceeding to payment');
+        // Still trigger payment flow for testing
         onSubmit(data);
         return;
       }

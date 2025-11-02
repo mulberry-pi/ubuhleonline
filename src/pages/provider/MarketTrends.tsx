@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Sparkles, BarChart3, RefreshCw } from "lucide-react";
+import { TrendingUp, Sparkles, BarChart3, RefreshCw, Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 interface Trend {
   id: string;
@@ -19,6 +20,8 @@ export default function MarketTrends() {
   const [trends, setTrends] = useState<Trend[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
+  const [savedTrendIds, setSavedTrendIds] = useState<Set<string>>(new Set());
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAndLoadTrends();
@@ -55,11 +58,62 @@ export default function MarketTrends() {
 
       if (error) throw error;
       setTrends(data || []);
+
+      // Load saved trends
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: savedData } = await supabase
+          .from("saved_trends")
+          .select("trend_id")
+          .eq("provider_id", user.id);
+        
+        if (savedData) {
+          setSavedTrendIds(new Set(savedData.map(st => st.trend_id)));
+        }
+      }
     } catch (error) {
       console.error("Error loading trends:", error);
       toast.error("Failed to load trends");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleSaveTrend = async (trendId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const isSaved = savedTrendIds.has(trendId);
+
+      if (isSaved) {
+        const { error } = await supabase
+          .from("saved_trends")
+          .delete()
+          .eq("provider_id", user.id)
+          .eq("trend_id", trendId);
+
+        if (error) throw error;
+
+        setSavedTrendIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(trendId);
+          return newSet;
+        });
+        toast.success("Trend removed from saved");
+      } else {
+        const { error } = await supabase
+          .from("saved_trends")
+          .insert({ provider_id: user.id, trend_id: trendId });
+
+        if (error) throw error;
+
+        setSavedTrendIds(prev => new Set([...prev, trendId]));
+        toast.success("Trend saved successfully");
+      }
+    } catch (error) {
+      console.error("Error toggling saved trend:", error);
+      toast.error("Failed to save trend");
     }
   };
 
@@ -89,14 +143,24 @@ export default function MarketTrends() {
             Live trend analysis from Instagram & TikTok, tailored to your services
           </p>
         </div>
-        <Button 
-          onClick={fetchAndLoadTrends} 
-          disabled={fetching}
-          className="gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${fetching ? 'animate-spin' : ''}`} />
-          Refresh Trends
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => navigate("/provider/saved-trends")}
+            className="gap-2"
+          >
+            <Bookmark className="h-4 w-4" />
+            View Saved ({savedTrendIds.size})
+          </Button>
+          <Button 
+            onClick={fetchAndLoadTrends} 
+            disabled={fetching}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${fetching ? 'animate-spin' : ''}`} />
+            Refresh Trends
+          </Button>
+        </div>
       </div>
 
       {trends.length === 0 ? (
@@ -194,8 +258,23 @@ export default function MarketTrends() {
                         <span className="text-sm font-medium">{trend.popularity_score}%</span>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Save Trend
+                    <Button 
+                      variant={savedTrendIds.has(trend.id) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => toggleSaveTrend(trend.id)}
+                      className="gap-2"
+                    >
+                      {savedTrendIds.has(trend.id) ? (
+                        <>
+                          <BookmarkCheck className="h-4 w-4" />
+                          Saved
+                        </>
+                      ) : (
+                        <>
+                          <Bookmark className="h-4 w-4" />
+                          Save
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>

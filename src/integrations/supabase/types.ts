@@ -384,6 +384,35 @@ export type Database = {
           },
         ]
       }
+      saved_trends: {
+        Row: {
+          created_at: string
+          id: string
+          provider_id: string
+          trend_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          provider_id: string
+          trend_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          provider_id?: string
+          trend_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_trends_trend_id_fkey"
+            columns: ["trend_id"]
+            isOneToOne: false
+            referencedRelation: "trends"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string

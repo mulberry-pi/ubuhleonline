@@ -11,7 +11,8 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Menu
+  Menu,
+  Bookmark
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +38,7 @@ const menuItems = [
   { title: "Services & Pricing", url: "/provider/services", icon: DollarSign },
   { title: "Analytics", url: "/provider/analytics", icon: TrendingUp },
   { title: "Market Trends", url: "/provider/trends", icon: TrendingUp },
+  { title: "Saved Trends", url: "/provider/saved-trends", icon: Bookmark },
   { title: "Messages", url: "/provider/messages", icon: MessageSquare },
   { title: "Settings", url: "/provider/settings", icon: Settings },
 ];

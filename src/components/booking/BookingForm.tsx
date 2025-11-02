@@ -46,7 +46,7 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       location: "salon",
-      payDeposit: false,
+      payDeposit: true,
     },
   });
 

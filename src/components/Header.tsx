@@ -130,19 +130,19 @@ const Header = () => {
             onClick={() => navigate("/style-preview")}
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
           >
-            Style Previewing
-          </button>
-          <button
-            onClick={() => navigate("/service-providers")}
-            className="text-foreground/80 hover:text-primary transition-colors font-medium"
-          >
-            Service Providers
+            Inspo Search
           </button>
           <button
             onClick={() => navigate("/search")}
             className="text-foreground/80 hover:text-primary transition-colors font-medium"
           >
             Find Stylist
+          </button>
+          <button
+            onClick={() => navigate("/service-providers")}
+            className="text-foreground/80 hover:text-primary transition-colors font-medium"
+          >
+            Service Providers
           </button>
           <button
             onClick={() => navigate("/pricing")}

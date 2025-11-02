@@ -79,9 +79,20 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
   });
+
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    if (value.length >= 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    
+    setValue('expiry', value, { shouldValidate: true });
+  };
 
   const onSubmit = async (data: PaymentFormData) => {
     setIsProcessing(true);
@@ -240,7 +251,10 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
                 id="expiry" 
                 placeholder="MM/YY" 
                 className="h-12"
-                {...register("expiry")}
+                maxLength={5}
+                {...register("expiry", {
+                  onChange: handleExpiryChange
+                })}
               />
               {errors.expiry && (
                 <p className="text-sm text-destructive">{errors.expiry.message}</p>

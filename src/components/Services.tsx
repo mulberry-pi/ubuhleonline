@@ -1,28 +1,25 @@
 import ServiceCard from "./ServiceCard";
-import iconAlwaysOn from "@/assets/icon-always-on.png";
-import iconBooking from "@/assets/icon-booking.png";
-import iconMatching from "@/assets/icon-matching.png";
-import iconTools from "@/assets/icon-tools.png";
+import { Clock, Calendar, Sparkles, Briefcase } from "lucide-react";
 
 const Services = () => {
   const services = [
     {
-      icon: iconAlwaysOn,
+      icon: Clock,
       title: "Always-On",
       description: "24/7 booking and management. Access services anytime, anywhere.",
     },
     {
-      icon: iconBooking,
+      icon: Calendar,
       title: "Online Bookings, Secure Payments",
       description: "Real-time scheduling with safe, encrypted payment processing.",
     },
     {
-      icon: iconMatching,
+      icon: Sparkles,
       title: "Stylist Matching and Discovery",
       description: "AI-generated style previews using your selfie to find the perfect match.",
     },
     {
-      icon: iconTools,
+      icon: Briefcase,
       title: "Business Tools",
       description: "Scheduling, analytics, and portfolio management for service providers.",
     },

@@ -7,17 +7,28 @@ import { useNavigate } from 'react-router-dom';
 interface ProviderCardProps {
   provider: Provider;
   viewMode: 'grid' | 'list';
+  onViewProfile?: (provider: Provider) => void;
 }
 
-const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
+const ProviderCard = ({ provider, viewMode, onViewProfile }: ProviderCardProps) => {
   const navigate = useNavigate();
 
-  const handleBookNow = () => {
+  const handleBookNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigate(`/booking?provider=${provider.id}`);
+  };
+
+  const handleCardClick = () => {
+    if (onViewProfile) {
+      onViewProfile(provider);
+    }
   };
   if (viewMode === 'list') {
     return (
-      <div className="bg-card rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_rgba(139,92,246,0.3)] transition-all duration-500 hover:-translate-y-2 flex gap-6 border border-border/50">
+      <div 
+        onClick={handleCardClick}
+        className="bg-card rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_rgba(139,92,246,0.3)] transition-all duration-500 hover:-translate-y-2 flex gap-6 border border-border/50 cursor-pointer"
+      >
         <div className="relative w-56 flex-shrink-0">
           <img
             src={provider.avatar}
@@ -73,7 +84,10 @@ const ProviderCard = ({ provider, viewMode }: ProviderCardProps) => {
   }
 
   return (
-    <div className="group bg-card rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_rgba(139,92,246,0.3)] transition-all duration-500 hover:-translate-y-2 border border-border/50">
+    <div 
+      onClick={handleCardClick}
+      className="group bg-card rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_-8px_rgba(139,92,246,0.3)] transition-all duration-500 hover:-translate-y-2 border border-border/50 cursor-pointer"
+    >
       <div className="relative h-56 overflow-hidden">
         <img
           src={provider.avatar}

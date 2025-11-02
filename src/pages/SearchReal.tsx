@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/search/SearchBar";
@@ -7,18 +7,45 @@ import FiltersPanel from "@/components/search/FiltersPanel";
 import ResultsHeader from "@/components/search/ResultsHeader";
 import ProviderCard from "@/components/search/ProviderCard";
 import ProviderMap from "@/components/search/ProviderMap";
+import ProviderProfileModal from "@/components/search/ProviderProfileModal";
 import { Provider, SearchFilters, ViewMode, SortOption } from "@/types/provider";
 import { mockProviders } from "@/data/mockProviders";
 import { toast } from "sonner";
 
+interface ProviderProfile {
+  id: string;
+  name: string;
+  avatar: string;
+  bannerImage?: string;
+  rating: number;
+  reviewCount: number;
+  location: string;
+  bio: string;
+  services: Array<{
+    id: string;
+    name: string;
+    price: number;
+    duration: number;
+    description?: string;
+  }>;
+  availability?: string[];
+  portfolioImages?: string[];
+  verified: boolean;
+  city?: string;
+  suburb?: string;
+  priceRange?: string;
+}
+
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("highest_rated");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [activeMode, setActiveMode] = useState<'browse' | 'map' | 'nearme'>('browse');
+  const [selectedProvider, setSelectedProvider] = useState<ProviderProfile | null>(null);
   
   const [filters, setFilters] = useState<SearchFilters>({
     query: searchParams.get("q") || "",
@@ -103,6 +130,64 @@ const Search = () => {
     setCurrentPage(1);
   };
 
+  const handleViewProfile = (provider: Provider) => {
+    // Transform Provider to ProviderProfile format with mock services
+    const profileData: ProviderProfile = {
+      id: provider.id,
+      name: provider.name,
+      avatar: provider.avatar,
+      bannerImage: provider.avatar,
+      rating: provider.rating,
+      reviewCount: 127,
+      location: provider.city ? `${provider.city}${provider.suburb ? ', ' + provider.suburb : ''}` : 'Cape Town',
+      bio: 'Experienced beauty professional specializing in quality service and customer satisfaction. Committed to helping you look and feel your best.',
+      services: [
+        {
+          id: '1',
+          name: 'Signature Style',
+          price: provider.price_min,
+          duration: 60,
+          description: 'Our most popular service'
+        },
+        {
+          id: '2',
+          name: 'Premium Treatment',
+          price: Math.round((provider.price_min + provider.price_max) / 2),
+          duration: 90,
+          description: 'Complete transformation experience'
+        },
+        {
+          id: '3',
+          name: 'Deluxe Package',
+          price: provider.price_max,
+          duration: 120,
+          description: 'Full luxury treatment'
+        }
+      ],
+      availability: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800',
+        'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800',
+        'https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=800',
+        'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800',
+        'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800',
+        'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800'
+      ],
+      verified: provider.verified,
+      city: provider.city,
+      suburb: provider.suburb,
+      priceRange: `R${provider.price_min} - R${provider.price_max}`
+    };
+    setSelectedProvider(profileData);
+  };
+
+  const handleBookFromProfile = () => {
+    if (selectedProvider) {
+      navigate(`/booking?provider=${selectedProvider.id}`);
+      setSelectedProvider(null);
+    }
+  };
+
   // Pagination
   const totalPages = Math.ceil(providers.length / itemsPerPage);
   const paginatedProviders = providers.slice(
@@ -177,6 +262,7 @@ const Search = () => {
                         key={provider.id}
                         provider={provider}
                         viewMode={viewMode}
+                        onViewProfile={handleViewProfile}
                       />
                     ))}
                   </div>
@@ -219,6 +305,13 @@ const Search = () => {
           </main>
         </div>
       </div>
+
+      {/* Provider Profile Modal */}
+      <ProviderProfileModal
+        provider={selectedProvider}
+        onClose={() => setSelectedProvider(null)}
+        onBook={handleBookFromProfile}
+      />
 
       <Footer />
     </div>

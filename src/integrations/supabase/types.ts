@@ -137,6 +137,36 @@ export type Database = {
           },
         ]
       }
+      blocked_time_slots: {
+        Row: {
+          blocked_date: string
+          created_at: string
+          end_time: string
+          id: string
+          provider_id: string
+          reason: string | null
+          start_time: string
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string
+          end_time: string
+          id?: string
+          provider_id: string
+          reason?: string | null
+          start_time: string
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          provider_id?: string
+          reason?: string | null
+          start_time?: string
+        }
+        Relationships: []
+      }
       calendar_sync_settings: {
         Row: {
           access_token: string | null
@@ -342,6 +372,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_working_hours: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean
+          provider_id: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean
+          provider_id: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          provider_id?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       reviews: {
         Row: {

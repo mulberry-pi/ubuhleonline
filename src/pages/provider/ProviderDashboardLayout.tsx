@@ -34,6 +34,7 @@ import { toast } from "sonner";
 const menuItems = [
   { title: "Dashboard", url: "/provider/dashboard", icon: LayoutDashboard },
   { title: "Appointments", url: "/provider/appointments", icon: Calendar },
+  { title: "Availability", url: "/provider/availability", icon: Calendar },
   { title: "Clients", url: "/provider/clients", icon: Users },
   { title: "Services & Pricing", url: "/provider/services", icon: DollarSign },
   { title: "Analytics", url: "/provider/analytics", icon: TrendingUp },

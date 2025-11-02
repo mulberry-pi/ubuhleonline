@@ -23,6 +23,7 @@ import Services from "./pages/provider/Services";
 import Analytics from "./pages/provider/Analytics";
 import MarketTrends from "./pages/provider/MarketTrends";
 import SavedTrends from "./pages/provider/SavedTrends";
+import Availability from "./pages/provider/Availability";
 import Messages from "./pages/provider/Messages";
 import Settings from "./pages/provider/Settings";
 import AfterServiceAnalysis from "./pages/provider/AfterServiceAnalysis";
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="analytics" element={<Analytics />} />
             <Route path="trends" element={<MarketTrends />} />
             <Route path="saved-trends" element={<SavedTrends />} />
+            <Route path="availability" element={<Availability />} />
             <Route path="messages" element={<Messages />} />
             <Route path="settings" element={<Settings />} />
             <Route path="after-service-analysis" element={<AfterServiceAnalysis />} />

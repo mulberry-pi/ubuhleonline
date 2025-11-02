@@ -59,7 +59,26 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
         return;
       }
 
-      // Create appointment in database
+      // Check if this is a mock provider (for testing)
+      const isMockProvider = stylist.id.startsWith('00000000-0000-0000-0000');
+      
+      if (isMockProvider) {
+        // Simulate booking for mock providers without database insert
+        console.log('Mock booking created:', {
+          client_id: user.id,
+          provider_id: stylist.id,
+          service_id: data.service,
+          appointment_date: format(data.date, 'yyyy-MM-dd'),
+          appointment_time: data.time,
+          location: data.location,
+          contact: { name: data.name, email: data.email, phone: data.phone }
+        });
+        toast.success('Test appointment created successfully!');
+        onSubmit(data);
+        return;
+      }
+
+      // Create real appointment in database
       const { data: appointmentData, error } = await supabase
         .from('appointments')
         .insert({

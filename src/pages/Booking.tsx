@@ -66,21 +66,21 @@ const Booking = () => {
           verified: true,
           services: [
             {
-              id: "mock-service-1",
+              id: "00000000-0000-0000-0000-000000000001",
               name: "Knotless Braids",
               price: 800,
               duration: 180,
               description: "Beautiful tension-free knotless braids"
             },
             {
-              id: "mock-service-2",
+              id: "00000000-0000-0000-0000-000000000002",
               name: "Silk Press",
               price: 450,
               duration: 120,
               description: "Smooth silk press with heat protectant"
             },
             {
-              id: "mock-service-3",
+              id: "00000000-0000-0000-0000-000000000003",
               name: "Twist Out",
               price: 350,
               duration: 90,
@@ -95,7 +95,7 @@ const Booking = () => {
         };
         setSelectedStylist(mockStylist);
         setStage("booking");
-        toast.info("Viewing mock provider for testing");
+        toast.info("Testing with mock provider - booking will be simulated");
         setLoading(false);
         return;
       }

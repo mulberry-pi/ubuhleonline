@@ -39,10 +39,11 @@ serve(async (req) => {
     // Use mock data if no real providers exist
     if (!providers || providers.length === 0) {
       console.log('No providers in database, using mock data for testing');
+      // Use fixed UUIDs for consistent mock data
       providers = [
         {
-          id: 'mock-1',
-          user_id: 'mock-user-1',
+          id: '00000000-0000-0000-0000-000000000001',
+          user_id: '00000000-0000-0000-0000-000000000001',
           business_name: 'Crowned Glory Hair Studio',
           business_description: 'Expert in knotless braids, box braids, faux locs, and protective styling for Black women. Specializes in tension-free techniques and natural hair health.',
           city: 'Cape Town',
@@ -52,13 +53,13 @@ serve(async (req) => {
           price_range: 'R600 - R1500',
           gallery_images: [
             'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800',
-            'https://images.unsplash.com/photo-1595475884562-073c30d45670?w=800',
+            'https://images.unsplash.com/photo-1595475884562-073c0c371c09?w=800',
             'https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=800'
           ]
         },
         {
-          id: 'mock-2',
-          user_id: 'mock-user-2',
+          id: '00000000-0000-0000-0000-000000000002',
+          user_id: '00000000-0000-0000-0000-000000000002',
           business_name: 'Melanin Magic Braids',
           business_description: 'Premium braiding specialist focusing on boho braids, goddess locs, passion twists, and trendy protective styles with curly textures.',
           city: 'Cape Town',
@@ -73,8 +74,8 @@ serve(async (req) => {
           ]
         },
         {
-          id: 'mock-3',
-          user_id: 'mock-user-3',
+          id: '00000000-0000-0000-0000-000000000003',
+          user_id: '00000000-0000-0000-0000-000000000003',
           business_name: 'Natural Crown Hair Bar',
           business_description: 'Dedicated to natural hair texture. Expert in silk presses, twist-outs, wash & go styles, and deep conditioning treatments for 4C hair.',
           city: 'Cape Town',
@@ -89,8 +90,8 @@ serve(async (req) => {
           ]
         },
         {
-          id: 'mock-4',
-          user_id: 'mock-user-4',
+          id: '00000000-0000-0000-0000-000000000004',
+          user_id: '00000000-0000-0000-0000-000000000004',
           business_name: 'Loc Love Studio',
           business_description: 'Certified loctician specializing in starter locs, loc retwists, loc styling, and loc maintenance for all stages of the loc journey.',
           city: 'Cape Town',
@@ -104,8 +105,8 @@ serve(async (req) => {
           ]
         },
         {
-          id: 'mock-5',
-          user_id: 'mock-user-5',
+          id: '00000000-0000-0000-0000-000000000005',
+          user_id: '00000000-0000-0000-0000-000000000005',
           business_name: 'Afro Glam Styles',
           business_description: 'Creative braiding artist specializing in tribal braids, stitch braids, lemonade braids, and fulani braids with beads and accessories.',
           city: 'Cape Town',

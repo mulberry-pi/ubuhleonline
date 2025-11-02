@@ -189,14 +189,29 @@ Return format:
     
     console.log('AI matching complete:', aiResponse);
 
-    // Enrich matches with full provider data
+    // Enrich matches with full provider data (flatten structure)
     const enrichedMatches = aiResponse.matches.map((match: any) => {
       const provider = providers.find(p => p.id === match.provider_id);
+      if (!provider) return null;
+      
       return {
-        ...match,
-        provider: provider || null
+        id: provider.id,
+        user_id: provider.user_id,
+        business_name: provider.business_name,
+        business_description: provider.business_description,
+        business_address: `${provider.suburb}, ${provider.city}`,
+        business_logo_url: provider.gallery_images?.[0] || '',
+        rating: provider.rating || 4.5,
+        review_count: provider.review_count || 0,
+        city: provider.city,
+        suburb: provider.suburb,
+        gallery_images: provider.gallery_images || [],
+        availability_status: 'available',
+        price_range: provider.price_range || 'R400 - R1200',
+        predicted_success: match.predicted_success,
+        match_reason: match.match_reason
       };
-    }).filter((match: any) => match.provider !== null);
+    }).filter((match: any) => match !== null);
 
     return new Response(
       JSON.stringify({ matches: enrichedMatches }),

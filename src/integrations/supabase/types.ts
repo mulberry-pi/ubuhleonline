@@ -280,6 +280,7 @@ export type Database = {
           price_range: string | null
           rating: number | null
           review_count: number | null
+          service_categories: string[] | null
           suburb: string | null
           updated_at: string
           user_id: string
@@ -303,6 +304,7 @@ export type Database = {
           price_range?: string | null
           rating?: number | null
           review_count?: number | null
+          service_categories?: string[] | null
           suburb?: string | null
           updated_at?: string
           user_id: string
@@ -326,6 +328,7 @@ export type Database = {
           price_range?: string | null
           rating?: number | null
           review_count?: number | null
+          service_categories?: string[] | null
           suburb?: string | null
           updated_at?: string
           user_id?: string

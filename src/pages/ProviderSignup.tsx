@@ -62,6 +62,7 @@ const ProviderSignup = () => {
   const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
 
   // Step 5: Services
+  const [selectedServiceCategories, setSelectedServiceCategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState("");
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
@@ -77,15 +78,38 @@ const ProviderSignup = () => {
     Sunday: { open: false, start: "09:00", end: "17:00" },
   });
 
-  const services = [
-    "Hair Styling",
-    "Braiding",
-    "Makeup",
-    "Lash Extensions",
-    "Nail Care",
-    "Skincare",
-    "Barbering",
-  ];
+  const serviceCategories = {
+    "Hair Styling": [
+      "Blow Out",
+      "Box Braids",
+      "Boho Braids",
+      "Big Chop",
+      "Cornrows",
+      "Cornrows with Extensions",
+      "Fulani Braids",
+      "Traditional Sew-In",
+      "Weave Installation",
+      "Wig Installation",
+      "Locs Installation",
+      "Locs Maintenance",
+      "Silk Press",
+      "Hair Coloring",
+      "Highlights",
+      "Hair Treatment",
+    ],
+    "Lash Extensions": [
+      "Wispy Set",
+      "Individual Lashes",
+      "Cluster Lashes",
+      "Volume Set",
+      "Cat Eye Set",
+      "Natural Set",
+      "Mega Volume Set",
+      "Hybrid Set",
+      "Lash Fill",
+      "Lash Removal",
+    ],
+  };
 
   const totalSteps = 6;
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -99,6 +123,19 @@ const ProviderSignup = () => {
     setPortfolioImages(portfolioImages.filter((_, i) => i !== index));
   };
   const progress = (currentStep / totalSteps) * 100;
+
+  const handleCategoryToggle = (category: string) => {
+    if (selectedServiceCategories.includes(category)) {
+      // Remove category and all its subcategories
+      setSelectedServiceCategories(selectedServiceCategories.filter(c => c !== category));
+      const categoryServices = serviceCategories[category as keyof typeof serviceCategories] || [];
+      setSelectedServices(selectedServices.filter(s => !categoryServices.includes(s)));
+      setServicePrices(servicePrices.filter(sp => !categoryServices.includes(sp.service)));
+    } else {
+      // Add category
+      setSelectedServiceCategories([...selectedServiceCategories, category]);
+    }
+  };
 
   const handleServiceToggle = (service: string) => {
     if (selectedServices.includes(service)) {
@@ -222,6 +259,7 @@ const ProviderSignup = () => {
             bank_account_number: paymentInfo.bankAccountNumber,
             payout_frequency: paymentInfo.payoutFrequency,
             payout_date: paymentInfo.payoutFrequency === 'monthly' ? paymentInfo.payoutDate : null,
+            service_categories: selectedServiceCategories,
           });
 
         if (profileError) {
@@ -597,45 +635,125 @@ const ProviderSignup = () => {
 
           {/* Step 5: Services Offered */}
           {currentStep === 5 && (
-            <div className="space-y-6 animate-fade-in">
-              <h2 className="text-3xl font-bold text-foreground mb-6">Select your services</h2>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {services.map((service) => (
-                  <div
-                    key={service}
-                    className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer"
-                    onClick={() => handleServiceToggle(service)}
-                  >
-                    <Checkbox
-                      checked={selectedServices.includes(service)}
-                      onCheckedChange={() => handleServiceToggle(service)}
-                    />
-                    <label className="cursor-pointer text-sm font-medium">
-                      {service}
-                    </label>
-                  </div>
-                ))}
-                
-                <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl">
-                  <Checkbox id="other" />
-                  <label htmlFor="other" className="cursor-pointer text-sm font-medium">
-                    Other
-                  </label>
-                </div>
+            <div className="space-y-8 animate-fade-in">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">What services do you offer?</h2>
+                <p className="text-muted-foreground">Select the main categories that apply to your business. This helps us show you relevant market trends.</p>
               </div>
 
-              {/* Custom Service Input */}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add your custom service"
-                  value={customService}
-                  onChange={(e) => setCustomService(e.target.value)}
-                  className="h-12 text-base"
-                />
-                <Button onClick={handleAddCustomService} className="h-12 px-6">
-                  + Add
-                </Button>
+              {/* Info Box */}
+              {selectedServiceCategories.length === 0 && (
+                <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                  <AlertCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Choose your service categories</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Select Hair Styling, Lash Extensions, or both to see specific service options. 
+                      Your selection will determine the market trends you receive.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Main Service Categories */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.keys(serviceCategories).map((category) => (
+                  <div
+                    key={category}
+                    className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${
+                      selectedServiceCategories.includes(category)
+                        ? 'border-primary bg-primary/5 shadow-lg'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onClick={() => handleCategoryToggle(category)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        checked={selectedServiceCategories.includes(category)}
+                        onCheckedChange={() => handleCategoryToggle(category)}
+                      />
+                      <label className="cursor-pointer text-lg font-semibold">
+                        {category}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Subcategories for Hair Styling */}
+              {selectedServiceCategories.includes("Hair Styling") && (
+                <div className="space-y-4 p-6 bg-accent/5 rounded-xl border border-border">
+                  <h3 className="text-xl font-semibold text-foreground">Hair Styling Services</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {serviceCategories["Hair Styling"].map((service) => (
+                      <div
+                        key={service}
+                        className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                          selectedServices.includes(service)
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => handleServiceToggle(service)}
+                      >
+                        <Checkbox
+                          checked={selectedServices.includes(service)}
+                          onCheckedChange={() => handleServiceToggle(service)}
+                        />
+                        <label className="cursor-pointer text-sm font-medium">
+                          {service}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Subcategories for Lash Extensions */}
+              {selectedServiceCategories.includes("Lash Extensions") && (
+                <div className="space-y-4 p-6 bg-accent/5 rounded-xl border border-border">
+                  <h3 className="text-xl font-semibold text-foreground">Lash Extension Services</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {serviceCategories["Lash Extensions"].map((service) => (
+                      <div
+                        key={service}
+                        className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                          selectedServices.includes(service)
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => handleServiceToggle(service)}
+                      >
+                        <Checkbox
+                          checked={selectedServices.includes(service)}
+                          onCheckedChange={() => handleServiceToggle(service)}
+                        />
+                        <label className="cursor-pointer text-sm font-medium">
+                          {service}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Other/Custom Services */}
+              <div className="space-y-4 p-6 bg-muted/30 rounded-xl border border-border">
+                <h3 className="text-xl font-semibold text-foreground">Other Services</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add any additional services you offer that aren't listed above
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter custom service name"
+                    value={customService}
+                    onChange={(e) => setCustomService(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddCustomService()}
+                    className="h-12 text-base"
+                  />
+                  <Button onClick={handleAddCustomService} className="h-12 px-6">
+                    + Add
+                  </Button>
+                </div>
               </div>
 
               {/* Price Inputs for Selected Services */}

@@ -16,6 +16,8 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 export default function Settings() {
   const [profileData, setProfileData] = useState({
@@ -28,11 +30,14 @@ export default function Settings() {
   });
   const [bankData, setBankData] = useState({
     bank_name: "",
+    branch_code: "",
     bank_account_number: "",
     bank_account_holder_name: "",
     payout_frequency: "monthly",
     payout_date: "1",
+    payout_start_date: "",
   });
+  const [isBankSectionOpen, setIsBankSectionOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [password, setPassword] = useState("");
@@ -70,10 +75,12 @@ export default function Settings() {
 
       setBankData({
         bank_name: providerProfile?.bank_name || "",
+        branch_code: providerProfile?.branch_code || "",
         bank_account_number: providerProfile?.bank_account_number || "",
         bank_account_holder_name: providerProfile?.bank_account_holder_name || "",
         payout_frequency: providerProfile?.payout_frequency || "monthly",
         payout_date: providerProfile?.payout_date?.toString() || "1",
+        payout_start_date: providerProfile?.payout_start_date || "",
       });
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -161,10 +168,12 @@ export default function Settings() {
         .from("provider_profiles")
         .update({
           bank_name: bankData.bank_name,
+          branch_code: bankData.branch_code,
           bank_account_number: bankData.bank_account_number,
           bank_account_holder_name: bankData.bank_account_holder_name,
           payout_frequency: bankData.payout_frequency,
-          payout_date: parseInt(bankData.payout_date),
+          payout_date: bankData.payout_frequency === 'monthly' ? parseInt(bankData.payout_date) : null,
+          payout_start_date: bankData.payout_frequency === 'biweekly' ? bankData.payout_start_date : null,
         })
         .eq("user_id", user.id);
 
@@ -261,75 +270,120 @@ export default function Settings() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Bank & Payout Details</CardTitle>
-          <CardDescription>Manage your banking information and payout schedule</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Bank Name</Label>
-            <Input
-              value={bankData.bank_name}
-              onChange={(e) => setBankData({ ...bankData, bank_name: e.target.value })}
-              placeholder="e.g., Standard Bank"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Account Holder Name</Label>
-            <Input
-              value={bankData.bank_account_holder_name}
-              onChange={(e) => setBankData({ ...bankData, bank_account_holder_name: e.target.value })}
-              placeholder="Full name as per bank account"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Account Number</Label>
-            <Input
-              value={bankData.bank_account_number}
-              onChange={(e) => setBankData({ ...bankData, bank_account_number: e.target.value })}
-              placeholder="Your bank account number"
-              type="password"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Payout Frequency</Label>
-              <Select
-                value={bankData.payout_frequency}
-                onValueChange={(value) => setBankData({ ...bankData, payout_frequency: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Payout Date</Label>
-              <Select
-                value={bankData.payout_date}
-                onValueChange={(value) => setBankData({ ...bankData, payout_date: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                    <SelectItem key={day} value={day.toString()}>
-                      Day {day}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <Button onClick={handleBankDetailsClick} variant="outline" className="w-full">
-            Update Bank Details (Requires Password)
-          </Button>
-        </CardContent>
+        <Collapsible open={isBankSectionOpen} onOpenChange={setIsBankSectionOpen}>
+          <CardHeader>
+            <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-80 transition-opacity">
+              <div>
+                <CardTitle>Bank & Payout Details</CardTitle>
+                <CardDescription>Manage your banking information and payout schedule</CardDescription>
+              </div>
+              <ChevronDown className={`h-5 w-5 transition-transform ${isBankSectionOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Bank Name</Label>
+                <Select
+                  value={bankData.bank_name}
+                  onValueChange={(value) => setBankData({ ...bankData, bank_name: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your bank" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ABSA">ABSA</SelectItem>
+                    <SelectItem value="African Bank">African Bank</SelectItem>
+                    <SelectItem value="Capitec Bank">Capitec Bank</SelectItem>
+                    <SelectItem value="Discovery Bank">Discovery Bank</SelectItem>
+                    <SelectItem value="First National Bank (FNB)">First National Bank (FNB)</SelectItem>
+                    <SelectItem value="Investec">Investec</SelectItem>
+                    <SelectItem value="Nedbank">Nedbank</SelectItem>
+                    <SelectItem value="Standard Bank">Standard Bank</SelectItem>
+                    <SelectItem value="TymeBank">TymeBank</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Branch Code</Label>
+                <Input
+                  value={bankData.branch_code}
+                  onChange={(e) => setBankData({ ...bankData, branch_code: e.target.value })}
+                  placeholder="6-digit branch code"
+                  maxLength={6}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Account Holder Name</Label>
+                <Input
+                  value={bankData.bank_account_holder_name}
+                  onChange={(e) => setBankData({ ...bankData, bank_account_holder_name: e.target.value })}
+                  placeholder="Full name as per bank account"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Account Number</Label>
+                <Input
+                  value={bankData.bank_account_number}
+                  onChange={(e) => setBankData({ ...bankData, bank_account_number: e.target.value })}
+                  placeholder="Your bank account number"
+                  type="password"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Payout Frequency</Label>
+                  <Select
+                    value={bankData.payout_frequency}
+                    onValueChange={(value) => setBankData({ ...bankData, payout_frequency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="biweekly">Biweekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {bankData.payout_frequency === 'monthly' && (
+                  <div className="space-y-2">
+                    <Label>Payout Date</Label>
+                    <Select
+                      value={bankData.payout_date}
+                      onValueChange={(value) => setBankData({ ...bankData, payout_date: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                          <SelectItem key={day} value={day.toString()}>
+                            Day {day}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {bankData.payout_frequency === 'biweekly' && (
+                  <div className="space-y-2">
+                    <Label>Starting Date</Label>
+                    <Input
+                      type="date"
+                      value={bankData.payout_start_date}
+                      onChange={(e) => setBankData({ ...bankData, payout_start_date: e.target.value })}
+                    />
+                  </div>
+                )}
+              </div>
+              <Button onClick={handleBankDetailsClick} variant="outline" className="w-full">
+                Update Bank Details (Requires Password)
+              </Button>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
 
       <Card>

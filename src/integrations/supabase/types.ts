@@ -296,6 +296,7 @@ export type Database = {
           bank_account_holder_name: string | null
           bank_account_number: string | null
           bank_name: string | null
+          branch_code: string | null
           business_address: string | null
           business_description: string | null
           business_logo_url: string | null
@@ -307,6 +308,7 @@ export type Database = {
           is_public: boolean | null
           payout_date: number | null
           payout_frequency: string | null
+          payout_start_date: string | null
           price_range: string | null
           rating: number | null
           review_count: number | null
@@ -320,6 +322,7 @@ export type Database = {
           bank_account_holder_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          branch_code?: string | null
           business_address?: string | null
           business_description?: string | null
           business_logo_url?: string | null
@@ -331,6 +334,7 @@ export type Database = {
           is_public?: boolean | null
           payout_date?: number | null
           payout_frequency?: string | null
+          payout_start_date?: string | null
           price_range?: string | null
           rating?: number | null
           review_count?: number | null
@@ -344,6 +348,7 @@ export type Database = {
           bank_account_holder_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          branch_code?: string | null
           business_address?: string | null
           business_description?: string | null
           business_logo_url?: string | null
@@ -355,6 +360,7 @@ export type Database = {
           is_public?: boolean | null
           payout_date?: number | null
           payout_frequency?: string | null
+          payout_start_date?: string | null
           price_range?: string | null
           rating?: number | null
           review_count?: number | null

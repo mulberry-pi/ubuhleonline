@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -53,9 +54,11 @@ const ProviderSignup = () => {
   const [paymentInfo, setPaymentInfo] = useState({
     bankAccountHolderName: "",
     bankName: "",
+    branchCode: "",
     bankAccountNumber: "",
-    payoutFrequency: "monthly" as "weekly" | "bi-weekly" | "monthly",
+    payoutFrequency: "monthly" as "weekly" | "biweekly" | "monthly",
     payoutDate: 15 as 15 | 25 | 30,
+    payoutStartDate: "",
   });
 
   // Step 4: Portfolio Upload
@@ -256,9 +259,11 @@ const ProviderSignup = () => {
             gallery_images: portfolioImageUrls,
             bank_account_holder_name: paymentInfo.bankAccountHolderName,
             bank_name: paymentInfo.bankName,
+            branch_code: paymentInfo.branchCode,
             bank_account_number: paymentInfo.bankAccountNumber,
             payout_frequency: paymentInfo.payoutFrequency,
             payout_date: paymentInfo.payoutFrequency === 'monthly' ? paymentInfo.payoutDate : null,
+            payout_start_date: paymentInfo.payoutFrequency === 'biweekly' ? paymentInfo.payoutStartDate : null,
             service_categories: selectedServiceCategories,
           });
 
@@ -482,13 +487,37 @@ const ProviderSignup = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="bankName">Bank Name</Label>
-                <Input
-                  id="bankName"
-                  type="text"
-                  placeholder="e.g., First National Bank, Standard Bank"
+                <Select
                   value={paymentInfo.bankName}
-                  onChange={(e) => setPaymentInfo({ ...paymentInfo, bankName: e.target.value })}
+                  onValueChange={(value) => setPaymentInfo({ ...paymentInfo, bankName: value })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Select your bank" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ABSA">ABSA</SelectItem>
+                    <SelectItem value="African Bank">African Bank</SelectItem>
+                    <SelectItem value="Capitec Bank">Capitec Bank</SelectItem>
+                    <SelectItem value="Discovery Bank">Discovery Bank</SelectItem>
+                    <SelectItem value="First National Bank (FNB)">First National Bank (FNB)</SelectItem>
+                    <SelectItem value="Investec">Investec</SelectItem>
+                    <SelectItem value="Nedbank">Nedbank</SelectItem>
+                    <SelectItem value="Standard Bank">Standard Bank</SelectItem>
+                    <SelectItem value="TymeBank">TymeBank</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="branchCode">Branch Code</Label>
+                <Input
+                  id="branchCode"
+                  type="text"
+                  placeholder="6-digit branch code"
+                  value={paymentInfo.branchCode}
+                  onChange={(e) => setPaymentInfo({ ...paymentInfo, branchCode: e.target.value })}
                   className="h-12 text-base"
+                  maxLength={6}
                   required
                 />
               </div>
@@ -510,7 +539,7 @@ const ProviderSignup = () => {
                 <Label>Payout Frequency</Label>
                 <RadioGroup
                   value={paymentInfo.payoutFrequency}
-                  onValueChange={(value) => setPaymentInfo({ ...paymentInfo, payoutFrequency: value as "weekly" | "bi-weekly" | "monthly" })}
+                  onValueChange={(value) => setPaymentInfo({ ...paymentInfo, payoutFrequency: value as "weekly" | "biweekly" | "monthly" })}
                 >
                   <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
                     <RadioGroupItem value="weekly" id="weekly" />
@@ -519,8 +548,8 @@ const ProviderSignup = () => {
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3 p-4 border-2 border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
-                    <RadioGroupItem value="bi-weekly" id="bi-weekly" />
-                    <Label htmlFor="bi-weekly" className="cursor-pointer flex-1 font-normal">
+                    <RadioGroupItem value="biweekly" id="biweekly" />
+                    <Label htmlFor="biweekly" className="cursor-pointer flex-1 font-normal">
                       Every 2 Weeks
                     </Label>
                   </div>
@@ -559,6 +588,23 @@ const ProviderSignup = () => {
                       </Label>
                     </div>
                   </RadioGroup>
+                </div>
+              )}
+
+              {paymentInfo.payoutFrequency === 'biweekly' && (
+                <div className="space-y-2">
+                  <Label htmlFor="payoutStartDate">First Payout Date</Label>
+                  <Input
+                    id="payoutStartDate"
+                    type="date"
+                    value={paymentInfo.payoutStartDate}
+                    onChange={(e) => setPaymentInfo({ ...paymentInfo, payoutStartDate: e.target.value })}
+                    className="h-12 text-base"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Select the date for your first biweekly payout. Future payouts will occur every 2 weeks from this date.
+                  </p>
                 </div>
               )}
             </div>

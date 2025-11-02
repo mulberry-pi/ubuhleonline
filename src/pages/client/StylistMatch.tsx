@@ -61,10 +61,16 @@ const StylistMatch = () => {
       if (error) throw error;
 
       if (data?.matches && data.matches.length > 0) {
+        console.log('Raw matches from edge function:', data.matches);
         // Sort by rating (highest to lowest)
         const sortedMatches = data.matches.sort((a: MatchedStylist, b: MatchedStylist) => {
           return (b.rating || 0) - (a.rating || 0);
         });
+        console.log('Sorted matches with IDs:', sortedMatches.map(m => ({ 
+          name: m.business_name, 
+          id: m.id, 
+          user_id: m.user_id 
+        })));
         setStylists(sortedMatches);
         toast.success(`Found ${data.matches.length} perfect matches!`);
       } else {

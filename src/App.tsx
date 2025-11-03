@@ -27,8 +27,6 @@ import Availability from "./pages/provider/Availability";
 import Portfolio from "./pages/provider/Portfolio";
 import Messages from "./pages/provider/Messages";
 import Settings from "./pages/provider/Settings";
-import AfterServiceAnalysis from "./pages/provider/AfterServiceAnalysis";
-import VerifiedResults from "./pages/provider/VerifiedResults";
 import ClientDashboardLayout from "./pages/client/ClientDashboardLayout";
 import ClientDashboard from "./pages/client/ClientDashboard";
 import NewBooking from "./pages/client/NewBooking";
@@ -72,8 +70,6 @@ const App = () => (
             <Route path="portfolio" element={<Portfolio />} />
             <Route path="messages" element={<Messages />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="after-service-analysis" element={<AfterServiceAnalysis />} />
-            <Route path="verified-results" element={<VerifiedResults />} />
           </Route>
           
           {/* Client Dashboard Routes */}

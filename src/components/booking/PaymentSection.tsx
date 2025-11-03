@@ -1,10 +1,6 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { CreditCard, Lock, ChevronLeft } from "lucide-react";
+import { Lock, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Stylist, BookingFormData } from "@/types/booking";
 import { format } from "date-fns";
@@ -18,107 +14,35 @@ interface PaymentSectionProps {
   onBack: () => void;
 }
 
-// Luhn algorithm for card validation
-const luhnCheck = (cardNumber: string): boolean => {
-  let sum = 0;
-  let isEven = false;
-  
-  for (let i = cardNumber.length - 1; i >= 0; i--) {
-    let digit = parseInt(cardNumber[i], 10);
-    
-    if (isEven) {
-      digit *= 2;
-      if (digit > 9) {
-        digit -= 9;
-      }
-    }
-    
-    sum += digit;
-    isEven = !isEven;
-  }
-  
-  return sum % 10 === 0;
-};
-
-// Check if expiry date is valid and in the future
-const isValidExpiry = (expiry: string): boolean => {
-  const [month, year] = expiry.split('/');
-  const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
-  const today = new Date();
-  today.setDate(1); // Set to first day of month for comparison
-  return expiryDate >= today;
-};
-
-const paymentSchema = z.object({
-  cardNumber: z.string()
-    .regex(/^[0-9]{16}$/, 'Card number must be 16 digits')
-    .refine((val) => luhnCheck(val), 'Invalid card number'),
-  expiry: z.string()
-    .regex(/^(0[1-9]|1[0-2])\/[0-9]{2}$/, 'Invalid format (MM/YY)')
-    .refine((val) => isValidExpiry(val), 'Card has expired'),
-  cvv: z.string()
-    .regex(/^[0-9]{3,4}$/, 'CVV must be 3 or 4 digits'),
-  cardholderName: z.string()
-    .trim()
-    .min(2, 'Name is required')
-    .max(100, 'Name too long')
-});
-
-type PaymentFormData = z.infer<typeof paymentSchema>;
-
 const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSectionProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   
   const selectedService = stylist.services.find(s => s.id === bookingData.service);
   const fullPrice = selectedService?.price || 0;
-  const depositPercentage = (stylist.depositPercentage || 50) / 100; // Use provider's deposit % or default to 50%
-  const serviceFeePercentage = 0.1; // 10% service fee
+  const depositPercentage = (stylist.depositPercentage || 50) / 100;
+  const serviceFeePercentage = 0.1;
   const depositAmount = selectedService ? Math.round(selectedService.price * depositPercentage) : 0;
   const serviceFee = Math.round(fullPrice * serviceFeePercentage);
   const totalDueNow = depositAmount + serviceFee;
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<PaymentFormData>({
-    resolver: zodResolver(paymentSchema),
-  });
-
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-    
-    if (value.length >= 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2, 4);
-    }
-    
-    setValue('expiry', value, { shouldValidate: true });
-  };
-
-  const onSubmit = async (data: PaymentFormData) => {
+  const handleConfirmBooking = async () => {
     setIsProcessing(true);
     
     try {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Please log in to complete payment');
+        toast.error('Please log in to complete booking');
         return;
       }
 
-      // Split cardholder name
-      const nameParts = data.cardholderName.trim().split(' ');
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || firstName;
-
-      // Simulate payment processing (PayFast integration disabled)
+      // Skip payment processing - just confirm the booking
       setTimeout(() => {
-        toast.success('Booking confirmed! Invoice sent to your email.');
+        toast.success('Booking confirmed! You will receive further details via email.');
         onComplete();
-      }, 1500);
+      }, 800);
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('Booking error:', error);
       toast.error('An unexpected error occurred');
     } finally {
       setIsProcessing(false);
@@ -191,91 +115,49 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
           </div>
         </div>
 
-        {/* Payment Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="cardNumber">Card Number</Label>
-            <div className="relative">
-              <Input
-                id="cardNumber"
-                placeholder="1234567890123456"
-                className="h-12 pl-12"
-                {...register("cardNumber")}
-              />
-              <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        {/* Temporary Payment Notice */}
+        <div className="space-y-4">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-2">
+                  Payment Gateway Under Setup
+                </h4>
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  Our secure payment system is currently being verified and will be available soon. 
+                  You can proceed with your booking, and payment details will be provided via email.
+                </p>
+              </div>
             </div>
-            {errors.cardNumber && (
-              <p className="text-sm text-destructive">{errors.cardNumber.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="expiry">Expiry Date</Label>
-              <Input 
-                id="expiry" 
-                placeholder="MM/YY" 
-                className="h-12"
-                maxLength={5}
-                {...register("expiry", {
-                  onChange: handleExpiryChange
-                })}
-              />
-              {errors.expiry && (
-                <p className="text-sm text-destructive">{errors.expiry.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="cvv">CVV</Label>
-              <Input 
-                id="cvv" 
-                placeholder="123" 
-                maxLength={4} 
-                className="h-12"
-                {...register("cvv")}
-              />
-              {errors.cvv && (
-                <p className="text-sm text-destructive">{errors.cvv.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cardholderName">Cardholder Name</Label>
-            <Input
-              id="cardholderName"
-              placeholder="Name on card"
-              className="h-12"
-              {...register("cardholderName")}
-            />
-            {errors.cardholderName && (
-              <p className="text-sm text-destructive">{errors.cardholderName.message}</p>
-            )}
           </div>
 
           <Button
-            type="submit"
+            onClick={handleConfirmBooking}
             disabled={isProcessing}
             size="lg"
-            className="w-full hover-glow text-lg h-14 mt-6 bg-gradient-to-r from-primary to-accent"
+            className="w-full hover-glow text-lg h-14 bg-gradient-to-r from-primary to-accent"
           >
             {isProcessing ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Processing...
+                Confirming...
               </>
             ) : (
               <>
-                Confirm Booking - R{totalDueNow}
+                Confirm Booking
                 <Lock className="ml-2 w-5 h-5" />
               </>
             )}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground mt-4">
-            By completing this payment, you agree to Ubuhle's Terms & Conditions
+            By confirming this booking, you agree to Ubuhle's Terms & Conditions.
+            Payment instructions will be sent to your registered email address.
           </p>
-        </form>
+        </div>
       </div>
     </div>
   );

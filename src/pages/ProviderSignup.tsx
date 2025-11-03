@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { UserAgreementDialog } from "@/components/UserAgreementDialog";
-import { ChevronLeft, ChevronRight, Upload, Sparkles, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, Sparkles, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ServicePrice {
@@ -33,6 +33,7 @@ const ProviderSignup = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // South African bank branch codes
   const bankBranchCodes: { [key: string]: string } = {
@@ -408,14 +409,26 @@ const ProviderSignup = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Create a strong password"
-                  value={ownerInfo.password}
-                  onChange={(e) => setOwnerInfo({ ...ownerInfo, password: e.target.value })}
-                  className="h-12 text-base"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a strong password"
+                    value={ownerInfo.password}
+                    onChange={(e) => setOwnerInfo({ ...ownerInfo, password: e.target.value })}
+                    className="h-12 text-base pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Must be 8+ characters with uppercase, lowercase, number, and special character
+                </p>
               </div>
             </div>
           )}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { TrendingUp, Calendar, RefreshCw, MessageSquare, BarChart3, Settings } from "lucide-react";
-import logo from "@/assets/logo.png";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
   Carousel,
@@ -18,15 +18,6 @@ import salonTeamImage from "@/assets/salon-team-provider.png";
 
 const ServiceProviders = () => {
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const benefits = [
     {
@@ -81,54 +72,7 @@ const ServiceProviders = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Floating Header */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-          isScrolled
-            ? "bg-[rgba(38,30,54,0.9)] backdrop-blur-[10px]"
-            : "bg-transparent"
-        }`}
-      >
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <img
-            src={logo}
-            alt="Ubuhle"
-            className="h-10 cursor-pointer brightness-0 invert"
-            onClick={() => navigate("/")}
-          />
-
-          <nav className="hidden md:flex items-center gap-8">
-            <button
-              onClick={() => navigate("/style-preview")}
-              className="text-white/90 hover:text-white transition-colors font-medium text-[18px] tracking-[0.6px]"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              Style Previewing
-            </button>
-            <button
-              onClick={() => navigate("/service-providers")}
-              className="text-white/90 hover:text-white transition-colors font-medium text-[18px] tracking-[0.6px]"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              Service Providers
-            </button>
-            <button
-              onClick={() => navigate("/search")}
-              className="text-white/90 hover:text-white transition-colors font-medium text-[18px] tracking-[0.6px]"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              Find Stylist
-            </button>
-            <Button
-              onClick={() => navigate("/get-started")}
-              className="bg-white/10 text-white hover:bg-white/20 px-6 text-[18px] tracking-[0.6px]"
-              style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 500 }}
-            >
-              Get Started
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section with Video Background */}
       <section className="relative h-screen flex items-end overflow-hidden">

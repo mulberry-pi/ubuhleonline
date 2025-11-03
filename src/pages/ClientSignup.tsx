@@ -12,6 +12,15 @@ import Footer from "@/components/Footer";
 import { UserAgreementDialog } from "@/components/UserAgreementDialog";
 import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const passwordSchema = z.string()
+  .min(8, { message: "Password must be at least 8 characters" })
+  .max(100, { message: "Password must be less than 100 characters" })
+  .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+  .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+  .regex(/[0-9]/, { message: "Password must contain at least one number" })
+  .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/, { message: "Password must contain at least one special character" });
 
 const ClientSignup = () => {
   const navigate = useNavigate();
@@ -34,6 +43,17 @@ const ClientSignup = () => {
       toast({
         title: "Agreement required",
         description: "Please accept the Ubuhle Platform User Agreement to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password
+    const passwordValidation = passwordSchema.safeParse(formData.password);
+    if (!passwordValidation.success) {
+      toast({
+        title: "Invalid password",
+        description: passwordValidation.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -157,6 +177,9 @@ const ClientSignup = () => {
                 required
                 className="h-12 text-base"
               />
+              <p className="text-xs text-muted-foreground">
+                Must be 8+ characters with uppercase, lowercase, number, and special character
+              </p>
             </div>
 
             {/* Confirm Password */}

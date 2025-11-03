@@ -62,6 +62,7 @@ const ProviderSignup = () => {
     address: "",
     description: "",
     logo: null as File | null,
+    serviceLocations: [] as string[],
   });
 
   // Step 3: Payment Information
@@ -215,6 +216,14 @@ const ProviderSignup = () => {
         });
         return;
       }
+      if (businessInfo.serviceLocations.length === 0) {
+        toast({
+          title: "Missing information",
+          description: "Please select at least one service location type",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (currentStep < totalSteps) {
@@ -326,7 +335,8 @@ const ProviderSignup = () => {
             payout_start_date: paymentInfo.payoutFrequency === 'biweekly' ? paymentInfo.payoutStartDate : null,
             service_categories: selectedServiceCategories,
             service_policy_url: servicePolicyUrl,
-            deposit_percentage: depositPercentage, // Use deposit from policy or default 50%
+            deposit_percentage: depositPercentage,
+            service_location_type: businessInfo.serviceLocations,
           });
 
         if (profileError) {
@@ -523,6 +533,71 @@ const ProviderSignup = () => {
                   onChange={(e) => setBusinessInfo({ ...businessInfo, description: e.target.value })}
                   className="min-h-32 text-base"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label>
+                  Service Locations <span className="text-destructive">*</span>
+                </Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Where do you provide your services?
+                </p>
+                <div className="space-y-3">
+                  <div
+                    className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                      businessInfo.serviceLocations.includes('salon')
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onClick={() => {
+                      const locations = businessInfo.serviceLocations.includes('salon')
+                        ? businessInfo.serviceLocations.filter(l => l !== 'salon')
+                        : [...businessInfo.serviceLocations, 'salon'];
+                      setBusinessInfo({ ...businessInfo, serviceLocations: locations });
+                    }}
+                  >
+                    <Checkbox
+                      checked={businessInfo.serviceLocations.includes('salon')}
+                      onCheckedChange={(checked) => {
+                        const locations = checked
+                          ? [...businessInfo.serviceLocations, 'salon']
+                          : businessInfo.serviceLocations.filter(l => l !== 'salon');
+                        setBusinessInfo({ ...businessInfo, serviceLocations: locations });
+                      }}
+                    />
+                    <div>
+                      <p className="font-medium">At my salon/studio</p>
+                      <p className="text-xs text-muted-foreground">Clients come to your location</p>
+                    </div>
+                  </div>
+                  <div
+                    className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                      businessInfo.serviceLocations.includes('mobile')
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onClick={() => {
+                      const locations = businessInfo.serviceLocations.includes('mobile')
+                        ? businessInfo.serviceLocations.filter(l => l !== 'mobile')
+                        : [...businessInfo.serviceLocations, 'mobile'];
+                      setBusinessInfo({ ...businessInfo, serviceLocations: locations });
+                    }}
+                  >
+                    <Checkbox
+                      checked={businessInfo.serviceLocations.includes('mobile')}
+                      onCheckedChange={(checked) => {
+                        const locations = checked
+                          ? [...businessInfo.serviceLocations, 'mobile']
+                          : businessInfo.serviceLocations.filter(l => l !== 'mobile');
+                        setBusinessInfo({ ...businessInfo, serviceLocations: locations });
+                      }}
+                    />
+                    <div>
+                      <p className="font-medium">Mobile/Home visits</p>
+                      <p className="text-xs text-muted-foreground">You travel to clients' locations</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">

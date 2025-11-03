@@ -315,6 +315,7 @@ export type Database = {
           rating: number | null
           review_count: number | null
           service_categories: string[] | null
+          service_location_type: string[] | null
           service_policy_url: string | null
           suburb: string | null
           updated_at: string
@@ -344,6 +345,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           service_categories?: string[] | null
+          service_location_type?: string[] | null
           service_policy_url?: string | null
           suburb?: string | null
           updated_at?: string
@@ -373,6 +375,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           service_categories?: string[] | null
+          service_location_type?: string[] | null
           service_policy_url?: string | null
           suburb?: string | null
           updated_at?: string

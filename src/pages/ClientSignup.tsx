@@ -30,7 +30,6 @@ const ClientSignup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    preferredServices: "",
     receiveUpdates: false,
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -216,22 +215,6 @@ const ClientSignup = () => {
               </div>
             </div>
 
-            {/* Preferred Services */}
-            <div className="space-y-2">
-              <Label htmlFor="services">Preferred Services</Label>
-              <Select value={formData.preferredServices} onValueChange={(value) => setFormData({ ...formData, preferredServices: value })}>
-                <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="Select your preferred service" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hair">Hair</SelectItem>
-                  <SelectItem value="nails">Nails</SelectItem>
-                  <SelectItem value="makeup">Makeup</SelectItem>
-                  <SelectItem value="lashes">Lashes</SelectItem>
-                  <SelectItem value="skincare">Skincare</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
             {/* Receive Updates Toggle */}
             <div className="flex items-center justify-between p-4 bg-accent/5 rounded-xl">

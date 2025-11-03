@@ -298,7 +298,7 @@ const BookingForm = ({ stylist, onSubmit, onBack }: BookingFormProps) => {
           </h3>
           <div className="space-y-2 text-sm">
             <p className="text-muted-foreground">
-              To secure your appointment, a 50% deposit plus a 10% service fee is required.
+              To secure your appointment, a {stylist.depositPercentage || 50}% deposit plus a 10% service fee is required.
             </p>
             <ul className="space-y-1 text-muted-foreground ml-4">
               <li>• The provider's address will be revealed after payment</li>

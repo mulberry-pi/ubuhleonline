@@ -71,7 +71,7 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
   
   const selectedService = stylist.services.find(s => s.id === bookingData.service);
   const fullPrice = selectedService?.price || 0;
-  const depositPercentage = 0.5; // 50% deposit
+  const depositPercentage = (stylist.depositPercentage || 50) / 100; // Use provider's deposit % or default to 50%
   const serviceFeePercentage = 0.1; // 10% service fee
   const depositAmount = selectedService ? Math.round(selectedService.price * depositPercentage) : 0;
   const serviceFee = Math.round(fullPrice * serviceFeePercentage);

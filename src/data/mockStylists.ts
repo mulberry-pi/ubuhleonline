@@ -13,6 +13,7 @@ export const mockStylists: Stylist[] = [
     bio: "Specializing in protective styles and natural hair care for over 8 years. Passionate about celebrating African beauty through intricate braiding and loc styling.",
     specialties: ["Boho Locs", "Cornrows", "Protective Styles", "Natural Treatment"],
     verified: true,
+    depositPercentage: 25, // Has service policy
     services: [
       { id: "s1", name: "Boho Locs", price: 850, duration: 240 },
       { id: "s2", name: "Cornrows", price: 600, duration: 180 },
@@ -37,6 +38,7 @@ export const mockStylists: Stylist[] = [
     bio: "Award-winning lash artist specializing in volume and hybrid techniques. Creating stunning, natural-looking extensions that enhance your beauty.",
     specialties: ["Volume Lashes", "Hybrid Lashes", "Lash Lift", "Brow Lamination"],
     verified: true,
+    depositPercentage: 50, // No service policy
     services: [
       { id: "s4", name: "Classic Lash Extensions", price: 950, duration: 120 },
       { id: "s5", name: "Volume Lashes", price: 1200, duration: 150 },
@@ -61,6 +63,7 @@ export const mockStylists: Stylist[] = [
     bio: "Dedicated to natural hair health and growth. Expert in silk presses, twist-outs, and treatments that nurture your natural texture.",
     specialties: ["Silk Press", "Twist Outs", "Deep Conditioning", "Loc Maintenance"],
     verified: true,
+    depositPercentage: 25, // Has service policy
     services: [
       { id: "s7", name: "Silk Press", price: 700, duration: 150 },
       { id: "s8", name: "Twist Out Styling", price: 500, duration: 120 },

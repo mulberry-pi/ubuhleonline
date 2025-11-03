@@ -304,6 +304,7 @@ export type Database = {
           business_name: string | null
           city: string | null
           created_at: string
+          deposit_percentage: number | null
           gallery_images: string[] | null
           id: string
           is_public: boolean | null
@@ -314,6 +315,7 @@ export type Database = {
           rating: number | null
           review_count: number | null
           service_categories: string[] | null
+          service_policy_url: string | null
           suburb: string | null
           updated_at: string
           user_id: string
@@ -331,6 +333,7 @@ export type Database = {
           business_name?: string | null
           city?: string | null
           created_at?: string
+          deposit_percentage?: number | null
           gallery_images?: string[] | null
           id?: string
           is_public?: boolean | null
@@ -341,6 +344,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           service_categories?: string[] | null
+          service_policy_url?: string | null
           suburb?: string | null
           updated_at?: string
           user_id: string
@@ -358,6 +362,7 @@ export type Database = {
           business_name?: string | null
           city?: string | null
           created_at?: string
+          deposit_percentage?: number | null
           gallery_images?: string[] | null
           id?: string
           is_public?: boolean | null
@@ -368,6 +373,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           service_categories?: string[] | null
+          service_policy_url?: string | null
           suburb?: string | null
           updated_at?: string
           user_id?: string

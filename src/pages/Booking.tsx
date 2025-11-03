@@ -64,6 +64,7 @@ const Booking = () => {
           bio: "Specializing in natural hair care, protective styling, and modern beauty techniques.",
           specialties: ["Braids", "Natural Hair", "Protective Styles"],
           verified: true,
+          depositPercentage: 50, // Default 50% for mock data
           services: [
             {
               id: "service-1",
@@ -122,6 +123,7 @@ const Booking = () => {
         bio: profile.business_description || "",
         specialties: [],
         verified: true,
+        depositPercentage: profile.deposit_percentage || 50, // Default to 50% if not set
         services: (services || []).map(s => ({
           id: s.id,
           name: s.name,

@@ -24,7 +24,7 @@ const GetStarted = () => {
         <CardContent className="space-y-4">
           {/* Client Card */}
           <button
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/signup/client")}
             className="w-full bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20 rounded-2xl p-6 hover:scale-[1.02] hover:shadow-lg hover:border-primary/40 transition-all duration-300 text-left group"
           >
             <div className="flex items-start gap-4">
@@ -45,7 +45,7 @@ const GetStarted = () => {
 
           {/* Service Provider Card */}
           <button
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/signup/provider")}
             className="w-full bg-gradient-to-br from-accent/5 to-accent/10 border-2 border-accent/20 rounded-2xl p-6 hover:scale-[1.02] hover:shadow-lg hover:border-accent/40 transition-all duration-300 text-left group"
           >
             <div className="flex items-start gap-4">

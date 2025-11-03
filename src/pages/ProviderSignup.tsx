@@ -78,13 +78,16 @@ const ProviderSignup = () => {
   // Step 4: Portfolio Upload
   const [portfolioImages, setPortfolioImages] = useState<File[]>([]);
 
-  // Step 5: Services
+  // Step 5: Service Policy (Optional)
+  const [servicePolicyFile, setServicePolicyFile] = useState<File | null>(null);
+
+  // Step 6: Services
   const [selectedServiceCategories, setSelectedServiceCategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState("");
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
 
-  // Step 6: Operating Hours
+  // Step 7: Operating Hours
   const [operatingHours, setOperatingHours] = useState<OperatingHours>({
     Monday: { open: true, start: "09:00", end: "17:00" },
     Tuesday: { open: true, start: "09:00", end: "17:00" },
@@ -128,7 +131,7 @@ const ProviderSignup = () => {
     ],
   };
 
-  const totalSteps = 6;
+  const totalSteps = 7;
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handlePortfolioImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,6 +254,23 @@ const ProviderSignup = () => {
           }
         }
 
+        // Upload service policy if provided
+        let servicePolicyUrl: string | null = null;
+        if (servicePolicyFile) {
+          const fileExt = servicePolicyFile.name.split('.').pop();
+          const fileName = `${data.user.id}/policy.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('portfolio-images')
+            .upload(fileName, servicePolicyFile);
+
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage
+              .from('portfolio-images')
+              .getPublicUrl(fileName);
+            servicePolicyUrl = urlData.publicUrl;
+          }
+        }
+
         // Call edge function to create profile and assign provider role
         const { error: roleError } = await supabase.functions.invoke('assign-user-role', {
           body: { 
@@ -284,6 +304,8 @@ const ProviderSignup = () => {
             payout_date: paymentInfo.payoutFrequency === 'monthly' ? paymentInfo.payoutDate : null,
             payout_start_date: paymentInfo.payoutFrequency === 'biweekly' ? paymentInfo.payoutStartDate : null,
             service_categories: selectedServiceCategories,
+            service_policy_url: servicePolicyUrl,
+            deposit_percentage: servicePolicyUrl ? 25 : 50, // 50% if no policy, 25% if policy provided
           });
 
         if (profileError) {
@@ -721,8 +743,103 @@ const ProviderSignup = () => {
             </div>
           )}
 
-          {/* Step 5: Services Offered */}
+          {/* Step 5: Service Policy (Optional) */}
           {currentStep === 5 && (
+            <div className="space-y-8 animate-fade-in">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Service Policy</h2>
+                <p className="text-muted-foreground">Upload your service policy document (Optional)</p>
+              </div>
+
+              {/* Info Box */}
+              <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">Important: Deposit Information</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {servicePolicyFile 
+                      ? "✓ With a service policy, your deposit will be set to 25% of the service price."
+                      : "⚠️ Without a service policy, your deposit will automatically be set to 50% of the service price."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="p-8 border-2 border-dashed border-border rounded-2xl hover:border-primary/50 transition-colors bg-muted/30">
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <Upload className="w-12 h-12 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-foreground mb-1">Upload Service Policy</p>
+                      <p className="text-xs text-muted-foreground">
+                        PDF or DOCX (Max 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      id="servicePolicy"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && file.size <= 5 * 1024 * 1024) { // 5MB max
+                          setServicePolicyFile(file);
+                        } else if (file) {
+                          toast({
+                            title: "File too large",
+                            description: "Please select a file smaller than 5MB",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('servicePolicy')?.click()}
+                    >
+                      Select Document
+                    </Button>
+                  </div>
+
+                  {servicePolicyFile && (
+                    <div className="mt-6 p-4 bg-background rounded-xl border-2 border-primary/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <Upload className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{servicePolicyFile.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(servicePolicyFile.size / 1024).toFixed(2)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setServicePolicyFile(null)}
+                          className="text-destructive hover:text-destructive/80 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-xl border border-border">
+                  <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    A service policy helps set clear expectations with clients about cancellations, 
+                    refunds, and service terms. This can reduce your required deposit from 50% to 25%.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Services Offered */}
+          {currentStep === 6 && (
             <div className="space-y-8 animate-fade-in">
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-2">What services do you offer?</h2>
@@ -868,8 +985,8 @@ const ProviderSignup = () => {
             </div>
           )}
 
-          {/* Step 6: Operating Hours */}
-          {currentStep === 6 && (
+          {/* Step 7: Operating Hours */}
+          {currentStep === 7 && (
             <div className="space-y-6 animate-fade-in">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-foreground">Set your availability</h2>

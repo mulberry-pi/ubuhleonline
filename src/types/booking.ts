@@ -10,6 +10,7 @@ export interface Stylist {
   bio: string;
   specialties: string[];
   verified: boolean;
+  depositPercentage?: number; // Deposit percentage (25-50%)
   services: Service[];
   availability: string[];
   portfolioImages: string[];

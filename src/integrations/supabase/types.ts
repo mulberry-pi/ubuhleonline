@@ -569,28 +569,28 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          max_previews: number
-          previews_used: number
+          max_previews: number | null
+          previews_used: number | null
           role: Database["public"]["Enums"]["user_role"]
-          subscription_status: string
+          subscription_status: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          max_previews?: number
-          previews_used?: number
+          max_previews?: number | null
+          previews_used?: number | null
           role: Database["public"]["Enums"]["user_role"]
-          subscription_status?: string
+          subscription_status?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          max_previews?: number
-          previews_used?: number
+          max_previews?: number | null
+          previews_used?: number | null
           role?: Database["public"]["Enums"]["user_role"]
-          subscription_status?: string
+          subscription_status?: string | null
           user_id?: string
         }
         Relationships: []

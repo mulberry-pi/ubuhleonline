@@ -6,11 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar as CalendarIcon, Clock, Plus, Trash2, Save, X } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface WorkingHour {
@@ -376,73 +374,85 @@ export default function Availability() {
             <CardHeader>
               <CardTitle>Block Specific Time Slots</CardTitle>
               <CardDescription>
-                Block out specific dates and times when you're unavailable
+                Select a date on the calendar to block specific time slots
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Calendar for date selection */}
                 <div className="space-y-2">
-                  <Label>Select Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Time Range</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="time"
-                      value={newBlockStart}
-                      onChange={(e) => setNewBlockStart(e.target.value)}
-                      placeholder="Start"
-                    />
-                    <span>to</span>
-                    <Input
-                      type="time"
-                      value={newBlockEnd}
-                      onChange={(e) => setNewBlockEnd(e.target.value)}
-                      placeholder="End"
+                  <Label>Select Date to Block</Label>
+                  <div className="border rounded-lg p-4 bg-card">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      className="pointer-events-auto rounded-md"
                     />
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Reason (Optional)</Label>
-                <Textarea
-                  value={blockReason}
-                  onChange={(e) => setBlockReason(e.target.value)}
-                  placeholder="e.g., Personal appointment, vacation, etc."
-                  rows={2}
-                />
-              </div>
+                {/* Time slot selection - only shown when date is selected */}
+                {selectedDate && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-base">
+                        Block time for {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Select the time range you want to block
+                      </p>
+                    </div>
 
-              <Button onClick={addBlockedSlot} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Block Time Slot
-              </Button>
+                    <div className="space-y-2">
+                      <Label>Time Range</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="time"
+                          value={newBlockStart}
+                          onChange={(e) => setNewBlockStart(e.target.value)}
+                          placeholder="Start"
+                        />
+                        <span>to</span>
+                        <Input
+                          type="time"
+                          value={newBlockEnd}
+                          onChange={(e) => setNewBlockEnd(e.target.value)}
+                          placeholder="End"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Reason (Optional)</Label>
+                      <Textarea
+                        value={blockReason}
+                        onChange={(e) => setBlockReason(e.target.value)}
+                        placeholder="e.g., Personal appointment, vacation, etc."
+                        rows={2}
+                      />
+                    </div>
+
+                    <Button onClick={addBlockedSlot} className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Block Time Slot
+                    </Button>
+                  </div>
+                )}
+
+                {/* Prompt to select date if none selected */}
+                {!selectedDate && (
+                  <div className="flex items-center justify-center h-full min-h-[400px] border-2 border-dashed rounded-lg">
+                    <div className="text-center p-6">
+                      <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">
+                        Click on a date in the calendar to block specific time slots
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-2">
                 <h3 className="font-semibold">Upcoming Blocked Slots</h3>

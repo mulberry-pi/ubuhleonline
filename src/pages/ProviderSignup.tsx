@@ -197,6 +197,26 @@ const ProviderSignup = () => {
   };
 
   const handleNext = () => {
+    // Validate Step 2 - Business Info
+    if (currentStep === 2) {
+      if (!businessInfo.businessName.trim()) {
+        toast({
+          title: "Missing information",
+          description: "Please provide your business name",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!businessInfo.address.trim()) {
+        toast({
+          title: "Missing information",
+          description: "Please provide your business address",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -474,7 +494,9 @@ const ProviderSignup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Address (Optional)</Label>
+                <Label htmlFor="address">
+                  Business Address <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="address"
                   type="text"
@@ -482,11 +504,18 @@ const ProviderSignup = () => {
                   value={businessInfo.address}
                   onChange={(e) => setBusinessInfo({ ...businessInfo, address: e.target.value })}
                   className="h-12 text-base"
+                  required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Your full address will only be visible to clients after they complete a booking
+                </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Business Description</Label>
+                <Label htmlFor="description">
+                  About Your Business
+                  <span className="text-xs text-muted-foreground ml-2">(This will be your About section)</span>
+                </Label>
                 <Textarea
                   id="description"
                   placeholder="Tell us about your business, your specialties, and what makes you unique..."

@@ -80,6 +80,7 @@ const ProviderSignup = () => {
 
   // Step 5: Service Policy (Optional)
   const [servicePolicyFile, setServicePolicyFile] = useState<File | null>(null);
+  const [depositPercentage, setDepositPercentage] = useState<number>(50);
 
   // Step 6: Services
   const [selectedServiceCategories, setSelectedServiceCategories] = useState<string[]>([]);
@@ -305,7 +306,7 @@ const ProviderSignup = () => {
             payout_start_date: paymentInfo.payoutFrequency === 'biweekly' ? paymentInfo.payoutStartDate : null,
             service_categories: selectedServiceCategories,
             service_policy_url: servicePolicyUrl,
-            deposit_percentage: servicePolicyUrl ? 25 : 50, // 50% if no policy, 25% if policy provided
+            deposit_percentage: depositPercentage, // Use deposit from policy or default 50%
           });
 
         if (profileError) {
@@ -758,11 +759,33 @@ const ProviderSignup = () => {
                   <p className="text-sm font-medium text-foreground">Important: Deposit Information</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     {servicePolicyFile 
-                      ? "✓ With a service policy, your deposit will be set to 25% of the service price."
+                      ? "✓ With a service policy, you can set your own deposit percentage below."
                       : "⚠️ Without a service policy, your deposit will automatically be set to 50% of the service price."}
                   </p>
                 </div>
               </div>
+
+              {/* Deposit Percentage Input - Only shown when policy is uploaded */}
+              {servicePolicyFile && (
+                <div className="space-y-2">
+                  <Label htmlFor="depositPercentage">Deposit Percentage (as stated in your policy)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="depositPercentage"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={depositPercentage}
+                      onChange={(e) => setDepositPercentage(Math.min(100, Math.max(0, parseInt(e.target.value) || 50)))}
+                      className="h-12 text-base w-32"
+                    />
+                    <span className="text-muted-foreground">%</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Enter the deposit percentage as specified in your service policy document
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div className="p-8 border-2 border-dashed border-border rounded-2xl hover:border-primary/50 transition-colors bg-muted/30">
@@ -817,7 +840,10 @@ const ProviderSignup = () => {
                         </div>
                         <button
                           type="button"
-                          onClick={() => setServicePolicyFile(null)}
+                          onClick={() => {
+                            setServicePolicyFile(null);
+                            setDepositPercentage(50);
+                          }}
                           className="text-destructive hover:text-destructive/80 transition-colors"
                         >
                           ×
@@ -831,7 +857,7 @@ const ProviderSignup = () => {
                   <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     A service policy helps set clear expectations with clients about cancellations, 
-                    refunds, and service terms. This can reduce your required deposit from 50% to 25%.
+                    refunds, and service terms. You can specify your deposit percentage based on your policy.
                   </p>
                 </div>
               </div>

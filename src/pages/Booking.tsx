@@ -7,7 +7,6 @@ import StylistProfileModal from "@/components/booking/StylistProfileModal";
 import BookingForm from "@/components/booking/BookingForm";
 import PaymentSection from "@/components/booking/PaymentSection";
 import BookingConfirmation from "@/components/booking/BookingConfirmation";
-import { mockStylists } from "@/data/mockStylists";
 import { Stylist, BookingFormData } from "@/types/booking";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,12 +21,72 @@ const Booking = () => {
   const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
   const [bookingData, setBookingData] = useState<BookingFormData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [stylists, setStylists] = useState<Stylist[]>([]);
 
   useEffect(() => {
     if (providerId) {
       fetchProviderData(providerId);
+    } else {
+      loadStylists();
     }
   }, [providerId]);
+
+  const loadStylists = async () => {
+    setLoading(true);
+    try {
+      const { data: profiles, error } = await supabase
+        .from("provider_profiles")
+        .select(`
+          *,
+          profiles!inner (
+            full_name,
+            avatar_url
+          )
+        `)
+        .limit(10);
+
+      if (error) throw error;
+
+      const stylistsData: Stylist[] = await Promise.all((profiles || []).map(async (profile) => {
+        const { data: services } = await supabase
+          .from("services")
+          .select("*")
+          .eq("provider_id", profile.user_id)
+          .eq("is_available", true);
+
+        return {
+          id: profile.user_id,
+          name: profile.profiles.full_name || "Professional Stylist",
+          businessName: profile.business_name || "",
+          avatar: profile.profiles.avatar_url || profile.business_logo_url || "/placeholder.svg",
+          bannerImage: profile.business_logo_url || "/placeholder.svg",
+          rating: Number(profile.rating) || 5.0,
+          reviewCount: profile.review_count || 0,
+          location: profile.business_address || "Location not specified",
+          bio: profile.business_description || "",
+          specialties: [],
+          verified: true,
+          depositPercentage: profile.deposit_percentage || 50,
+          services: (services || []).map(s => ({
+            id: s.id,
+            name: s.name,
+            price: Number(s.price),
+            duration: s.duration_minutes,
+            description: s.description || undefined
+          })),
+          availability: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+          portfolioImages: profile.gallery_images || []
+        };
+      }));
+
+      setStylists(stylistsData);
+    } catch (error) {
+      console.error("Error loading stylists:", error);
+      toast.error("Failed to load stylists");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchProviderData = async (userId: string) => {
     setLoading(true);
@@ -201,7 +260,13 @@ const Booking = () => {
 
           {/* Stylist Carousel */}
           <section className="px-6 pb-16">
-            <StylistCarousel stylists={mockStylists} onStylistSelect={handleStylistSelect} />
+            {stylists.length > 0 ? (
+              <StylistCarousel stylists={stylists} onStylistSelect={handleStylistSelect} />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No stylists available at the moment</p>
+              </div>
+            )}
           </section>
         </>
       )}

@@ -10,29 +10,6 @@ const Pricing = () => {
   const navigate = useNavigate();
   const [isYearly, setIsYearly] = useState(false);
 
-  const customerPlans = [
-    {
-      name: "Free Plan",
-      price: "ZAR 0",
-      period: "",
-      features: [
-        "Book online appointments",
-        "1 AI preview weekly",
-        "Review stylists and salons"
-      ]
-    },
-    {
-      name: "Pro Plan",
-      price: isYearly ? "R500" : "ZAR 59",
-      period: isYearly ? "/ 12 months" : "p/m",
-      features: [
-        "Stylist matching and recommendations",
-        "5 AI previews weekly",
-        "Personalized style AI recommendations"
-      ]
-    }
-  ];
-
   const providerFeatures = [
     "Receive client style previews prior to appointments",
     "Analytics & reporting",
@@ -73,54 +50,7 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Section 1: Customers */}
-        <section className="container mx-auto px-6 mb-32">
-          <div className="text-center mb-16 animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              Pricing Model — Customers
-            </h1>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {customerPlans.map((plan, index) => (
-              <Card
-                key={plan.name}
-                className="p-10 bg-card shadow-[0_8px_30px_-2px_hsl(266_60%_70%/0.15)] hover:shadow-[0_12px_40px_-4px_hsl(266_60%_70%/0.25)] transition-all duration-500 hover:-translate-y-2 rounded-2xl animate-fade-in"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold mb-3">{plan.name}</h3>
-                  <div className="mb-6 transition-all duration-300">
-                    <span className="text-5xl font-bold text-primary">
-                      {plan.price}
-                    </span>
-                    {plan.period && (
-                      <p className="text-sm text-muted-foreground mt-2">{plan.period}</p>
-                    )}
-                  </div>
-                </div>
-
-                <ul className="space-y-4 mb-10">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" strokeWidth={2} />
-                      <span className="text-muted-foreground leading-relaxed">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  onClick={() => navigate("/get-started")}
-                  className="w-full h-12 rounded-md"
-                >
-                  Get Started
-                </Button>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Section 2: Service Providers */}
+        {/* Service Providers Pricing */}
         <section className="container mx-auto px-6">
           <div className="text-center mb-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <h1 className="text-5xl md:text-6xl font-bold mb-4">

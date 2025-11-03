@@ -9,8 +9,8 @@ import ProviderCard from "@/components/search/ProviderCard";
 import ProviderMap from "@/components/search/ProviderMap";
 import ProviderProfileModal from "@/components/search/ProviderProfileModal";
 import { Provider, SearchFilters, ViewMode, SortOption } from "@/types/provider";
-import { mockProviders } from "@/data/mockProviders";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProviderProfile {
   id: string;
@@ -94,47 +94,38 @@ const Search = () => {
         return Math.round(R * c * 10) / 10; // Round to 1 decimal
       };
 
-      // Using mock data with proper locations
-      const transformedProviders: Provider[] = mockProviders.map((p) => {
-        // Assign specific coordinates based on suburb
-        let lat = -33.9249;
-        let lng = 18.4241;
-        
-        // Sea Point coordinates
-        if (p.suburb === 'Sea Point') { lat = -33.9102; lng = 18.3851; }
-        // V&A Waterfront coordinates
-        else if (p.suburb === 'V&A Waterfront') { lat = -33.9025; lng = 18.4187; }
-        // Observatory coordinates
-        else if (p.suburb === 'Observatory') { lat = -33.9377; lng = 18.4732; }
-        // Camps Bay coordinates
-        else if (p.suburb === 'Camps Bay') { lat = -33.9513; lng = 18.3777; }
-        // Claremont coordinates
-        else if (p.suburb === 'Claremont') { lat = -33.9832; lng = 18.4647; }
-        // Constantia coordinates
-        else if (p.suburb === 'Constantia') { lat = -34.0263; lng = 18.4382; }
-        // Gardens coordinates
-        else if (p.suburb === 'Gardens') { lat = -33.9371; lng = 18.4117; }
-        // Green Point coordinates
-        else if (p.suburb === 'Green Point') { lat = -33.9045; lng = 18.4065; }
-        // Woodstock coordinates
-        else if (p.suburb === 'Woodstock') { lat = -33.9297; lng = 18.4463; }
-        // Century City coordinates
-        else if (p.suburb === 'Century City') { lat = -33.8908; lng = 18.5111; }
+      // Fetch providers from database
+      const { data: profiles, error } = await supabase
+        .from("provider_profiles")
+        .select(`
+          *,
+          profiles!inner (
+            full_name,
+            avatar_url
+          )
+        `);
+
+      if (error) throw error;
+
+      const transformedProviders: Provider[] = (profiles || []).map((p) => {
+        // Default Cape Town coordinates
+        const lat = -33.9249 + (Math.random() - 0.5) * 0.1;
+        const lng = 18.4241 + (Math.random() - 0.5) * 0.1;
 
         return {
           id: p.user_id,
-          name: p.business_name,
-          avatar: p.business_logo_url,
-          rating: p.rating,
-          services: ['Hair Styling', 'Makeup', 'Nails'], // Mock services
-          price_min: parseInt(p.price_range.split(' - ')[0].replace('R', '')),
-          price_max: parseInt(p.price_range.split(' - ')[1].replace('R', '')),
+          name: p.business_name || p.profiles.full_name || "Provider",
+          avatar: p.profiles.avatar_url || p.business_logo_url || "/placeholder.svg",
+          rating: Number(p.rating) || 5.0,
+          services: ['Hair Styling', 'Makeup', 'Nails'],
+          price_min: 300,
+          price_max: 1500,
           lat,
           lng,
           verified: true,
           distance: calculateDistance(userLat, userLng, lat, lng),
-          city: p.city,
-          suburb: p.suburb
+          city: "Cape Town",
+          suburb: p.business_address || "City Center"
         };
       });
 

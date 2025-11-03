@@ -10,8 +10,8 @@ import ProviderProfileModal from '@/components/search/ProviderProfileModal';
 import { Button } from '@/components/ui/button';
 import { SearchFilters, ViewMode, SortOption, Provider } from '@/types/provider';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { mockProviders } from '@/data/mockProviders';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProviderProfile {
   id: string;
@@ -65,21 +65,32 @@ const Search = () => {
   const loadProviders = async () => {
     setLoading(true);
     try {
-      // Using mock data for testing
-      const providersData: Provider[] = mockProviders.map((p) => ({
+      const { data: profiles, error } = await supabase
+        .from("provider_profiles")
+        .select(`
+          *,
+          profiles!inner (
+            full_name,
+            avatar_url
+          )
+        `);
+
+      if (error) throw error;
+
+      const providersData: Provider[] = (profiles || []).map((p) => ({
         id: p.user_id,
-        name: p.business_name,
-        avatar: p.business_logo_url,
-        rating: p.rating,
-        services: ['Hair Styling', 'Makeup', 'Nails'], // Mock services
-        price_min: parseInt(p.price_range.split(' - ')[0].replace('R', '')),
-        price_max: parseInt(p.price_range.split(' - ')[1].replace('R', '')),
-        lat: -33.9249 + (Math.random() - 0.5) * 0.1, // Random coords near Cape Town
+        name: p.business_name || p.profiles.full_name || "Provider",
+        avatar: p.profiles.avatar_url || p.business_logo_url || "/placeholder.svg",
+        rating: Number(p.rating) || 5.0,
+        services: ['Hair Styling', 'Makeup', 'Nails'],
+        price_min: 300,
+        price_max: 1500,
+        lat: -33.9249 + (Math.random() - 0.5) * 0.1,
         lng: 18.4241 + (Math.random() - 0.5) * 0.1,
         verified: true,
         distance: Math.round(Math.random() * 10),
-        city: p.city,
-        suburb: p.suburb
+        city: "Cape Town",
+        suburb: p.business_address || "City Center"
       }));
 
       setProviders(providersData);

@@ -110,7 +110,7 @@ const ProviderMap = ({ providers }: ProviderMapProps) => {
 
   return (
     <div className="relative">
-      <div ref={mapContainer} className="rounded-2xl shadow-lg h-[640px]" />
+      <div ref={mapContainer} className="rounded-2xl shadow-lg h-[640px] bg-muted/30" />
 
       {selectedProvider && (
         <div className="absolute top-4 right-4 bg-card rounded-2xl shadow-2xl overflow-hidden w-80 animate-fade-in-up">

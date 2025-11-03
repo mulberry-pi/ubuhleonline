@@ -65,20 +65,78 @@ const Search = () => {
   const loadProviders = async () => {
     setLoading(true);
     try {
-      // Using mock data for testing
-      const transformedProviders: Provider[] = mockProviders.map((p) => ({
-        id: p.user_id,
-        name: p.business_name,
-        avatar: p.business_logo_url,
-        rating: p.rating,
-        services: ['Hair Styling', 'Makeup', 'Nails'], // Mock services
-        price_min: parseInt(p.price_range.split(' - ')[0].replace('R', '')),
-        price_max: parseInt(p.price_range.split(' - ')[1].replace('R', '')),
-        lat: -33.9249 + (Math.random() - 0.5) * 0.1,
-        lng: 18.4241 + (Math.random() - 0.5) * 0.1,
-        verified: true,
-        distance: Math.round(Math.random() * 10)
-      }));
+      // Get user's location
+      let userLat = -33.9249; // Default: Cape Town center
+      let userLng = 18.4241;
+      
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          userLat = position.coords.latitude;
+          userLng = position.coords.longitude;
+        } catch (error) {
+          console.log('Using default location');
+        }
+      }
+
+      // Calculate distance using Haversine formula
+      const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+        const R = 6371; // Earth's radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return Math.round(R * c * 10) / 10; // Round to 1 decimal
+      };
+
+      // Using mock data with proper locations
+      const transformedProviders: Provider[] = mockProviders.map((p) => {
+        // Assign specific coordinates based on suburb
+        let lat = -33.9249;
+        let lng = 18.4241;
+        
+        // Sea Point coordinates
+        if (p.suburb === 'Sea Point') { lat = -33.9102; lng = 18.3851; }
+        // V&A Waterfront coordinates
+        else if (p.suburb === 'V&A Waterfront') { lat = -33.9025; lng = 18.4187; }
+        // Observatory coordinates
+        else if (p.suburb === 'Observatory') { lat = -33.9377; lng = 18.4732; }
+        // Camps Bay coordinates
+        else if (p.suburb === 'Camps Bay') { lat = -33.9513; lng = 18.3777; }
+        // Claremont coordinates
+        else if (p.suburb === 'Claremont') { lat = -33.9832; lng = 18.4647; }
+        // Constantia coordinates
+        else if (p.suburb === 'Constantia') { lat = -34.0263; lng = 18.4382; }
+        // Gardens coordinates
+        else if (p.suburb === 'Gardens') { lat = -33.9371; lng = 18.4117; }
+        // Green Point coordinates
+        else if (p.suburb === 'Green Point') { lat = -33.9045; lng = 18.4065; }
+        // Woodstock coordinates
+        else if (p.suburb === 'Woodstock') { lat = -33.9297; lng = 18.4463; }
+        // Century City coordinates
+        else if (p.suburb === 'Century City') { lat = -33.8908; lng = 18.5111; }
+
+        return {
+          id: p.user_id,
+          name: p.business_name,
+          avatar: p.business_logo_url,
+          rating: p.rating,
+          services: ['Hair Styling', 'Makeup', 'Nails'], // Mock services
+          price_min: parseInt(p.price_range.split(' - ')[0].replace('R', '')),
+          price_max: parseInt(p.price_range.split(' - ')[1].replace('R', '')),
+          lat,
+          lng,
+          verified: true,
+          distance: calculateDistance(userLat, userLng, lat, lng),
+          city: p.city,
+          suburb: p.suburb
+        };
+      });
 
       // Apply service type filter
       let filtered = transformedProviders;
@@ -110,7 +168,6 @@ const Search = () => {
       });
 
       setProviders(sorted);
-      toast.success(`Found ${sorted.length} providers!`);
     } catch (error) {
       console.error('Error loading providers:', error);
       toast.error('Failed to load providers');

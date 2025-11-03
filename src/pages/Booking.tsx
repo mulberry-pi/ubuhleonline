@@ -150,8 +150,7 @@ const Booking = () => {
 
   const handleBookingSubmit = (data: BookingFormData) => {
     setBookingData(data);
-    // Payment temporarily disabled
-    setStage("confirmation");
+    setStage("payment");
   };
 
   const handlePaymentComplete = () => {

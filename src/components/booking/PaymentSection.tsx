@@ -70,10 +70,12 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
   const [isProcessing, setIsProcessing] = useState(false);
   
   const selectedService = stylist.services.find(s => s.id === bookingData.service);
-  const SERVICE_FEE = 50; // ZAR 50 service fee
   const fullPrice = selectedService?.price || 0;
-  const depositPercentage = 0.25; // 25% deposit
-  const depositAmount = selectedService ? Math.round(selectedService.price * depositPercentage) + SERVICE_FEE : SERVICE_FEE;
+  const depositPercentage = 0.5; // 50% deposit
+  const serviceFeePercentage = 0.1; // 10% service fee
+  const depositAmount = selectedService ? Math.round(selectedService.price * depositPercentage) : 0;
+  const serviceFee = Math.round(fullPrice * serviceFeePercentage);
+  const totalDueNow = depositAmount + serviceFee;
 
   const {
     register,
@@ -110,48 +112,11 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(' ') || firstName;
 
-      // Call PayFast payment processing edge function
-      const { data: paymentData, error } = await supabase.functions.invoke('process-payment', {
-        body: {
-          amount: depositAmount,
-          item_name: `${selectedService?.name} - ${stylist.businessName}`,
-          item_description: `Booking deposit for ${format(bookingData.date, "PPP")} at ${bookingData.time}`,
-          email_address: user.email,
-          name_first: firstName,
-          name_last: lastName
-        }
-      });
-
-      if (error) {
-        console.error('Payment error:', error);
-        toast.error('Payment processing failed. Please try again.');
-        return;
-      }
-
-      // In production, redirect to PayFast
-      if (paymentData?.payment_url) {
-        // Create a form and submit it to PayFast
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = paymentData.payment_url;
-        
-        Object.keys(paymentData.payment_data).forEach(key => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = paymentData.payment_data[key];
-          form.appendChild(input);
-        });
-        
-        document.body.appendChild(form);
-        form.submit();
-      } else {
-        // For now, simulate success
-        setTimeout(() => {
-          toast.success('Payment processed successfully!');
-          onComplete();
-        }, 2000);
-      }
+      // Simulate payment processing (PayFast integration disabled)
+      setTimeout(() => {
+        toast.success('Booking confirmed! Invoice sent to your email.');
+        onComplete();
+      }, 1500);
     } catch (error) {
       console.error('Payment error:', error);
       toast.error('An unexpected error occurred');
@@ -208,19 +173,19 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
                 <span>R{fullPrice}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Deposit (25%)</span>
-                <span>R{Math.round(fullPrice * 0.25)}</span>
+                <span className="text-muted-foreground">Deposit (50%)</span>
+                <span>R{depositAmount}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Service Fee</span>
-                <span>R{SERVICE_FEE}</span>
+                <span className="text-muted-foreground">Service Fee (10%)</span>
+                <span>R{serviceFee}</span>
               </div>
               <div className="border-t border-primary/20 pt-2 flex justify-between text-base">
                 <span className="font-semibold">Total Due Now</span>
-                <span className="font-bold text-primary text-lg">R{depositAmount}</span>
+                <span className="font-bold text-primary text-lg">R{totalDueNow}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Remaining R{fullPrice - Math.round(fullPrice * 0.25)} to be paid at appointment
+                Remaining R{depositAmount} to be paid at appointment
               </p>
             </div>
           </div>
@@ -301,7 +266,7 @@ const PaymentSection = ({ stylist, bookingData, onComplete, onBack }: PaymentSec
               </>
             ) : (
               <>
-                Confirm & Pay R{depositAmount}
+                Confirm Booking - R{totalDueNow}
                 <Lock className="ml-2 w-5 h-5" />
               </>
             )}

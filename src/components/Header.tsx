@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
@@ -158,12 +160,50 @@ const Header = () => {
           </Button>
         </nav>
 
-        <Button
-          onClick={handleUserClick}
-          className="md:hidden bg-primary hover:bg-primary/90 text-white hover-glow"
-        >
-          {user ? `Hi, ${userName || 'User'}` : 'Get Started'}
-        </Button>
+        <div className="md:hidden flex items-center gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-foreground">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[280px]">
+              <nav className="flex flex-col gap-4 mt-8">
+                <button
+                  onClick={() => navigate("/style-preview")}
+                  className="text-foreground/80 hover:text-primary transition-colors font-medium text-left py-2"
+                >
+                  Inspo Search
+                </button>
+                <button
+                  onClick={() => navigate("/search")}
+                  className="text-foreground/80 hover:text-primary transition-colors font-medium text-left py-2"
+                >
+                  Find Stylist
+                </button>
+                <button
+                  onClick={() => navigate("/service-providers")}
+                  className="text-foreground/80 hover:text-primary transition-colors font-medium text-left py-2"
+                >
+                  Service Providers
+                </button>
+                <button
+                  onClick={() => navigate("/pricing")}
+                  className="text-foreground/80 hover:text-primary transition-colors font-medium text-left py-2"
+                >
+                  Pricing
+                </button>
+              </nav>
+            </SheetContent>
+          </Sheet>
+          
+          <Button
+            onClick={handleUserClick}
+            className="bg-primary hover:bg-primary/90 text-white hover-glow"
+          >
+            {user ? `Hi, ${userName || 'User'}` : 'Get Started'}
+          </Button>
+        </div>
       </div>
     </header>
   );

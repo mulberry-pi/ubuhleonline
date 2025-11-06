@@ -25,7 +25,11 @@ export default function Settings() {
     phone: "",
     business_name: "",
     business_description: "",
-    business_address: "",
+    street_address_line1: "",
+    street_address_line2: "",
+    suburb: "",
+    city: "",
+    province: "",
     is_public: true,
     banner_image_url: "",
   });
@@ -85,7 +89,11 @@ export default function Settings() {
         phone: profile?.phone || "",
         business_name: providerProfile?.business_name || "",
         business_description: providerProfile?.business_description || "",
-        business_address: providerProfile?.business_address || "",
+        street_address_line1: providerProfile?.street_address_line1 || "",
+        street_address_line2: providerProfile?.street_address_line2 || "",
+        suburb: providerProfile?.suburb || "",
+        city: providerProfile?.city || "",
+        province: providerProfile?.province || "",
         is_public: providerProfile?.is_public ?? true,
         banner_image_url: providerProfile?.banner_image_url || "",
       });
@@ -168,7 +176,11 @@ export default function Settings() {
           .update({
             business_name: profileData.business_name,
             business_description: profileData.business_description,
-            business_address: profileData.business_address,
+            street_address_line1: profileData.street_address_line1,
+            street_address_line2: profileData.street_address_line2 || null,
+            suburb: profileData.suburb,
+            city: profileData.city,
+            province: profileData.province,
             is_public: profileData.is_public,
             banner_image_url: bannerUrl,
           })
@@ -179,7 +191,11 @@ export default function Settings() {
             user_id: user.id,
             business_name: profileData.business_name,
             business_description: profileData.business_description,
-            business_address: profileData.business_address,
+            street_address_line1: profileData.street_address_line1,
+            street_address_line2: profileData.street_address_line2 || null,
+            suburb: profileData.suburb,
+            city: profileData.city,
+            province: profileData.province,
             is_public: profileData.is_public,
             banner_image_url: bannerUrl,
           },
@@ -335,13 +351,63 @@ export default function Settings() {
               placeholder="Tell clients about your business, specialties, and what makes you unique..."
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="business_address">Business Address</Label>
-            <Input
-              id="business_address"
-              value={profileData.business_address}
-              onChange={(e) => setProfileData({ ...profileData, business_address: e.target.value })}
-            />
+          <div className="space-y-4">
+            <Label className="text-base font-semibold">Business Address</Label>
+            <p className="text-sm text-muted-foreground -mt-2 mb-3">
+              Only your suburb will be shown publicly. Full address is shared after booking.
+            </p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="street_address_line1">Street Address Line 1</Label>
+              <Input
+                id="street_address_line1"
+                placeholder="e.g., 123 Main Street"
+                value={profileData.street_address_line1}
+                onChange={(e) => setProfileData({ ...profileData, street_address_line1: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="street_address_line2">Street Address Line 2 (Optional)</Label>
+              <Input
+                id="street_address_line2"
+                placeholder="e.g., Unit 4B, Building 2"
+                value={profileData.street_address_line2}
+                onChange={(e) => setProfileData({ ...profileData, street_address_line2: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="suburb">Suburb</Label>
+                <Input
+                  id="suburb"
+                  placeholder="e.g., Sea Point"
+                  value={profileData.suburb}
+                  onChange={(e) => setProfileData({ ...profileData, suburb: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="city">City/Town</Label>
+                <Input
+                  id="city"
+                  placeholder="e.g., Cape Town"
+                  value={profileData.city}
+                  onChange={(e) => setProfileData({ ...profileData, city: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="province">Province</Label>
+              <Input
+                id="province"
+                placeholder="e.g., Western Cape"
+                value={profileData.province}
+                onChange={(e) => setProfileData({ ...profileData, province: e.target.value })}
+              />
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <div>

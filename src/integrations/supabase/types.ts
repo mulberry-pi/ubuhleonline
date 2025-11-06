@@ -312,11 +312,14 @@ export type Database = {
           payout_frequency: string | null
           payout_start_date: string | null
           price_range: string | null
+          province: string | null
           rating: number | null
           review_count: number | null
           service_categories: string[] | null
           service_location_type: string[] | null
           service_policy_url: string | null
+          street_address_line1: string | null
+          street_address_line2: string | null
           suburb: string | null
           updated_at: string
           user_id: string
@@ -342,11 +345,14 @@ export type Database = {
           payout_frequency?: string | null
           payout_start_date?: string | null
           price_range?: string | null
+          province?: string | null
           rating?: number | null
           review_count?: number | null
           service_categories?: string[] | null
           service_location_type?: string[] | null
           service_policy_url?: string | null
+          street_address_line1?: string | null
+          street_address_line2?: string | null
           suburb?: string | null
           updated_at?: string
           user_id: string
@@ -372,11 +378,14 @@ export type Database = {
           payout_frequency?: string | null
           payout_start_date?: string | null
           price_range?: string | null
+          province?: string | null
           rating?: number | null
           review_count?: number | null
           service_categories?: string[] | null
           service_location_type?: string[] | null
           service_policy_url?: string | null
+          street_address_line1?: string | null
+          street_address_line2?: string | null
           suburb?: string | null
           updated_at?: string
           user_id?: string

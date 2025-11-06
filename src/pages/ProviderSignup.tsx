@@ -59,7 +59,11 @@ const ProviderSignup = () => {
   // Step 2: Business Information
   const [businessInfo, setBusinessInfo] = useState({
     businessName: "",
-    address: "",
+    streetAddressLine1: "",
+    streetAddressLine2: "",
+    suburb: "",
+    city: "",
+    province: "",
     description: "",
     logo: null as File | null,
     serviceLocations: [] as string[],
@@ -208,10 +212,10 @@ const ProviderSignup = () => {
         });
         return;
       }
-      if (!businessInfo.address.trim()) {
+      if (!businessInfo.streetAddressLine1.trim() || !businessInfo.suburb.trim() || !businessInfo.city.trim() || !businessInfo.province.trim()) {
         toast({
           title: "Missing information",
-          description: "Please provide your business address",
+          description: "Please provide complete address information (street address, suburb, city, and province are required)",
           variant: "destructive",
         });
         return;
@@ -322,7 +326,11 @@ const ProviderSignup = () => {
             user_id: data.user.id,
             business_name: businessInfo.businessName,
             business_description: businessInfo.description,
-            business_address: businessInfo.address || null,
+            street_address_line1: businessInfo.streetAddressLine1,
+            street_address_line2: businessInfo.streetAddressLine2 || null,
+            suburb: businessInfo.suburb,
+            city: businessInfo.city,
+            province: businessInfo.province,
             is_public: true,
             rating: 0,
             gallery_images: portfolioImageUrls,
@@ -503,22 +511,85 @@ const ProviderSignup = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="address">
-                  Business Address <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="address"
-                  type="text"
-                  placeholder="123 Main Street, Cape Town"
-                  value={businessInfo.address}
-                  onChange={(e) => setBusinessInfo({ ...businessInfo, address: e.target.value })}
-                  className="h-12 text-base"
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Your full address will only be visible to clients after they complete a booking
+              <div className="space-y-4">
+                <Label className="text-base font-semibold">Business Address</Label>
+                <p className="text-sm text-muted-foreground -mt-2 mb-3">
+                  Only your suburb will be shown publicly. Full address is shared after booking.
                 </p>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="streetAddressLine1">
+                    Street Address Line 1 <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="streetAddressLine1"
+                    type="text"
+                    placeholder="e.g., 123 Main Street"
+                    value={businessInfo.streetAddressLine1}
+                    onChange={(e) => setBusinessInfo({ ...businessInfo, streetAddressLine1: e.target.value })}
+                    className="h-12 text-base"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="streetAddressLine2">Street Address Line 2 (Optional)</Label>
+                  <Input
+                    id="streetAddressLine2"
+                    type="text"
+                    placeholder="e.g., Unit 4B, Building 2"
+                    value={businessInfo.streetAddressLine2}
+                    onChange={(e) => setBusinessInfo({ ...businessInfo, streetAddressLine2: e.target.value })}
+                    className="h-12 text-base"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="suburb">
+                      Suburb <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="suburb"
+                      type="text"
+                      placeholder="e.g., Sea Point"
+                      value={businessInfo.suburb}
+                      onChange={(e) => setBusinessInfo({ ...businessInfo, suburb: e.target.value })}
+                      className="h-12 text-base"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="city">
+                      City/Town <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="city"
+                      type="text"
+                      placeholder="e.g., Cape Town"
+                      value={businessInfo.city}
+                      onChange={(e) => setBusinessInfo({ ...businessInfo, city: e.target.value })}
+                      className="h-12 text-base"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="province">
+                    Province <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="province"
+                    type="text"
+                    placeholder="e.g., Western Cape"
+                    value={businessInfo.province}
+                    onChange={(e) => setBusinessInfo({ ...businessInfo, province: e.target.value })}
+                    className="h-12 text-base"
+                    required
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

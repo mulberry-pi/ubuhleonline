@@ -82,15 +82,15 @@ const Search = () => {
         name: p.business_name || p.profiles.full_name || "Provider",
         avatar: p.profiles.avatar_url || p.business_logo_url || "/placeholder.svg",
         rating: Number(p.rating) || 5.0,
-        services: ['Hair Styling', 'Makeup', 'Nails'],
+        services: p.service_categories || ['Beauty Services'],
         price_min: 300,
         price_max: 1500,
         lat: -33.9249 + (Math.random() - 0.5) * 0.1,
         lng: 18.4241 + (Math.random() - 0.5) * 0.1,
         verified: true,
         distance: Math.round(Math.random() * 10),
-        city: "Cape Town",
-        suburb: p.business_address || "City Center"
+        city: p.city || "Cape Town",
+        suburb: p.suburb || "City Area"
       }));
 
       setProviders(providersData);

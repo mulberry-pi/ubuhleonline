@@ -21,12 +21,20 @@ const BookingConfirmation = ({ stylist, bookingData, onReset }: BookingConfirmat
     const fetchProviderAddress = async () => {
       const { data, error } = await supabase
         .from('provider_profiles')
-        .select('business_address, city, suburb')
+        .select('street_address_line1, street_address_line2, suburb, city, province')
         .eq('user_id', stylist.id)
         .single();
 
       if (data && !error) {
-        setProviderAddress(data.business_address || `${data.city || ''}${data.suburb ? ', ' + data.suburb : ''}`);
+        // Build full address from components
+        const addressParts = [
+          data.street_address_line1,
+          data.street_address_line2,
+          data.suburb,
+          data.city,
+          data.province
+        ].filter(Boolean);
+        setProviderAddress(addressParts.join(', '));
       }
     };
 

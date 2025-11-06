@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface ServicePrice {
   service: string;
   price: string;
+  lashType?: 'cluster' | 'individual'; // For lash extension services
 }
 
 interface OperatingHours {
@@ -89,6 +90,7 @@ const ProviderSignup = () => {
 
   // Step 6: Services
   const [selectedServiceCategories, setSelectedServiceCategories] = useState<string[]>([]);
+  const [lashExtensionTypes, setLashExtensionTypes] = useState<string[]>([]); // 'cluster', 'individual', or both
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customService, setCustomService] = useState("");
   const [servicePrices, setServicePrices] = useState<ServicePrice[]>([]);
@@ -124,14 +126,12 @@ const ProviderSignup = () => {
       "Hair Treatment",
     ],
     "Lash Extensions": [
-      "Wispy Set",
-      "Individual Lashes",
-      "Cluster Lashes",
-      "Volume Set",
-      "Cat Eye Set",
-      "Natural Set",
-      "Mega Volume Set",
-      "Hybrid Set",
+      "Wispy Classic",
+      "Volume Classic",
+      "Cat Eye",
+      "Natural",
+      "Mega Volume",
+      "Hybrid",
       "Lash Fill",
       "Lash Removal",
     ],
@@ -157,19 +157,67 @@ const ProviderSignup = () => {
       const categoryServices = serviceCategories[category as keyof typeof serviceCategories] || [];
       setSelectedServices(selectedServices.filter(s => !categoryServices.includes(s)));
       setServicePrices(servicePrices.filter(sp => !categoryServices.includes(sp.service)));
+      
+      // Reset lash extension types if removing Lash Extensions
+      if (category === "Lash Extensions") {
+        setLashExtensionTypes([]);
+      }
     } else {
       // Add category
       setSelectedServiceCategories([...selectedServiceCategories, category]);
     }
   };
 
+  const handleLashTypeToggle = (type: string) => {
+    const newTypes = lashExtensionTypes.includes(type)
+      ? lashExtensionTypes.filter(t => t !== type)
+      : [...lashExtensionTypes, type];
+    
+    setLashExtensionTypes(newTypes);
+    
+    // Update service prices when lash types change
+    if (newTypes.length === 0) {
+      // Remove all lash extension prices
+      setServicePrices(servicePrices.filter(sp => !selectedServices.includes(sp.service) || !serviceCategories["Lash Extensions"].includes(sp.service)));
+    } else {
+      // Recreate service prices for lash extensions with new types
+      const lashServices = selectedServices.filter(s => serviceCategories["Lash Extensions"].includes(s));
+      const newPrices = servicePrices.filter(sp => !lashServices.includes(sp.service));
+      
+      lashServices.forEach(service => {
+        newTypes.forEach(type => {
+          newPrices.push({ 
+            service, 
+            price: "", 
+            lashType: type as 'cluster' | 'individual' 
+          });
+        });
+      });
+      
+      setServicePrices(newPrices);
+    }
+  };
+
   const handleServiceToggle = (service: string) => {
+    const isLashService = serviceCategories["Lash Extensions"].includes(service);
+    
     if (selectedServices.includes(service)) {
       setSelectedServices(selectedServices.filter(s => s !== service));
       setServicePrices(servicePrices.filter(sp => sp.service !== service));
     } else {
       setSelectedServices([...selectedServices, service]);
-      setServicePrices([...servicePrices, { service, price: "" }]);
+      
+      // For lash services, add entries for each selected type
+      if (isLashService && lashExtensionTypes.length > 0) {
+        const newPrices = lashExtensionTypes.map(type => ({
+          service,
+          price: "",
+          lashType: type as 'cluster' | 'individual'
+        }));
+        setServicePrices([...servicePrices, ...newPrices]);
+      } else {
+        setServicePrices([...servicePrices, { service, price: "" }]);
+      }
     }
   };
 
@@ -182,10 +230,20 @@ const ProviderSignup = () => {
     }
   };
 
-  const updateServicePrice = (service: string, price: string) => {
-    setServicePrices(servicePrices.map(sp => 
-      sp.service === service ? { ...sp, price } : sp
-    ));
+  const updateServicePrice = (service: string, price: string, lashType?: 'cluster' | 'individual') => {
+    setServicePrices(servicePrices.map(sp => {
+      if (sp.service === service) {
+        // If lashType is specified, only update that specific combination
+        if (lashType && sp.lashType) {
+          return sp.lashType === lashType ? { ...sp, price } : sp;
+        }
+        // Otherwise update the service without lashType
+        if (!lashType && !sp.lashType) {
+          return { ...sp, price };
+        }
+      }
+      return sp;
+    }));
   };
 
   const copyToAllDays = () => {
@@ -224,6 +282,18 @@ const ProviderSignup = () => {
         toast({
           title: "Missing information",
           description: "Please select at least one service location type",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Validate Step 6 - Services
+    if (currentStep === 6) {
+      if (selectedServiceCategories.includes("Lash Extensions") && lashExtensionTypes.length === 0) {
+        toast({
+          title: "Missing information",
+          description: "Please select at least one lash extension type (Cluster or Individual)",
           variant: "destructive",
         });
         return;
@@ -357,7 +427,9 @@ const ProviderSignup = () => {
             .filter(sp => sp.price && parseFloat(sp.price) > 0)
             .map(sp => ({
               provider_id: data.user.id,
-              name: sp.service,
+              name: sp.lashType 
+                ? `${sp.service} (${sp.lashType === 'cluster' ? 'Cluster' : 'Individual'})`
+                : sp.service,
               price: parseFloat(sp.price),
               duration_minutes: 60, // Default duration
               is_available: true
@@ -1116,29 +1188,89 @@ const ProviderSignup = () => {
 
               {/* Subcategories for Lash Extensions */}
               {selectedServiceCategories.includes("Lash Extensions") && (
-                <div className="space-y-4 p-6 bg-accent/5 rounded-xl border border-border">
-                  <h3 className="text-xl font-semibold text-foreground">Lash Extension Services</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {serviceCategories["Lash Extensions"].map((service) => (
-                      <div
-                        key={service}
-                        className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedServices.includes(service)
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                        onClick={() => handleServiceToggle(service)}
-                      >
-                        <Checkbox
-                          checked={selectedServices.includes(service)}
-                          onCheckedChange={() => handleServiceToggle(service)}
-                        />
-                        <label className="cursor-pointer text-sm font-medium">
-                          {service}
-                        </label>
-                      </div>
-                    ))}
+                <div className="space-y-6 p-6 bg-accent/5 rounded-xl border border-border">
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Lash Extension Type</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      First, select the extension types you work with. You can select one or both.
+                    </p>
                   </div>
+
+                  {/* Extension Type Selection */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        lashExtensionTypes.includes('cluster')
+                          ? 'border-primary bg-primary/10 shadow-md'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                      onClick={() => handleLashTypeToggle('cluster')}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Checkbox
+                          checked={lashExtensionTypes.includes('cluster')}
+                          onCheckedChange={() => handleLashTypeToggle('cluster')}
+                        />
+                        <div>
+                          <label className="cursor-pointer font-semibold">Cluster Lashes</label>
+                          <p className="text-xs text-muted-foreground">Pre-made fan clusters</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        lashExtensionTypes.includes('individual')
+                          ? 'border-primary bg-primary/10 shadow-md'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                      onClick={() => handleLashTypeToggle('individual')}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Checkbox
+                          checked={lashExtensionTypes.includes('individual')}
+                          onCheckedChange={() => handleLashTypeToggle('individual')}
+                        />
+                        <div>
+                          <label className="cursor-pointer font-semibold">Individual Lashes</label>
+                          <p className="text-xs text-muted-foreground">Single lash extensions</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lash Styles - Only show if at least one type is selected */}
+                  {lashExtensionTypes.length > 0 && (
+                    <div className="space-y-4 pt-4 border-t">
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Lash Styles</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Select the styles you offer. You'll set prices for each style based on the extension type.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {serviceCategories["Lash Extensions"].map((service) => (
+                          <div
+                            key={service}
+                            className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                              selectedServices.includes(service)
+                                ? 'border-primary bg-primary/10'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                            onClick={() => handleServiceToggle(service)}
+                          >
+                            <Checkbox
+                              checked={selectedServices.includes(service)}
+                              onCheckedChange={() => handleServiceToggle(service)}
+                            />
+                            <label className="cursor-pointer text-sm font-medium">
+                              {service}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1166,16 +1298,28 @@ const ProviderSignup = () => {
               {selectedServices.length > 0 && (
                 <div className="space-y-4 pt-6 border-t">
                   <h3 className="text-xl font-semibold">Set your pricing</h3>
-                  {servicePrices.map((sp) => (
-                    <div key={sp.service} className="flex items-center gap-4">
-                      <Label className="w-1/2">{sp.service}</Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {lashExtensionTypes.length > 1 
+                      ? "Set prices for each lash style based on the extension type (cluster vs individual)." 
+                      : "Enter the price for each service you offer."}
+                  </p>
+                  {servicePrices.map((sp, index) => (
+                    <div key={`${sp.service}-${sp.lashType || 'default'}-${index}`} className="flex items-center gap-4">
+                      <Label className="w-1/2">
+                        {sp.service}
+                        {sp.lashType && (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({sp.lashType === 'cluster' ? 'Cluster' : 'Individual'})
+                          </span>
+                        )}
+                      </Label>
                       <div className="flex items-center gap-2 w-1/2">
                         <span className="text-muted-foreground">R</span>
                         <Input
                           type="number"
                           placeholder="0.00"
                           value={sp.price}
-                          onChange={(e) => updateServicePrice(sp.service, e.target.value)}
+                          onChange={(e) => updateServicePrice(sp.service, e.target.value, sp.lashType)}
                           className="h-10"
                         />
                       </div>

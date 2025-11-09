@@ -8,7 +8,10 @@ import ResultsHeader from "@/components/search/ResultsHeader";
 import ProviderCard from "@/components/search/ProviderCard";
 import ProviderMap from "@/components/search/ProviderMap";
 import ProviderProfileModal from "@/components/search/ProviderProfileModal";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Provider, SearchFilters, ViewMode, SortOption } from "@/types/provider";
+import { SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -248,9 +251,9 @@ const Search = () => {
       <Header />
       
       {/* Search Header */}
-      <section className="pt-32 pb-8 px-6 bg-gradient-to-b from-primary/5 to-background">
+      <section className="pt-32 pb-8 px-4 md:px-6 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto max-w-4xl">
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-8">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8">
             Find Your Perfect Beauty Professional
           </h1>
           <SearchBar 
@@ -262,18 +265,43 @@ const Search = () => {
       </section>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <aside className="lg:w-72 flex-shrink-0">
-            <FiltersPanel
-              filters={filters}
-              onFiltersChange={handleFilterChange}
-            />
+      <div className="container mx-auto px-4 md:px-6 py-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+          {/* Desktop Filters Sidebar */}
+          <aside className="hidden lg:block lg:w-72 flex-shrink-0">
+            <div className="sticky top-24">
+              <FiltersPanel
+                filters={filters}
+                onFiltersChange={handleFilterChange}
+              />
+            </div>
           </aside>
 
+          {/* Mobile Filters Button */}
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full gap-2">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filters & Search Options
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <FiltersPanel
+                    filters={filters}
+                    onFiltersChange={handleFilterChange}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
           {/* Results */}
-          <main className="flex-1">
+          <main className="flex-1 min-w-0">
             <ResultsHeader
               viewMode={viewMode}
               onViewModeChange={(mode) => setViewMode(mode)}

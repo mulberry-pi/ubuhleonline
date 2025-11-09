@@ -8,8 +8,9 @@ import ProviderCard from '@/components/search/ProviderCard';
 import ProviderMap from '@/components/search/ProviderMap';
 import ProviderProfileModal from '@/components/search/ProviderProfileModal';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { SearchFilters, ViewMode, SortOption, Provider } from '@/types/provider';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -205,10 +206,10 @@ const Search = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Main Layout with Sticky Sidebar */}
-      <div className="pt-20 flex w-full">
-        {/* Left Sidebar - Search and Filters */}
-        <aside className="w-80 bg-card border-r sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto">
+      {/* Main Layout - Responsive */}
+      <div className="pt-20 flex flex-col lg:flex-row w-full">
+        {/* Desktop Sidebar - Search and Filters */}
+        <aside className="hidden lg:block w-80 bg-card border-r sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="p-6 space-y-6">
             <div>
               <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
@@ -232,8 +233,43 @@ const Search = () => {
           </div>
         </aside>
 
-        {/* Right Content - Map and Results */}
-        <main className="flex-1 p-6 overflow-auto">
+        {/* Mobile Header with Filters Button */}
+        <div className="lg:hidden bg-card border-b p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                Find Stylists
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Discover beauty professionals
+              </p>
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-full sm:w-80 overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <FiltersPanel filters={filters} onFiltersChange={setFilters} />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+          <SearchBar
+            onSearch={handleSearch}
+            activeMode={searchMode}
+            onModeChange={setSearchMode}
+          />
+        </div>
+
+        {/* Content - Map and Results */}
+        <main className="flex-1 p-4 lg:p-6 overflow-auto">
           {/* View Controls */}
           <div className="mb-6 flex justify-between items-center">
             <div>

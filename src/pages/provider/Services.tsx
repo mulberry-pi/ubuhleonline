@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -24,6 +24,7 @@ interface Service {
   duration_minutes: number;
   price: number;
   is_available: boolean;
+  thumbnail_url: string | null;
 }
 
 export default function Services() {
@@ -37,6 +38,9 @@ export default function Services() {
     price: "",
     is_available: true,
   });
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,6 +68,51 @@ export default function Services() {
     }
   };
 
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeThumbnail = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+  };
+
+  const uploadThumbnail = async (userId: string): Promise<string | null> => {
+    if (!thumbnailFile) return null;
+
+    try {
+      setUploading(true);
+      const fileExt = thumbnailFile.name.split('.').pop();
+      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio-images')
+        .upload(fileName, thumbnailFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('portfolio-images')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error("Error uploading thumbnail:", error);
+      toast.error("Failed to upload thumbnail");
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -71,12 +120,21 @@ export default function Services() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      let thumbnailUrl = editingService?.thumbnail_url || null;
+      
+      // Upload new thumbnail if selected
+      if (thumbnailFile) {
+        const uploadedUrl = await uploadThumbnail(user.id);
+        if (uploadedUrl) thumbnailUrl = uploadedUrl;
+      }
+
       const serviceData = {
         name: formData.name,
         description: formData.description || null,
         duration_minutes: parseInt(formData.duration_minutes),
         price: parseFloat(formData.price),
         is_available: formData.is_available,
+        thumbnail_url: thumbnailUrl,
         provider_id: user.id,
       };
 
@@ -134,6 +192,8 @@ export default function Services() {
       price: service.price.toString(),
       is_available: service.is_available,
     });
+    setThumbnailPreview(service.thumbnail_url);
+    setThumbnailFile(null);
     setDialogOpen(true);
   };
 
@@ -151,6 +211,8 @@ export default function Services() {
       price: "",
       is_available: true,
     });
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
   };
 
   if (loading) {
@@ -183,8 +245,15 @@ export default function Services() {
           {services.map((service) => (
             <Card key={service.id}>
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
+                <div className="flex items-start justify-between gap-4">
+                  {service.thumbnail_url && (
+                    <img
+                      src={service.thumbnail_url}
+                      alt={service.name}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  )}
+                  <div className="flex-1 space-y-1">
                     <CardTitle className="text-lg">{service.name}</CardTitle>
                     {service.description && (
                       <p className="text-sm text-muted-foreground">
@@ -270,6 +339,42 @@ export default function Services() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="thumbnail">Service Thumbnail</Label>
+              {thumbnailPreview ? (
+                <div className="relative w-full h-40 bg-muted rounded-lg overflow-hidden">
+                  <img
+                    src={thumbnailPreview}
+                    alt="Thumbnail preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeThumbnail}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full h-40 border-2 border-dashed border-muted-foreground/25 rounded-lg hover:border-muted-foreground/50 transition-colors">
+                  <label htmlFor="thumbnail" className="cursor-pointer flex flex-col items-center">
+                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">Click to upload thumbnail</span>
+                    <input
+                      id="thumbnail"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleThumbnailChange}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="duration">Duration (minutes) *</Label>
@@ -317,8 +422,8 @@ export default function Services() {
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {editingService ? "Update Service" : "Create Service"}
+              <Button type="submit" disabled={uploading}>
+                {uploading ? "Uploading..." : editingService ? "Update Service" : "Create Service"}
               </Button>
             </DialogFooter>
           </form>

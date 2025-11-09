@@ -18,6 +18,8 @@ const serviceTypes = [
   'Color',
   'Lashes',
   'Weaves',
+  'Barber',
+  'Lash Extensions',
 ];
 
 const FiltersPanel = ({ filters, onFiltersChange }: FiltersPanelProps) => {

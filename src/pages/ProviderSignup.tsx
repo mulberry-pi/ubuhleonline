@@ -462,6 +462,23 @@ const ProviderSignup = () => {
           console.error('Role assignment error:', roleError);
         }
 
+        // Upload business logo if provided
+        let businessLogoUrl: string | null = null;
+        if (businessInfo.logo) {
+          const fileExt = businessInfo.logo.name.split('.').pop();
+          const fileName = `${data.user.id}/logo.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('business-logos')
+            .upload(fileName, businessInfo.logo);
+
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage
+              .from('business-logos')
+              .getPublicUrl(fileName);
+            businessLogoUrl = urlData.publicUrl;
+          }
+        }
+
         // Create provider profile
         const { error: profileError } = await supabase
           .from('provider_profiles')
@@ -469,6 +486,7 @@ const ProviderSignup = () => {
             user_id: data.user.id,
             business_name: businessInfo.businessName,
             business_description: businessInfo.description,
+            business_logo_url: businessLogoUrl,
             street_address_line1: businessInfo.streetAddressLine1,
             street_address_line2: businessInfo.streetAddressLine2 || null,
             suburb: businessInfo.suburb,

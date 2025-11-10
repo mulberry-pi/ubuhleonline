@@ -84,14 +84,19 @@ serve(async (req) => {
     const serviceCategories = providerProfile?.service_categories || [];
     console.log(`Provider service categories:`, serviceCategories);
 
-    // Determine if provider does hair, lashes, or both
+    // Determine if provider does hair, lashes, barber, or combinations
     const doesHair = serviceCategories.includes('Hair Styling');
     const doesLashes = serviceCategories.includes('Lash Extensions');
+    const doesBarber = serviceCategories.includes('Barber');
 
     // Define hashtags based on service categories
     let hashtags: string[] = [];
-    if (doesHair && doesLashes) {
-      hashtags = ['braids', 'lashes', 'silkpress', 'lasheextensions', 'protectivestyles', 'volumelashes'];
+    if (doesBarber && (doesHair || doesLashes)) {
+      hashtags = ['barber', 'fade', 'lineup', 'mensgrooming', 'braids', 'lashes'];
+    } else if (doesBarber) {
+      hashtags = ['barber', 'fade', 'taper', 'lineup', 'mensgrooming', 'barbershop'];
+    } else if (doesHair && doesLashes) {
+      hashtags = ['braids', 'lashes', 'silkpress', 'lashextensions', 'protectivestyles', 'volumelashes'];
     } else if (doesHair) {
       hashtags = ['braids', 'silkpress', 'boxbraids', 'knotlessbraids', 'protectivestyles', 'naturalhairstyles'];
     } else if (doesLashes) {
@@ -131,7 +136,13 @@ serve(async (req) => {
     console.log(`Scraping TikTok for beauty trends...`);
     let tiktokResults: any[] = [];
     try {
-      const tiktokKeywords = doesHair ? 'braids hairstyles' : doesLashes ? 'lash extensions' : 'beauty hair lashes';
+      const tiktokKeywords = doesBarber 
+        ? 'barber fade haircut mens grooming' 
+        : doesHair 
+          ? 'braids hairstyles' 
+          : doesLashes 
+            ? 'lash extensions' 
+            : 'beauty hair lashes';
       const tiktokResponse = await fetch(`https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -180,7 +191,17 @@ Based on this REAL DATA, identify the top 10 trending styles. For each trend:
 
 IMPORTANT: EXCLUDE "Viking Braids" from results (often used sarcastically online).
 
-Focus on: ${doesHair && doesLashes ? 'both hairstyles and lash extensions' : doesHair ? 'hairstyles only' : doesLashes ? 'lash extensions only' : 'beauty styles'}
+Focus on: ${doesBarber && (doesHair || doesLashes) 
+  ? 'barber services, hairstyles, and lash extensions' 
+  : doesBarber 
+    ? 'barber services and mens grooming only' 
+    : doesHair && doesLashes 
+      ? 'both hairstyles and lash extensions' 
+      : doesHair 
+        ? 'hairstyles only' 
+        : doesLashes 
+          ? 'lash extensions only' 
+          : 'beauty styles'}
 
 Return ONLY a JSON array with objects containing: name, description, popularity_score`;
 

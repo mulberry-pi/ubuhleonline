@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { UserAgreementDialog } from "@/components/UserAgreementDialog";
-import { ChevronLeft, ChevronRight, Upload, Sparkles, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, Sparkles, AlertCircle, Eye, EyeOff, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ServicePrice {
@@ -35,6 +35,9 @@ const ProviderSignup = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // South African bank branch codes
   const bankBranchCodes: { [key: string]: string } = {
@@ -174,6 +177,50 @@ const ProviderSignup = () => {
   const removePortfolioImage = (index: number) => {
     setPortfolioImages(portfolioImages.filter((_, i) => i !== index));
   };
+
+  const handleLogoSelect = (file: File) => {
+    setBusinessInfo({ ...businessInfo, logo: file });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleLogoSelect(file);
+    }
+  };
+
+  const handleLogoDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleLogoDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleLogoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      handleLogoSelect(file);
+    }
+  };
+
+  const removeLogo = () => {
+    setBusinessInfo({ ...businessInfo, logo: null });
+    setLogoPreview(null);
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
   const progress = (currentStep / totalSteps) * 100;
 
   const handleCategoryToggle = (category: string) => {
@@ -771,22 +818,55 @@ const ProviderSignup = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="logo">Business Logo (Optional)</Label>
-                <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                  <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    PNG, JPG up to 5MB
-                  </p>
-                  <Input
-                    id="logo"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => setBusinessInfo({ ...businessInfo, logo: e.target.files?.[0] || null })}
-                  />
-                </div>
+                {logoPreview ? (
+                  <div className="relative border-2 border-border rounded-xl p-4">
+                    <img 
+                      src={logoPreview} 
+                      alt="Logo preview" 
+                      className="w-32 h-32 object-cover mx-auto rounded-lg"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={removeLogo}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                    <p className="text-xs text-center text-muted-foreground mt-2">
+                      {businessInfo.logo?.name}
+                    </p>
+                  </div>
+                ) : (
+                  <div 
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
+                      isDragging 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-border hover:border-primary'
+                    }`}
+                    onClick={() => logoInputRef.current?.click()}
+                    onDragOver={handleLogoDragOver}
+                    onDragLeave={handleLogoDragLeave}
+                    onDrop={handleLogoDrop}
+                  >
+                    <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      PNG, JPG up to 5MB
+                    </p>
+                    <Input
+                      ref={logoInputRef}
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleLogoChange}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}

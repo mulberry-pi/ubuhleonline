@@ -741,6 +741,7 @@ export type Database = {
       }
     }
     Functions: {
+      delete_user: { Args: never; Returns: undefined }
       get_calendar_sync_status: {
         Args: { _user_id: string }
         Returns: {

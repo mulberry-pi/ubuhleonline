@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,8 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ClientSettings() {
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState({
     full_name: "",
     phone: "",
@@ -19,6 +31,8 @@ export default function ClientSettings() {
     promotions: true,
   });
   const [loading, setLoading] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -67,6 +81,27 @@ export default function ClientSettings() {
     } catch (error) {
       console.error("Error saving settings:", error);
       toast.error("Failed to save settings");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleting(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Delete user account - this will cascade delete all related data
+      const { error } = await supabase.rpc('delete_user');
+      
+      if (error) throw error;
+
+      toast.success("Account deleted successfully");
+      await supabase.auth.signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast.error("Failed to delete account. Please contact support.");
+      setDeleting(false);
     }
   };
 
@@ -216,13 +251,45 @@ export default function ClientSettings() {
           <Button variant="outline" className="w-full justify-start">
             Change Password
           </Button>
-          <Button variant="outline" className="w-full justify-start text-destructive">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start text-destructive hover:bg-destructive/10"
+            onClick={() => setShowDeleteDialog(true)}
+          >
             Delete Account
           </Button>
         </CardContent>
       </Card>
 
       <Button onClick={saveSettings} size="lg">Save Changes</Button>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your account
+              and remove all your data from our servers, including:
+              <ul className="list-disc pl-6 mt-2 space-y-1">
+                <li>Your profile information</li>
+                <li>All booking history</li>
+                <li>Saved preferences</li>
+                <li>Messages and communications</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Delete Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -266,7 +266,7 @@ export default function Auth() {
                     const { error } = await supabase.auth.signInWithOAuth({
                       provider: 'google',
                       options: {
-                        redirectTo: `${window.location.origin}/client/dashboard`,
+                        redirectTo: `${window.location.origin}/oauth/callback`,
                       },
                     });
                     if (error) toast.error(error.message);

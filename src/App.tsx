@@ -13,6 +13,7 @@ import ProviderSignup from "./pages/ProviderSignup";
 import ServiceProviders from "./pages/ServiceProviders";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthCallback from "./pages/OAuthCallback";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import ProviderDashboardLayout from "./pages/provider/ProviderDashboardLayout";
@@ -56,6 +57,7 @@ const App = () => (
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           
           {/* Provider Dashboard Routes */}
           <Route path="/provider" element={<ProviderDashboardLayout />}>

@@ -290,7 +290,7 @@ export default function Settings() {
         .from('provider_profiles')
         .update({ 
           deletion_scheduled_date: deletionDate.toISOString().split('T')[0]
-        })
+        } as any)
         .eq('user_id', user.id);
       
       if (error) throw error;

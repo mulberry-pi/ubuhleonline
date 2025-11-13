@@ -1250,7 +1250,7 @@ const ProviderSignup = () => {
                   <div>
                     <p className="text-sm font-medium text-foreground">Choose your service categories</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Select Hair Styling, Lash Extensions, or both to see specific service options. 
+                      Select your service categories to see specific service options. 
                       Your selection will determine the market trends you receive.
                     </p>
                   </div>
@@ -1395,6 +1395,34 @@ const ProviderSignup = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Subcategories for Barber */}
+              {selectedServiceCategories.includes("Barber") && (
+                <div className="space-y-4 p-6 bg-accent/5 rounded-xl border border-border">
+                  <h3 className="text-xl font-semibold text-foreground">Barber Services</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {serviceCategories["Barber"].map((service) => (
+                      <div
+                        key={service}
+                        className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                          selectedServices.includes(service)
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => handleServiceToggle(service)}
+                      >
+                        <Checkbox
+                          checked={selectedServices.includes(service)}
+                          onCheckedChange={() => handleServiceToggle(service)}
+                        />
+                        <label className="cursor-pointer text-sm font-medium">
+                          {service}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

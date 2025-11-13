@@ -281,17 +281,29 @@ export default function Settings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Delete user account - this will cascade delete all related data
-      const { error } = await supabase.rpc('delete_user');
+      // Calculate deletion date (30 days from now)
+      const deletionDate = new Date();
+      deletionDate.setDate(deletionDate.getDate() + 30);
+      
+      // Schedule account deletion instead of immediate deletion
+      const { error } = await supabase
+        .from('provider_profiles')
+        .update({ 
+          deletion_scheduled_date: deletionDate.toISOString().split('T')[0]
+        })
+        .eq('user_id', user.id);
       
       if (error) throw error;
 
-      toast.success("Account deleted successfully");
-      await supabase.auth.signOut();
-      navigate("/");
+      toast.success("Account deletion scheduled. Your account will be deleted in 30 days.");
+      setShowDeleteDialog(false);
+      
+      // Reload settings to show the scheduled deletion date
+      await loadSettings();
     } catch (error) {
-      console.error("Error deleting account:", error);
-      toast.error("Failed to delete account. Please contact support.");
+      console.error("Error scheduling account deletion:", error);
+      toast.error("Failed to schedule account deletion. Please contact support.");
+    } finally {
       setDeleting(false);
     }
   };
@@ -671,11 +683,27 @@ export default function Settings() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your provider account
-              and remove all your data from our servers, including:
-              <ul className="list-disc pl-6 mt-2 space-y-1">
+            <AlertDialogTitle>Schedule Account Deletion</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p className="font-medium">
+                Your account deletion will be scheduled for 30 calendar days from today.
+              </p>
+              <div className="bg-muted p-4 rounded-lg space-y-2">
+                <p className="text-sm">
+                  <strong>Important:</strong> Once you confirm:
+                </p>
+                <ul className="list-disc pl-6 text-sm space-y-1">
+                  <li>Your account will remain active for 30 days</li>
+                  <li>You can continue to access your account and honor existing appointments during this period</li>
+                  <li>After 30 days, your account and all data will be permanently deleted</li>
+                  <li>Access to all appointments booked after your effective cancellation date will be terminated</li>
+                  <li>This action cannot be reversed after the 30-day period expires</li>
+                </ul>
+              </div>
+              <p className="text-sm font-medium text-destructive">
+                The following data will be permanently deleted:
+              </p>
+              <ul className="list-disc pl-6 text-sm space-y-1">
                 <li>Your business profile and portfolio</li>
                 <li>All services and pricing information</li>
                 <li>Appointment history and schedules</li>
@@ -691,7 +719,7 @@ export default function Settings() {
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? "Deleting..." : "Delete Account"}
+              {deleting ? "Scheduling..." : "Schedule Deletion"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

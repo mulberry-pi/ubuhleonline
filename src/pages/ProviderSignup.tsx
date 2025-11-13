@@ -875,7 +875,7 @@ const ProviderSignup = () => {
                     <p className="text-xs text-muted-foreground">
                       PNG, JPG up to 5MB
                     </p>
-                    <Input
+                    <input
                       ref={logoInputRef}
                       id="logo"
                       type="file"

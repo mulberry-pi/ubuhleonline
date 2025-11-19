@@ -115,20 +115,31 @@ const Search = () => {
         const lat = -33.9249 + (Math.random() - 0.5) * 0.1;
         const lng = 18.4241 + (Math.random() - 0.5) * 0.1;
 
+        // Parse price range (format: "R300-R1500" or null)
+        let price_min = 300;
+        let price_max = 1500;
+        if (p.price_range) {
+          const matches = p.price_range.match(/R?(\d+)\s*-\s*R?(\d+)/);
+          if (matches) {
+            price_min = parseInt(matches[1]);
+            price_max = parseInt(matches[2]);
+          }
+        }
+
         return {
           id: p.user_id,
           name: p.business_name || p.profiles.full_name || "Provider",
           avatar: p.profiles.avatar_url || p.business_logo_url || "/placeholder.svg",
-          rating: Number(p.rating) || 5.0,
-          services: ['Hair Styling', 'Makeup', 'Nails'],
-          price_min: 300,
-          price_max: 1500,
+          rating: Number(p.rating) || 0,
+          services: p.service_categories || [],
+          price_min,
+          price_max,
           lat,
           lng,
           verified: true,
           distance: calculateDistance(userLat, userLng, lat, lng),
-          city: "Cape Town",
-          suburb: p.business_address || "City Center"
+          city: p.city || "Cape Town",
+          suburb: p.suburb || p.business_address || "City Center"
         };
       });
 

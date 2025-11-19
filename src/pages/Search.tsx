@@ -78,21 +78,34 @@ const Search = () => {
 
       if (error) throw error;
 
-      const providersData: Provider[] = (profiles || []).map((p) => ({
-        id: p.user_id,
-        name: p.business_name || p.profiles.full_name || "Provider",
-        avatar: p.profiles.avatar_url || p.business_logo_url || "/placeholder.svg",
-        rating: Number(p.rating) || 5.0,
-        services: p.service_categories || ['Beauty Services'],
-        price_min: 300,
-        price_max: 1500,
-        lat: -33.9249 + (Math.random() - 0.5) * 0.1,
-        lng: 18.4241 + (Math.random() - 0.5) * 0.1,
-        verified: true,
-        distance: Math.round(Math.random() * 10),
-        city: p.city || "Cape Town",
-        suburb: p.suburb || "City Area"
-      }));
+      const providersData: Provider[] = (profiles || []).map((p) => {
+        // Parse price range (format: "R300-R1500" or null)
+        let price_min = 300;
+        let price_max = 1500;
+        if (p.price_range) {
+          const matches = p.price_range.match(/R?(\d+)\s*-\s*R?(\d+)/);
+          if (matches) {
+            price_min = parseInt(matches[1]);
+            price_max = parseInt(matches[2]);
+          }
+        }
+
+        return {
+          id: p.user_id,
+          name: p.business_name || p.profiles.full_name || "Provider",
+          avatar: p.profiles.avatar_url || p.business_logo_url || "/placeholder.svg",
+          rating: Number(p.rating) || 0,
+          services: p.service_categories || [],
+          price_min,
+          price_max,
+          lat: -33.9249 + (Math.random() - 0.5) * 0.1,
+          lng: 18.4241 + (Math.random() - 0.5) * 0.1,
+          verified: true,
+          distance: Math.round(Math.random() * 10),
+          city: p.city || "Cape Town",
+          suburb: p.suburb || "City Area"
+        };
+      });
 
       setProviders(providersData);
       toast.success(`Found ${providersData.length} providers!`);

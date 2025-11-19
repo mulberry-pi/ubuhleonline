@@ -304,6 +304,7 @@ export type Database = {
           business_name: string | null
           city: string | null
           created_at: string
+          deletion_scheduled_date: string | null
           deposit_percentage: number | null
           gallery_images: string[] | null
           id: string
@@ -337,6 +338,7 @@ export type Database = {
           business_name?: string | null
           city?: string | null
           created_at?: string
+          deletion_scheduled_date?: string | null
           deposit_percentage?: number | null
           gallery_images?: string[] | null
           id?: string
@@ -370,6 +372,7 @@ export type Database = {
           business_name?: string | null
           city?: string | null
           created_at?: string
+          deletion_scheduled_date?: string | null
           deposit_percentage?: number | null
           gallery_images?: string[] | null
           id?: string

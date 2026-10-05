@@ -32,7 +32,7 @@ const Technology = () => {
               who specializes in your desired look. Get personalized recommendations based on 
               style compatibility, ratings, and location.
             </p>
-            <Button className="bg-primary hover:bg-primary/90 text-white px-8 hover-glow" onClick={() => navigate('/search-real')}>
+            <Button className="bg-primary hover:bg-primary/90 text-white px-8 hover-glow" onClick={() => navigate('/search')}>
               Try It Out Now
             </Button>
           </div>

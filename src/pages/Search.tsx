@@ -352,6 +352,7 @@ const Search = () => {
                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                         className="rounded-full"
+                        aria-label="Previous page"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </Button>
@@ -373,6 +374,7 @@ const Search = () => {
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
                         className="rounded-full"
+                        aria-label="Next page"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </Button>

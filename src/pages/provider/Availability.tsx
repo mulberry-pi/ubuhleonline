@@ -154,7 +154,7 @@ export default function Availability() {
     try {
       const { error } = await supabase
         .from("provider_working_hours")
-        .update({ [field]: value })
+        .update({ [field]: value } as { start_time?: string; end_time?: string; is_available?: boolean })
         .eq("id", id);
 
       if (error) throw error;

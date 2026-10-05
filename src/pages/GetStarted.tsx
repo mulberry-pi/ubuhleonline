@@ -16,7 +16,7 @@ const GetStarted = () => {
             className="h-12 mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
             onClick={() => navigate("/")}
           />
-          <CardTitle asChild className="text-3xl"><h1>Join Ubuhle</h1></CardTitle>
+          <h1 className="text-3xl font-semibold leading-none tracking-tight">Join Ubuhle</h1>
           <CardDescription>
             Choose your account type to get started
           </CardDescription>
